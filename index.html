@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LastZ 首都同盟配置ツール</title>
+    <title>LastZ Capital Territory Planner</title>
     <style>
         * {
             margin: 0;
@@ -34,9 +34,6 @@
         h1 {
             font-size: clamp(1.2em, 4vw, 1.8em);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
         .header-controls {
@@ -75,45 +72,43 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: auto;
-        }
-
-        .map-wrapper {
             position: relative;
-            max-width: 100%;
-            max-height: 100%;
         }
 
-        #capitalMap {
-            background: linear-gradient(135deg, #d4915c 0%, #b87a47 100%);
-            border: 4px solid rgba(0, 0, 0, 0.4);
-            border-radius: 10px;
-            cursor: crosshair;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-            display: block;
+        #hexCanvas {
+            cursor: pointer;
+            max-width: 90vmin;
+            max-height: 90vmin;
+            filter: drop-shadow(0 10px 40px rgba(0,0,0,0.5));
         }
 
         .legend {
             position: absolute;
             top: 20px;
             right: 20px;
-            background: rgba(0, 0, 0, 0.7);
+            background: rgba(0, 0, 0, 0.8);
             backdrop-filter: blur(10px);
             padding: 15px;
             border-radius: 10px;
             font-size: 0.85em;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-width: 250px;
+        }
+
+        .legend h3 {
+            margin-bottom: 10px;
+            font-size: 1em;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            font-size: 0.85em;
         }
 
         .legend-color {
-            width: 20px;
+            width: 30px;
             height: 20px;
             border-radius: 4px;
             border: 2px solid white;
@@ -128,8 +123,8 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
             animation: fadeIn 0.3s ease;
         }
 
@@ -149,7 +144,7 @@
             box-shadow: 0 20px 60px rgba(0,0,0,0.5);
             max-width: 500px;
             width: 90%;
-            max-height: 90vh;
+            max-height: 85vh;
             overflow-y: auto;
             animation: slideUp 0.3s ease;
         }
@@ -175,7 +170,7 @@
         }
 
         .modal-title {
-            font-size: 1.5em;
+            font-size: 1.4em;
             font-weight: bold;
         }
 
@@ -210,49 +205,6 @@
             color: #4CAF50;
         }
 
-        .shape-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .shape-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 3px solid transparent;
-            border-radius: 12px;
-            padding: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-align: center;
-        }
-
-        .shape-card:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .shape-card.selected {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.2);
-        }
-
-        .shape-icon {
-            font-size: 2em;
-            margin-bottom: 8px;
-        }
-
-        .shape-label {
-            font-size: 0.9em;
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .shape-size {
-            font-size: 0.75em;
-            opacity: 0.7;
-        }
-
         .input-group {
             margin-bottom: 20px;
         }
@@ -281,14 +233,17 @@
             background: rgba(255, 255, 255, 0.15);
         }
 
+        .input-group input[type="text"]::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
         .color-picker-wrapper {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            flex-wrap: wrap;
         }
 
         .color-option {
-            width: 50px;
             height: 50px;
             border-radius: 10px;
             border: 3px solid transparent;
@@ -315,27 +270,7 @@
             color: white;
             font-size: 1.5em;
             text-shadow: 0 0 5px black;
-        }
-
-        .preview-section {
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .preview-section h4 {
-            margin-bottom: 15px;
-            font-size: 1em;
-        }
-
-        #previewCanvas {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            margin: 0 auto;
-            display: block;
+            font-weight: bold;
         }
 
         .modal-actions {
@@ -358,58 +293,28 @@
             transform: scale(0.95);
         }
 
-        .btn-rotate {
-            background: linear-gradient(135deg, #2196F3, #0b7dda);
+        .btn-clear-section {
+            background: linear-gradient(135deg, #f44336, #da190b);
             color: white;
         }
 
-        .btn-place {
+        .btn-save {
             background: linear-gradient(135deg, #4CAF50, #45a049);
             color: white;
-            grid-column: 1 / -1;
         }
 
-        .placed-list {
-            position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 15px;
+        .section-info {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
             border-radius: 10px;
-            max-width: 300px;
-            max-height: 200px;
-            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
-        .placed-list h4 {
-            margin-bottom: 10px;
-            font-size: 0.95em;
-        }
-
-        .alliance-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 6px 12px;
-            margin: 4px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .chip-delete {
-            background: #f44336;
-            border: none;
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 0.8em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .section-info strong {
+            font-size: 1.2em;
+            color: #4CAF50;
         }
 
         @media (max-width: 768px) {
@@ -426,142 +331,60 @@
                 padding: 10px;
             }
 
-            .legend, .placed-list {
+            .legend {
                 font-size: 0.75em;
                 padding: 10px;
+                max-width: 200px;
             }
 
             .modal-content {
                 padding: 20px;
             }
 
-            .shape-grid {
-                grid-template-columns: 1fr;
+            .color-picker-wrapper {
+                grid-template-columns: repeat(3, 1fr);
             }
-        }
-
-        .stats-bar {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.9em;
-        }
-
-        .stat-item {
-            margin-bottom: 8px;
-        }
-
-        .stat-bar {
-            width: 150px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-top: 5px;
-        }
-
-        .stat-bar-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A);
-            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
     <!-- ヘッダー -->
     <div class="header">
-        <h1>🏰 LastZ Capital Planner</h1>
+        <h1>🏰 LastZ Capital Territory Planner</h1>
         <div class="header-controls">
             <button class="header-btn btn-export" onclick="exportImage()">💾 Export</button>
-            <button class="header-btn btn-clear" onclick="clearMap()">🗑️ Clear</button>
+            <button class="header-btn btn-clear" onclick="clearAll()">🗑️ Clear All</button>
         </div>
     </div>
 
     <!-- メインコンテナ -->
     <div class="main-container">
-        <div class="map-wrapper">
-            <canvas id="capitalMap" width="1000" height="1000"></canvas>
-            
-            <!-- 統計バー -->
-            <div class="stats-bar">
-                <div class="stat-item">
-                    <strong>Placed:</strong> <span id="placedCount">0</span>
-                </div>
-                <div class="stat-item">
-                    <strong>Coverage:</strong> <span id="percentage">0</span>%
-                    <div class="stat-bar">
-                        <div class="stat-bar-fill" id="statBarFill" style="width: 0%"></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 凡例 -->
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(255,255,255,0.3);"></div>
-                    <span>Capital Zone</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(255,0,0,0.5);"></div>
-                    <span>Restricted (Turrets)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: rgba(200,200,200,0.3);"></div>
-                    <span>Section Grid</span>
-                </div>
-            </div>
-
-            <!-- 配置済みリスト -->
-            <div class="placed-list">
-                <h4>📍 Placed Alliances (<span id="allianceCount">0</span>)</h4>
-                <div id="allianceChips"></div>
-            </div>
+        <canvas id="hexCanvas" width="800" height="800"></canvas>
+        
+        <!-- 凡例 -->
+        <div class="legend">
+            <h3>📍 Assigned Territories</h3>
+            <div id="legendList"></div>
         </div>
     </div>
 
     <!-- モーダル -->
-    <div id="placementModal" class="modal">
+    <div id="assignModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">🎨 Place Alliance</span>
+                <span class="modal-title">🎨 Assign Territory</span>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
 
-            <div class="form-section">
-                <h3>📐 Select Size</h3>
-                <div class="shape-grid" id="shapeGrid">
-                    <div class="shape-card selected" data-size="size1">
-                        <div class="shape-icon">⬛</div>
-                        <div class="shape-label">Large</div>
-                        <div class="shape-size">1/3 Area</div>
-                    </div>
-                    <div class="shape-card" data-size="size2">
-                        <div class="shape-icon">◼️</div>
-                        <div class="shape-label">Medium</div>
-                        <div class="shape-size">1/6 Area</div>
-                    </div>
-                    <div class="shape-card" data-size="size3">
-                        <div class="shape-icon">▪️</div>
-                        <div class="shape-label">Small</div>
-                        <div class="shape-size">1/12 Area</div>
-                    </div>
-                    <div class="shape-card" data-size="size4">
-                        <div class="shape-icon">•</div>
-                        <div class="shape-label">Tiny</div>
-                        <div class="shape-size">1/24 Area</div>
-                    </div>
-                </div>
+            <div class="section-info">
+                <strong id="sectionLabel">Section</strong>
             </div>
 
             <div class="form-section">
                 <h3>✏️ Alliance Info</h3>
                 <div class="input-group">
                     <label for="allianceName">Alliance Name:</label>
-                    <input type="text" id="allianceName" placeholder="e.g., [B777]SuperZeus" maxlength="15">
+                    <input type="text" id="allianceName" placeholder="e.g., [B777]SuperZeus" maxlength="20">
                 </div>
             </div>
 
@@ -570,621 +393,323 @@
                 <div class="color-picker-wrapper" id="colorPicker"></div>
             </div>
 
-            <div class="preview-section">
-                <h4>Preview:</h4>
-                <canvas id="previewCanvas" width="200" height="200"></canvas>
-            </div>
-
             <div class="modal-actions">
-                <button class="modal-btn btn-rotate" onclick="rotateShape()">🔄 Rotate</button>
-                <button class="modal-btn btn-place" onclick="confirmPlacement()">✓ Place Alliance</button>
+                <button class="modal-btn btn-clear-section" onclick="clearSection()">🗑️ Clear</button>
+                <button class="modal-btn btn-save" onclick="saveSection()">✓ Save</button>
             </div>
         </div>
     </div>
 
     <script>
-        // グローバル変数
-        const canvas = document.getElementById('capitalMap');
+        const canvas = document.getElementById('hexCanvas');
         const ctx = canvas.getContext('2d');
-        const previewCanvas = document.getElementById('previewCanvas');
-        const previewCtx = previewCanvas.getContext('2d');
         
-        const cellSize = 25;
-        const hexRadius = 18;
-        const centerX = 20;
-        const centerY = 20;
+        let selectedSection = null;
+        let sections = {};
         
-        let currentShape = 'size1';
-        let currentShapeData = null;
-        let rotation = 0;
-        let placedAlliances = [];
-        let occupiedCells = new Set();
-        let validHexCells = new Set();
-        let restrictedCells = new Set();
-        let pendingPlacement = null;
-        let selectedColor = '#4CAF50';
-
         const colors = [
             '#4CAF50', '#2196F3', '#FF9800', '#E91E63', 
             '#9C27B0', '#00BCD4', '#FFEB3B', '#FF5722',
             '#8BC34A', '#3F51B5', '#FFC107', '#F44336'
         ];
+        
+        let selectedColor = colors[0];
 
-        const shapes = {
-            'size1': [
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
-                 [0,3],[1,3],[2,3],[3,3],[4,3],
-                 [0,4],[1,4],[2,4],[3,4],[4,4],
-                 [0,5],[1,5],[2,5],[3,5],[4,5],
-                 [0,6],[1,6],[2,6],[3,6],[4,6],
-                 [0,7],[1,7],[2,7]],
-                [[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
-                 [4,0],[5,0],[4,1],[5,1],[4,2],[5,2],[4,3],[5,3],
-                 [3,5],[4,5],[5,5],[6,5],[3,6],[4,6],[5,6],[6,6],
-                 [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
-                 [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],
-                 [2,9],[3,9],[4,9],[5,9],[6,9],[7,9]],
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
-                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
-                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],
-                 [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],
-                 [0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
-                 [0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7]],
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],[11,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
-                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
-                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],
-                 [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5]]
-            ],
-            'size2': [
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
-                 [0,2],[1,2],[2,2],[3,2],
-                 [0,3],[1,3],[2,3],[3,3],
-                 [0,4],[1,4],[2,4],[3,4],
-                 [0,5],[1,5],[2,5]],
-                [[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],
-                 [3,0],[4,0],[3,1],[4,1],[3,2],[4,2],
-                 [2,4],[3,4],[4,4],[5,4],
-                 [2,5],[3,5],[4,5],[5,5],
-                 [1,6],[2,6],[3,6],[4,6],[5,6],[6,6]],
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],
-                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],
-                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],
-                 [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5]],
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
-                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
-                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4]]
-            ],
-            'size3': [
-                [[0,0],[1,0],[2,0],[3,0],[4,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],
-                 [0,2],[1,2],[2,2],
-                 [0,3],[1,3],[2,3],
-                 [0,4],[1,4],[2,4]],
-                [[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],
-                 [2,0],[3,0],[2,1],[3,1],
-                 [2,3],[3,3],
-                 [1,4],[2,4],[3,4],[4,4],
-                 [1,5],[2,5],[3,5],[4,5]],
-                [[0,0],[1,0],[2,0],[3,0],[4,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],
-                 [0,3],[1,3],[2,3],[3,3],[4,3],
-                 [0,4],[1,4],[2,4],[3,4],[4,4]],
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],
-                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3]]
-            ],
-            'size4': [
-                [[0,0],[1,0],[2,0],[3,0],
-                 [0,1],[1,1],[2,1],[3,1],
-                 [0,2],[1,2],
-                 [0,3],[1,3],
-                 [0,4],[1,4]],
-                [[0,2],[1,2],[2,2],[3,2],[4,2],
-                 [2,0],[2,1],
-                 [2,3],[2,4],
-                 [1,3],[3,3],
-                 [1,4],[3,4]],
-                [[0,0],[1,0],[2,0],[3,0],
-                 [0,1],[1,1],[2,1],[3,1],
-                 [0,2],[1,2],[2,2],[3,2],
-                 [0,3],[1,3],[2,3],[3,3],
-                 [0,4],[1,4],[2,4],[3,4]],
-                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
-                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
-                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2]]
-            ]
-        };
+        // 六角形の中心とサイズ
+        const centerX = 400;
+        const centerY = 400;
+        const outerRadius = 300;
+        const innerRadius = 100;
 
-        function getHexagonPoints(cx, cy, radius) {
-            const points = [];
-            for (let i = 0; i < 6; i++) {
-                const angle = (Math.PI / 3) * i - Math.PI / 2;
-                const x = cx + radius * Math.cos(angle) * cellSize;
-                const y = cy + radius * Math.sin(angle) * cellSize;
-                points.push([x, y]);
-            }
-            return points;
-        }
+        // 六角形のパス定義（6つのメインセクション × 4サブセクション）
+        const sectionPaths = [];
 
-        function drawHexagon(cx, cy, radius, fillStyle, strokeStyle, lineWidth = 2) {
-            const points = getHexagonPoints(cx, cy, radius);
-            
-            ctx.beginPath();
-            ctx.moveTo(points[0][0], points[0][1]);
-            for (let i = 1; i < points.length; i++) {
-                ctx.lineTo(points[i][0], points[i][1]);
-            }
-            ctx.closePath();
-            
-            if (fillStyle) {
-                ctx.fillStyle = fillStyle;
-                ctx.fill();
-            }
-            
-            if (strokeStyle) {
-                ctx.strokeStyle = strokeStyle;
-                ctx.lineWidth = lineWidth;
-                ctx.stroke();
-            }
-        }
-
-        function isInHexagon(x, y) {
-            const dx = x - centerX;
-            const dy = y - centerY;
-            
-            const dist = Math.sqrt(dx * dx + dy * dy);
-            if (dist > hexRadius) return false;
-            
-            const angle = Math.atan2(dy, dx);
-            const hexAngle = Math.floor((angle + Math.PI) / (Math.PI / 3));
-            const edgeAngle = (hexAngle * Math.PI / 3) - Math.PI / 6;
-            const distToEdge = Math.abs(dx * Math.sin(edgeAngle) - dy * Math.cos(edgeAngle));
-            
-            return distToEdge <= hexRadius * 0.866;
-        }
-
-        function calculateTurretZones() {
-            restrictedCells.clear();
-            
-            const turretPositions = [
-                { angle: 0, label: 'Turret 3' },
-                { angle: 210, label: 'Turret 1' },
-                { angle: 330, label: 'Turret 2' }
-            ];
-            
-            turretPositions.forEach(turret => {
-                const angleRad = (turret.angle * Math.PI) / 180;
-                const tx = centerX + Math.cos(angleRad) * (hexRadius - 2);
-                const ty = centerY + Math.sin(angleRad) * (hexRadius - 2);
+        function initSections() {
+            // 6つのメインセクション、各4つのサブセクション
+            for (let mainSec = 0; mainSec < 6; mainSec++) {
+                const startAngle = (Math.PI / 3) * mainSec - Math.PI / 2;
+                const endAngle = startAngle + Math.PI / 3;
                 
-                for (let dx = -1; dx <= 1; dx++) {
-                    for (let dy = -1; dy <= 1; dy++) {
-                        const cx = Math.round(tx + dx);
-                        const cy = Math.round(ty + dy);
-                        restrictedCells.add(`${cx},${cy}`);
-                    }
-                }
-            });
-            
-            for (let dx = -1; dx <= 1; dx++) {
-                for (let dy = -1; dy <= 1; dy++) {
-                    restrictedCells.add(`${centerX + dx},${centerY + dy}`);
+                // 4つの同心円レベル（中心から外側へ）
+                const radii = [
+                    { inner: 0, outer: innerRadius },
+                    { inner: innerRadius, outer: innerRadius + (outerRadius - innerRadius) / 3 },
+                    { inner: innerRadius + (outerRadius - innerRadius) / 3, outer: innerRadius + 2 * (outerRadius - innerRadius) / 3 },
+                    { inner: innerRadius + 2 * (outerRadius - innerRadius) / 3, outer: outerRadius }
+                ];
+                
+                for (let subSec = 0; subSec < 4; subSec++) {
+                    const id = `${mainSec}-${subSec}`;
+                    sectionPaths.push({
+                        id: id,
+                        mainSection: mainSec,
+                        subSection: subSec,
+                        startAngle: startAngle,
+                        endAngle: endAngle,
+                        innerRadius: radii[subSec].inner,
+                        outerRadius: radii[subSec].outer,
+                        path: null
+                    });
                 }
             }
         }
 
-        function calculateHexCells() {
-            validHexCells.clear();
-            calculateTurretZones();
-            
-            for (let x = 0; x < 40; x++) {
-                for (let y = 0; y < 40; y++) {
-                    if (isInHexagon(x, y) && !restrictedCells.has(`${x},${y}`)) {
-                        validHexCells.add(`${x},${y}`);
-                    }
-                }
-            }
-            
-            updateStats();
-        }
-
-        function drawGrid() {
+        function drawHexagon() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            const gradient = ctx.createRadialGradient(
-                canvas.width/2, canvas.height/2, 0,
-                canvas.width/2, canvas.height/2, canvas.width/2
-            );
-            gradient.addColorStop(0, '#d4915c');
-            gradient.addColorStop(1, '#b87a47');
+            // 背景グラデーション
+            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, outerRadius);
+            gradient.addColorStop(0, '#f5deb3');
+            gradient.addColorStop(1, '#daa520');
             ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            drawHexagon(
-                centerX * cellSize + cellSize/2,
-                centerY * cellSize + cellSize/2,
-                hexRadius,
-                'rgba(139, 90, 50, 0.3)',
-                'rgba(255, 255, 255, 0.6)',
-                4
-            );
-            
-            const cx = centerX * cellSize + cellSize/2;
-            const cy = centerY * cellSize + cellSize/2;
-            
-            ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
-            ctx.lineWidth = 2;
-            ctx.setLineDash([5, 5]);
-            
-            for (let i = 0; i < 6; i++) {
-                const angle = (Math.PI / 3) * i - Math.PI / 2;
-                const x = cx + hexRadius * cellSize * Math.cos(angle);
-                const y = cy + hexRadius * cellSize * Math.sin(angle);
-                
-                ctx.beginPath();
-                ctx.moveTo(cx, cy);
-                ctx.lineTo(x, y);
-                ctx.stroke();
-            }
-            
-            ctx.setLineDash([]);
-            
-            for (let r of [hexRadius * 0.33, hexRadius * 0.66]) {
-                drawHexagon(cx, cy, r, null, 'rgba(200, 200, 200, 0.3)', 1);
-            }
-            
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
-            ctx.lineWidth = 1;
-            
-            validHexCells.forEach(cell => {
-                const [x, y] = cell.split(',').map(Number);
-                ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
-            });
-            
-            ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
-            restrictedCells.forEach(cell => {
-                const [x, y] = cell.split(',').map(Number);
-                ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-            });
-            
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.fillRect((centerX - 1) * cellSize, (centerY - 1) * cellSize, 
-                        cellSize * 2, cellSize * 2);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-            ctx.lineWidth = 3;
-            ctx.strokeRect((centerX - 1) * cellSize, (centerY - 1) * cellSize, 
-                          cellSize * 2, cellSize * 2);
-            
-            ctx.fillStyle = '#fff';
-            ctx.font = 'bold 12px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('Capital', centerX * cellSize, centerY * cellSize);
-            
-            const turretPositions = [
-                { angle: 0, label: 'T3' },
-                { angle: 210, label: 'T1' },
-                { angle: 330, label: 'T2' }
-            ];
-            
-            turretPositions.forEach(turret => {
-                const angleRad = (turret.angle * Math.PI) / 180;
-                const tx = (centerX + Math.cos(angleRad) * (hexRadius - 2)) * cellSize;
-                const ty = (centerY + Math.sin(angleRad) * (hexRadius - 2)) * cellSize;
-                
-                ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
-                ctx.beginPath();
-                ctx.arc(tx, ty, cellSize * 0.8, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#fff';
-                ctx.font = 'bold 10px Arial';
-                ctx.fillText(turret.label, tx, ty);
-            });
-            
-            redrawPlacedAlliances();
-        }
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, outerRadius, 0, Math.PI * 2);
+            ctx.fill();
 
-        function redrawPlacedAlliances() {
-            placedAlliances.forEach(alliance => {
-                ctx.fillStyle = alliance.color;
-                ctx.strokeStyle = '#fff';
+            // 各セクションを描画
+            sectionPaths.forEach(section => {
+                const path = new Path2D();
+                
+                if (section.innerRadius === 0) {
+                    // 中心の六角形
+                    path.moveTo(
+                        centerX + section.outerRadius * Math.cos(section.startAngle),
+                        centerY + section.outerRadius * Math.sin(section.startAngle)
+                    );
+                    path.lineTo(centerX, centerY);
+                    path.lineTo(
+                        centerX + section.outerRadius * Math.cos(section.endAngle),
+                        centerY + section.outerRadius * Math.sin(section.endAngle)
+                    );
+                    path.arc(centerX, centerY, section.outerRadius, section.startAngle, section.endAngle);
+                } else {
+                    // リング状のセクション
+                    path.arc(centerX, centerY, section.outerRadius, section.startAngle, section.endAngle);
+                    path.arc(centerX, centerY, section.innerRadius, section.endAngle, section.startAngle, true);
+                }
+                
+                path.closePath();
+                section.path = path;
+                
+                // セクションの塗りつぶし
+                if (sections[section.id]) {
+                    ctx.fillStyle = sections[section.id].color;
+                    ctx.fill(path);
+                }
+                
+                // 境界線
+                ctx.strokeStyle = 'rgba(139, 90, 50, 0.6)';
                 ctx.lineWidth = 2;
-                
-                alliance.cells.forEach(([x, y]) => {
-                    ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
-                    ctx.strokeRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
-                });
-                
-                if (alliance.cells.length > 0) {
-                    const centerX = alliance.cells.reduce((sum, [x, y]) => sum + x, 0) / alliance.cells.length;
-                    const centerY = alliance.cells.reduce((sum, [x, y]) => sum + y, 0) / alliance.cells.length;
+                ctx.stroke(path);
+            });
+
+            // 中心の星マーク
+            drawStar(centerX, centerY, 30, '#1e3c72');
+            
+            // テキスト描画
+            Object.keys(sections).forEach(id => {
+                const section = sectionPaths.find(s => s.id === id);
+                if (section && sections[id].name) {
+                    const midAngle = (section.startAngle + section.endAngle) / 2;
+                    const midRadius = (section.innerRadius + section.outerRadius) / 2;
+                    const textX = centerX + midRadius * Math.cos(midAngle);
+                    const textY = centerY + midRadius * Math.sin(midAngle);
                     
-                    let fontSize = 10;
-                    if (alliance.type === 'size3') fontSize = 8;
-                    if (alliance.type === 'size4') fontSize = 7;
+                    ctx.save();
+                    ctx.translate(textX, textY);
+                    ctx.rotate(midAngle + Math.PI / 2);
                     
                     ctx.fillStyle = '#fff';
                     ctx.strokeStyle = '#000';
                     ctx.lineWidth = 3;
-                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.font = 'bold 14px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     
-                    const textX = (centerX + 0.5) * cellSize;
-                    const textY = (centerY + 0.5) * cellSize;
+                    ctx.strokeText(sections[id].name, 0, 0);
+                    ctx.fillText(sections[id].name, 0, 0);
                     
-                    ctx.strokeText(alliance.name, textX, textY);
-                    ctx.fillText(alliance.name, textX, textY);
+                    ctx.restore();
                 }
             });
+
+            updateLegend();
         }
 
-        function initColorPicker() {
-            const picker = document.getElementById('colorPicker');
-            colors.forEach((color, index) => {
-                const option = document.createElement('div');
-                option.className = 'color-option';
-                if (index === 0) option.classList.add('selected');
-                option.style.background = color;
-                option.onclick = () => selectColor(color, option);
-                picker.appendChild(option);
-            });
-        }
-
-        function selectColor(color, element) {
-            selectedColor = color;
-            document.querySelectorAll('.color-option').forEach(opt => {
-                opt.classList.remove('selected');
-            });
-            element.classList.add('selected');
-            if (currentShapeData) {
-                currentShapeData.color = color;
-                drawPreview();
-            }
-        }
-
-        function initShapeCards() {
-            const cards = document.querySelectorAll('.shape-card');
-            cards.forEach(card => {
-                card.addEventListener('click', function() {
-                    cards.forEach(c => c.classList.remove('selected'));
-                    this.classList.add('selected');
-                    currentShape = this.dataset.size;
-                    rotation = 0;
-                    generateShape();
-                });
-            });
-        }
-
-        function openModal(x, y) {
-            pendingPlacement = { x, y };
-            document.getElementById('placementModal').style.display = 'block';
-            generateShape();
-        }
-
-        function closeModal() {
-            document.getElementById('placementModal').style.display = 'none';
-            pendingPlacement = null;
-            drawGrid();
-        }
-
-        function generateShape() {
-            const name = document.getElementById('allianceName').value || 'Alliance';
-            
-            currentShapeData = {
-                type: currentShape,
-                name: name,
-                color: selectedColor,
-                rotation: rotation
-            };
-            
-            drawPreview();
-        }
-
-        function drawPreview() {
-            previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
-            
-            if (!currentShapeData) return;
-            
-            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
-            
-            const maxX = Math.max(...shapeCoords.map(([x, y]) => x)) + 1;
-            const maxY = Math.max(...shapeCoords.map(([x, y]) => y)) + 1;
-            const scale = Math.min(160 / maxX, 160 / maxY);
-            const previewCellSize = Math.max(Math.min(scale, 15), 5);
-            
-            const offsetX = (previewCanvas.width - maxX * previewCellSize) / 2;
-            const offsetY = 20;
-            
-            previewCtx.fillStyle = currentShapeData.color;
-            previewCtx.strokeStyle = '#fff';
-            previewCtx.lineWidth = 1;
-            
-            shapeCoords.forEach(([x, y]) => {
-                previewCtx.fillRect(
-                    offsetX + x * previewCellSize, 
-                    offsetY + y * previewCellSize, 
-                    previewCellSize - 1, 
-                    previewCellSize - 1
-                );
-                previewCtx.strokeRect(
-                    offsetX + x * previewCellSize, 
-                    offsetY + y * previewCellSize, 
-                    previewCellSize - 1, 
-                    previewCellSize - 1
-                );
-            });
-            
-            previewCtx.fillStyle = '#fff';
-            previewCtx.font = 'bold 11px Arial';
-            previewCtx.textAlign = 'center';
-            previewCtx.fillText(currentShapeData.name, previewCanvas.width / 2, previewCanvas.height - 25);
-            
-            const sizeLabels = { 'size1': '1/3', 'size2': '1/6', 'size3': '1/12', 'size4': '1/24' };
-            previewCtx.font = '9px Arial';
-            previewCtx.fillText(`${shapeCoords.length} cells (${sizeLabels[currentShapeData.type]})`, 
-                              previewCanvas.width / 2, previewCanvas.height - 10);
-        }
-
-        function rotateShape() {
-            rotation = (rotation + 1) % shapes[currentShape].length;
-            generateShape();
-        }
-
-        function confirmPlacement() {
-            if (!pendingPlacement || !currentShapeData) return;
-            
-            const { x, y } = pendingPlacement;
-            
-            if (canPlaceShape(x, y)) {
-                placeShape(x, y);
-                closeModal();
-            } else {
-                alert('❌ Cannot place here!\n• Must be within hexagon\n• Cannot overlap turrets or other alliances');
-            }
-        }
-
-        function canPlaceShape(x, y) {
-            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
-            
-            for (let [dx, dy] of shapeCoords) {
-                const cellX = x + dx;
-                const cellY = y + dy;
+        function drawStar(cx, cy, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
+                const x = cx + radius * Math.cos(angle);
+                const y = cy + radius * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
                 
-                if (!validHexCells.has(`${cellX},${cellY}`)) {
-                    return false;
-                }
-                
-                if (occupiedCells.has(`${cellX},${cellY}`)) {
-                    return false;
-                }
+                const innerAngle = angle + Math.PI / 5;
+                const ix = cx + (radius * 0.4) * Math.cos(innerAngle);
+                const iy = cy + (radius * 0.4) * Math.sin(innerAngle);
+                ctx.lineTo(ix, iy);
             }
-            
-            return true;
+            ctx.closePath();
+            ctx.fill();
         }
 
-        function placeShape(x, y) {
-            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
-            const cells = shapeCoords.map(([dx, dy]) => [x + dx, y + dy]);
-            
-            cells.forEach(([cx, cy]) => {
-                occupiedCells.add(`${cx},${cy}`);
-            });
-            
-            placedAlliances.push({
-                ...currentShapeData,
-                cells: cells,
-                id: Date.now()
-            });
-            
-            drawGrid();
-            updateAllianceList();
-            updateStats();
+        function getClickedSection(x, y) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const canvasX = (x - rect.left) * scaleX;
+            const canvasY = (y - rect.top) * scaleY;
+
+            for (let section of sectionPaths) {
+                if (ctx.isPointInPath(section.path, canvasX, canvasY)) {
+                    return section;
+                }
+            }
+            return null;
         }
 
         canvas.addEventListener('click', function(e) {
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / cellSize);
-            const y = Math.floor((e.clientY - rect.top) / cellSize);
-            
-            openModal(x, y);
+            const section = getClickedSection(e.clientX, e.clientY);
+            if (section) {
+                openModal(section);
+            }
         });
 
         canvas.addEventListener('touchend', function(e) {
             e.preventDefault();
-            const rect = canvas.getBoundingClientRect();
             const touch = e.changedTouches[0];
-            const x = Math.floor((touch.clientX - rect.left) / cellSize);
-            const y = Math.floor((touch.clientY - rect.top) / cellSize);
-            
-            openModal(x, y);
+            const section = getClickedSection(touch.clientX, touch.clientY);
+            if (section) {
+                openModal(section);
+            }
         });
 
-        function updateStats() {
-            const totalCells = validHexCells.size;
-            const usedCells = occupiedCells.size;
-            const percentage = totalCells > 0 ? Math.round((usedCells / totalCells) * 100) : 0;
+        function openModal(section) {
+            selectedSection = section;
+            document.getElementById('assignModal').style.display = 'block';
             
-            document.getElementById('placedCount').textContent = placedAlliances.length;
-            document.getElementById('percentage').textContent = percentage;
-            document.getElementById('statBarFill').style.width = percentage + '%';
+            const mainSec = section.mainSection + 1;
+            const subSec = section.subSection + 1;
+            document.getElementById('sectionLabel').textContent = 
+                `Sector ${mainSec} - Ring ${subSec}`;
+            
+            if (sections[section.id]) {
+                document.getElementById('allianceName').value = sections[section.id].name;
+                selectedColor = sections[section.id].color;
+            } else {
+                document.getElementById('allianceName').value = '';
+                selectedColor = colors[0];
+            }
+            
+            updateColorPicker();
         }
 
-        function updateAllianceList() {
-            const chips = document.getElementById('allianceChips');
-            const count = document.getElementById('allianceCount');
-            chips.innerHTML = '';
-            count.textContent = placedAlliances.length;
-            
-            placedAlliances.forEach(alliance => {
-                const chip = document.createElement('div');
-                chip.className = 'alliance-chip';
-                chip.style.background = alliance.color;
-                chip.innerHTML = `
-                    <span>${alliance.name}</span>
-                    <button class="chip-delete" onclick="deleteAlliance(${alliance.id})">×</button>
-                `;
-                chips.appendChild(chip);
+        function closeModal() {
+            document.getElementById('assignModal').style.display = 'none';
+            selectedSection = null;
+        }
+
+        function initColorPicker() {
+            const picker = document.getElementById('colorPicker');
+            colors.forEach(color => {
+                const option = document.createElement('div');
+                option.className = 'color-option';
+                option.style.background = color;
+                option.onclick = () => {
+                    selectedColor = color;
+                    updateColorPicker();
+                };
+                picker.appendChild(option);
+            });
+            updateColorPicker();
+        }
+
+        function updateColorPicker() {
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+                if (opt.style.background === selectedColor) {
+                    opt.classList.add('selected');
+                }
             });
         }
 
-        function deleteAlliance(id) {
-            const alliance = placedAlliances.find(a => a.id === id);
-            if (alliance) {
-                alliance.cells.forEach(([x, y]) => {
-                    occupiedCells.delete(`${x},${y}`);
-                });
-                placedAlliances = placedAlliances.filter(a => a.id !== id);
-                drawGrid();
-                updateAllianceList();
-                updateStats();
-            }
-        }
-
-        function clearMap() {
-            if (placedAlliances.length === 0) {
-                alert('No alliances placed yet');
+        function saveSection() {
+            if (!selectedSection) return;
+            
+            const name = document.getElementById('allianceName').value.trim();
+            if (!name) {
+                alert('Please enter an alliance name!');
                 return;
             }
             
-            if (confirm('Clear all placements?')) {
-                placedAlliances = [];
-                occupiedCells.clear();
-                drawGrid();
-                updateAllianceList();
-                updateStats();
+            sections[selectedSection.id] = {
+                name: name,
+                color: selectedColor
+            };
+            
+            drawHexagon();
+            closeModal();
+        }
+
+        function clearSection() {
+            if (!selectedSection) return;
+            
+            delete sections[selectedSection.id];
+            drawHexagon();
+            closeModal();
+        }
+
+        function clearAll() {
+            if (Object.keys(sections).length === 0) {
+                alert('No territories assigned yet!');
+                return;
             }
+            
+            if (confirm('Clear all territory assignments?')) {
+                sections = {};
+                drawHexagon();
+            }
+        }
+
+        function updateLegend() {
+            const legendList = document.getElementById('legendList');
+            legendList.innerHTML = '';
+            
+            if (Object.keys(sections).length === 0) {
+                legendList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 5px 0;">No territories assigned</div>';
+                return;
+            }
+            
+            const uniqueAlliances = {};
+            Object.values(sections).forEach(s => {
+                uniqueAlliances[s.name] = s.color;
+            });
+            
+            Object.entries(uniqueAlliances).forEach(([name, color]) => {
+                const item = document.createElement('div');
+                item.className = 'legend-item';
+                item.innerHTML = `
+                    <div class="legend-color" style="background: ${color};"></div>
+                    <span>${name}</span>
+                `;
+                legendList.appendChild(item);
+            });
         }
 
         function exportImage() {
             const link = document.createElement('a');
             const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
-            link.download = `LastZ_Capital_${timestamp}.png`;
+            link.download = `LastZ_Capital_Territories_${timestamp}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
 
         function init() {
-            calculateHexCells();
-            drawGrid();
+            initSections();
             initColorPicker();
-            initShapeCards();
-            
-            document.getElementById('allianceName').addEventListener('input', generateShape);
+            drawHexagon();
         }
 
         init();
