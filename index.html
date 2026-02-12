@@ -532,8 +532,9 @@
 
         const sectionPaths = [];
 
+        // Flat-top hexagon orientation (top and bottom edges are horizontal)
         function getHexagonVertex(index, radius) {
-            const angle = (Math.PI / 3) * index - Math.PI / 2;
+            const angle = (Math.PI / 3) * index; // Start at 0 degrees for flat-top
             return {
                 x: centerX + radius * Math.cos(angle),
                 y: centerY + radius * Math.sin(angle)
@@ -554,67 +555,6 @@
                 return sections[id1].groupId === sections[id2].groupId;
             }
             return false;
-        }
-
-        function drawCapitalBuilding(cx, cy, size) {
-            // Draw castle/capital building
-            ctx.fillStyle = '#3a5a7a';
-
-            // Main building base
-            ctx.fillRect(cx - size/2, cy - size/3, size, size * 0.8);
-
-            // Towers
-            ctx.fillRect(cx - size/2 - 8, cy - size/3 - 15, 15, 35);
-            ctx.fillRect(cx + size/2 - 7, cy - size/3 - 15, 15, 35);
-
-            // Tower tops
-            ctx.fillStyle = '#5a7a9a';
-            ctx.beginPath();
-            ctx.moveTo(cx - size/2 - 8, cy - size/3 - 15);
-            ctx.lineTo(cx - size/2 + 7.5/2, cy - size/3 - 25);
-            ctx.lineTo(cx - size/2 + 7, cy - size/3 - 15);
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.beginPath();
-            ctx.moveTo(cx + size/2 - 7, cy - size/3 - 15);
-            ctx.lineTo(cx + size/2 + 7.5/2, cy - size/3 - 25);
-            ctx.lineTo(cx + size/2 + 8, cy - size/3 - 15);
-            ctx.closePath();
-            ctx.fill();
-
-            // Windows
-            ctx.fillStyle = '#ffa500';
-            ctx.fillRect(cx - 10, cy - 8, 6, 8);
-            ctx.fillRect(cx + 4, cy - 8, 6, 8);
-
-            // Door
-            ctx.fillStyle = '#2a4a6a';
-            ctx.fillRect(cx - 8, cy + 10, 16, 20);
-        }
-
-        function drawTurret(cx, cy, size) {
-            // Draw turret icon
-            ctx.fillStyle = '#555555';
-
-            // Base
-            ctx.fillRect(cx - size/2, cy, size, size/2);
-
-            // Cannon barrel
-            ctx.fillStyle = '#777777';
-            ctx.fillRect(cx - size/4, cy - size/3, size/2, size/3);
-
-            // Turret top
-            ctx.fillStyle = '#666666';
-            ctx.beginPath();
-            ctx.arc(cx, cy, size/2.5, 0, Math.PI * 2);
-            ctx.fill();
-
-            // Highlight
-            ctx.fillStyle = '#888888';
-            ctx.beginPath();
-            ctx.arc(cx - size/6, cy - size/6, size/6, 0, Math.PI * 2);
-            ctx.fill();
         }
 
         function drawHexagon() {
@@ -714,11 +654,29 @@
             ctx.lineWidth = 2;
             ctx.stroke();
 
-            // Draw turrets at each vertex of inner hexagon
-            for (let i = 0; i < 6; i++) {
+            // Draw 3 turrets at positions 1, 3, 5 (alternating vertices of inner hexagon)
+            const turretPositions = [1, 3, 5];
+            turretPositions.forEach(i => {
                 const vertex = getHexagonVertex(i, innerHexRadius);
-                drawTurret(vertex.x, vertex.y, 20);
-            }
+
+                // Draw blue circle
+                ctx.fillStyle = '#2196F3';
+                ctx.beginPath();
+                ctx.arc(vertex.x, vertex.y, 18, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Draw white border
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+
+                // Draw letter "T"
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 20px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText('T', vertex.x, vertex.y);
+            });
 
             // Hexagon outline with glow
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
@@ -735,15 +693,23 @@
             ctx.stroke();
             ctx.shadowBlur = 0;
 
-            // Draw capital building in center
-            drawCapitalBuilding(centerX, centerY, 50);
+            // Draw capital in center - Blue circle with "C"
+            ctx.fillStyle = '#2196F3';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+            ctx.fill();
 
-            // Capital text
+            // White border
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+
+            // Letter "C"
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 16px sans-serif';
+            ctx.font = 'bold 32px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText('首都', centerX, centerY + 45);
+            ctx.fillText('C', centerX, centerY);
 
             // Draw alliance names
             const drawnGroups = new Set();
