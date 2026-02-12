@@ -2,21 +2,23 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>LastZ 首都同盟配置ツール</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
             background: linear-gradient(135deg, #d4915c 0%, #c67d47 100%);
             color: #fff;
-            padding: 20px;
+            padding: 10px;
             min-height: 100vh;
+            overflow-x: hidden;
         }
 
         .container {
@@ -26,35 +28,63 @@
 
         h1 {
             text-align: center;
-            margin-bottom: 20px;
-            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-size: clamp(1.5em, 5vw, 2.5em);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
 
         .main-layout {
             display: grid;
-            grid-template-columns: 320px 1fr;
-            gap: 25px;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .main-layout {
+                grid-template-columns: 320px 1fr;
+                gap: 25px;
+            }
+            
+            body {
+                padding: 20px;
+            }
+            
+            h1 {
+                margin-bottom: 20px;
+            }
         }
 
         .controls-panel {
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
-            padding: 20px;
+            padding: 15px;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
             height: fit-content;
         }
 
+        @media (min-width: 768px) {
+            .controls-panel {
+                padding: 20px;
+            }
+        }
+
         .control-section {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .control-section h3 {
-            margin-bottom: 12px;
-            font-size: 1.1em;
+            margin-bottom: 10px;
+            font-size: 1em;
             border-bottom: 2px solid rgba(255,255,255,0.3);
             padding-bottom: 6px;
+        }
+
+        @media (min-width: 768px) {
+            .control-section h3 {
+                font-size: 1.1em;
+                margin-bottom: 12px;
+            }
         }
 
         .shape-selector {
@@ -65,7 +95,7 @@
         }
 
         .shape-btn {
-            padding: 10px 8px;
+            padding: 12px 8px;
             background: rgba(255, 255, 255, 0.15);
             border: 2px solid transparent;
             border-radius: 8px;
@@ -78,11 +108,21 @@
             flex-direction: column;
             align-items: center;
             gap: 4px;
+            touch-action: manipulation;
+        }
+
+        .shape-btn:active {
+            transform: scale(0.95);
         }
 
         .shape-btn:hover {
             background: rgba(255, 255, 255, 0.25);
-            transform: scale(1.05);
+        }
+
+        @media (min-width: 768px) {
+            .shape-btn:hover {
+                transform: scale(1.05);
+            }
         }
 
         .shape-btn.active {
@@ -109,10 +149,10 @@
         .input-group input[type="text"],
         .input-group input[type="color"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 8px;
-            font-size: 1em;
+            font-size: 16px;
             background: rgba(255, 255, 255, 0.9);
             color: #333;
         }
@@ -120,11 +160,12 @@
         .input-group input[type="color"] {
             height: 50px;
             cursor: pointer;
+            padding: 5px;
         }
 
         .btn {
             width: 100%;
-            padding: 12px;
+            padding: 14px 12px;
             border: none;
             border-radius: 8px;
             font-size: 1em;
@@ -132,6 +173,11 @@
             cursor: pointer;
             transition: all 0.3s;
             margin-bottom: 8px;
+            touch-action: manipulation;
+        }
+
+        .btn:active {
+            transform: scale(0.98);
         }
 
         .btn-primary {
@@ -140,7 +186,6 @@
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
         }
 
@@ -150,7 +195,6 @@
         }
 
         .btn-secondary:hover {
-            transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(244, 67, 54, 0.5);
         }
 
@@ -160,7 +204,6 @@
         }
 
         .btn-info:hover {
-            transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(33, 150, 243, 0.5);
         }
 
@@ -170,19 +213,31 @@
         }
 
         .btn-export:hover {
-            transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(255, 152, 0, 0.5);
+        }
+
+        @media (min-width: 768px) {
+            .btn:hover {
+                transform: translateY(-2px);
+            }
         }
 
         .map-container {
             background: rgba(0, 0, 0, 0.3);
             backdrop-filter: blur(10px);
-            padding: 25px;
+            padding: 10px;
             border-radius: 15px;
             box-shadow: 0 8px 32px rgba(0,0,0,0.4);
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: auto;
+        }
+
+        @media (min-width: 768px) {
+            .map-container {
+                padding: 25px;
+            }
         }
 
         #capitalMap {
@@ -191,6 +246,9 @@
             border-radius: 10px;
             cursor: crosshair;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            max-width: 100%;
+            height: auto;
+            touch-action: none;
         }
 
         .preview-container {
@@ -202,7 +260,7 @@
 
         .preview-container h4 {
             margin-bottom: 10px;
-            font-size: 1em;
+            font-size: 0.95em;
         }
 
         #previewCanvas {
@@ -211,6 +269,8 @@
             border-radius: 5px;
             display: block;
             margin: 0 auto;
+            max-width: 100%;
+            height: auto;
         }
 
         .info-box {
@@ -226,32 +286,47 @@
             margin-top: 15px;
             max-height: 250px;
             overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
         }
 
         .alliance-item {
             background: rgba(255, 255, 255, 0.15);
-            padding: 8px 10px;
+            padding: 10px;
             margin-bottom: 6px;
             border-radius: 5px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 0.9em;
+            gap: 10px;
+        }
+
+        .alliance-item .alliance-name {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .alliance-item .delete-btn {
             background: #f44336;
             color: white;
             border: none;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 0.8em;
+            font-size: 0.85em;
             transition: all 0.2s;
+            white-space: nowrap;
+            touch-action: manipulation;
         }
 
         .alliance-item .delete-btn:hover {
             background: #da190b;
+        }
+
+        .alliance-item .delete-btn:active {
+            transform: scale(0.95);
         }
 
         .stats {
@@ -262,9 +337,72 @@
             font-size: 0.9em;
         }
 
-        @media (max-width: 1024px) {
+        /* スマホ用の折りたたみ可能なパネル */
+        @media (max-width: 767px) {
+            .controls-panel {
+                position: relative;
+            }
+            
+            .mobile-toggle {
+                display: block;
+                width: 100%;
+                padding: 12px;
+                background: rgba(255, 255, 255, 0.2);
+                border: none;
+                border-radius: 8px;
+                color: white;
+                font-size: 1em;
+                font-weight: bold;
+                margin-bottom: 15px;
+                cursor: pointer;
+                touch-action: manipulation;
+            }
+            
+            .mobile-toggle:active {
+                background: rgba(255, 255, 255, 0.3);
+            }
+            
+            .controls-content.collapsed {
+                display: none;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .mobile-toggle {
+                display: none;
+            }
+        }
+
+        /* タッチデバイス用の調整 */
+        @media (hover: none) and (pointer: coarse) {
+            .btn {
+                padding: 16px 12px;
+            }
+            
+            .shape-btn {
+                padding: 14px 8px;
+            }
+        }
+
+        /* 横向きスマホ対応 */
+        @media (max-width: 767px) and (orientation: landscape) {
             .main-layout {
-                grid-template-columns: 1fr;
+                grid-template-columns: 280px 1fr;
+                gap: 10px;
+            }
+            
+            body {
+                padding: 5px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+                margin-bottom: 10px;
+            }
+            
+            .controls-panel {
+                max-height: calc(100vh - 100px);
+                overflow-y: auto;
             }
         }
     </style>
@@ -276,71 +414,77 @@
         <div class="main-layout">
             <!-- コントロールパネル -->
             <div class="controls-panel">
-                <div class="control-section">
-                    <h3>📐 建築物サイズ</h3>
-                    <div class="shape-selector">
-                        <button class="shape-btn active" onclick="selectShape('size1')">
-                            <span>⬛ サイズ1</span>
-                            <span class="shape-size">1/3エリア</span>
-                        </button>
-                        <button class="shape-btn" onclick="selectShape('size2')">
-                            <span>◼️ サイズ2</span>
-                            <span class="shape-size">1/6エリア</span>
-                        </button>
-                        <button class="shape-btn" onclick="selectShape('size3')">
-                            <span>▪️ サイズ3</span>
-                            <span class="shape-size">1/12エリア</span>
-                        </button>
-                        <button class="shape-btn" onclick="selectShape('size4')">
-                            <span>• サイズ4</span>
-                            <span class="shape-size">1/24エリア</span>
-                        </button>
+                <button class="mobile-toggle" onclick="toggleControls()">
+                    ⚙️ コントロールパネル
+                </button>
+                
+                <div class="controls-content">
+                    <div class="control-section">
+                        <h3>📐 建築物サイズ</h3>
+                        <div class="shape-selector">
+                            <button class="shape-btn active" onclick="selectShape('size1')">
+                                <span>⬛ サイズ1</span>
+                                <span class="shape-size">1/3エリア</span>
+                            </button>
+                            <button class="shape-btn" onclick="selectShape('size2')">
+                                <span>◼️ サイズ2</span>
+                                <span class="shape-size">1/6エリア</span>
+                            </button>
+                            <button class="shape-btn" onclick="selectShape('size3')">
+                                <span>▪️ サイズ3</span>
+                                <span class="shape-size">1/12エリア</span>
+                            </button>
+                            <button class="shape-btn" onclick="selectShape('size4')">
+                                <span>• サイズ4</span>
+                                <span class="shape-size">1/24エリア</span>
+                            </button>
+                        </div>
                     </div>
-                </div>
 
-                <div class="control-section">
-                    <h3>✏️ 同盟設定</h3>
-                    <div class="input-group">
-                        <label for="allianceName">同盟名:</label>
-                        <input type="text" id="allianceName" placeholder="例: [B777]SuperZeus" maxlength="15">
+                    <div class="control-section">
+                        <h3>✏️ 同盟設定</h3>
+                        <div class="input-group">
+                            <label for="allianceName">同盟名:</label>
+                            <input type="text" id="allianceName" placeholder="例: [B777]SuperZeus" maxlength="15">
+                        </div>
+                        <div class="input-group">
+                            <label for="allianceColor">カラー:</label>
+                            <input type="color" id="allianceColor" value="#4CAF50">
+                        </div>
                     </div>
-                    <div class="input-group">
-                        <label for="allianceColor">カラー:</label>
-                        <input type="color" id="allianceColor" value="#4CAF50">
+
+                    <div class="control-section">
+                        <h3>🎮 操作</h3>
+                        <button class="btn btn-primary" onclick="generateShape()">🎲 形状を生成</button>
+                        <button class="btn btn-info" onclick="rotateShape()">🔄 90度回転</button>
+                        <button class="btn btn-export" onclick="exportImage()">💾 画像で保存</button>
+                        <button class="btn btn-secondary" onclick="clearMap()">🗑️ 全削除</button>
                     </div>
-                </div>
 
-                <div class="control-section">
-                    <h3>🎮 操作</h3>
-                    <button class="btn btn-primary" onclick="generateShape()">🎲 形状を生成</button>
-                    <button class="btn btn-info" onclick="rotateShape()">🔄 90度回転</button>
-                    <button class="btn btn-export" onclick="exportImage()">💾 画像で保存</button>
-                    <button class="btn btn-secondary" onclick="clearMap()">🗑️ 全削除</button>
-                </div>
+                    <div class="preview-container">
+                        <h4>現在の形状:</h4>
+                        <canvas id="previewCanvas" width="200" height="200"></canvas>
+                    </div>
 
-                <div class="preview-container">
-                    <h4>現在の形状:</h4>
-                    <canvas id="previewCanvas" width="200" height="200"></canvas>
-                </div>
+                    <div class="info-box">
+                        <strong>📖 使い方:</strong><br>
+                        1️⃣ 建築物のサイズを選択<br>
+                        2️⃣ 同盟名とカラーを入力<br>
+                        3️⃣ 「形状を生成」をクリック<br>
+                        4️⃣ 首都の六角形内をタップ/クリックして配置<br>
+                        5️⃣ 回転して最適な配置を探そう！
+                    </div>
 
-                <div class="info-box">
-                    <strong>📖 使い方:</strong><br>
-                    1️⃣ 建築物のサイズを選択<br>
-                    2️⃣ 同盟名とカラーを入力<br>
-                    3️⃣ 「形状を生成」をクリック<br>
-                    4️⃣ 首都の六角形内をクリックして配置<br>
-                    5️⃣ 回転して最適な配置を探そう！
-                </div>
+                    <div class="stats">
+                        <strong>📊 統計:</strong><br>
+                        配置済み: <span id="placedCount">0</span>個<br>
+                        使用率: <span id="usedCells">0</span>/<span id="totalCells">0</span> (<span id="percentage">0</span>%)
+                    </div>
 
-                <div class="stats">
-                    <strong>📊 統計:</strong><br>
-                    配置済み: <span id="placedCount">0</span>個<br>
-                    使用率: <span id="usedCells">0</span>/<span id="totalCells">0</span> (<span id="percentage">0</span>%)
-                </div>
-
-                <div class="placed-alliances">
-                    <h4>📍 配置済み同盟:</h4>
-                    <div id="allianceList"></div>
+                    <div class="placed-alliances">
+                        <h4>📍 配置済み同盟:</h4>
+                        <div id="allianceList"></div>
+                    </div>
                 </div>
             </div>
 
@@ -358,7 +502,8 @@
         const previewCanvas = document.getElementById('previewCanvas');
         const previewCtx = previewCanvas.getContext('2d');
         
-        const cellSize = 30;
+        let canvasSize = 900;
+        let cellSize = 30;
         const hexRadius = 13;
         const centerX = 15;
         const centerY = 15;
@@ -369,18 +514,69 @@
         let placedAlliances = [];
         let occupiedCells = new Set();
         let validHexCells = new Set();
+        let controlsVisible = true;
 
-        // 六角形の総面積を計算: π * r^2 ≈ 3.14 * 13^2 ≈ 530セル
-        // サイズ1 (1/3): 約177セル
-        // サイズ2 (1/6): 約88セル
-        // サイズ3 (1/12): 約44セル
-        // サイズ4 (1/24): 約22セル
-        
-        // 形状定義（相対座標）
+        // レスポンシブ対応のキャンバスサイズ調整
+        function adjustCanvasSize() {
+            const container = document.querySelector('.map-container');
+            const containerWidth = container.clientWidth - 20;
+            const isMobile = window.innerWidth < 768;
+            
+            if (isMobile) {
+                canvasSize = Math.min(containerWidth, 600);
+                cellSize = canvasSize / 30;
+            } else {
+                canvasSize = 900;
+                cellSize = 30;
+            }
+            
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+            canvas.style.width = canvasSize + 'px';
+            canvas.style.height = canvasSize + 'px';
+            
+            drawGrid();
+        }
+
+        // タッチイベント対応
+        let touchStartX = 0;
+        let touchStartY = 0;
+
+        function getTouchPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.touches[0] || e.changedTouches[0];
+            return {
+                x: Math.floor((touch.clientX - rect.left) / cellSize),
+                y: Math.floor((touch.clientY - rect.top) / cellSize)
+            };
+        }
+
+        function getMousePos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return {
+                x: Math.floor((e.clientX - rect.left) / cellSize),
+                y: Math.floor((e.clientY - rect.top) / cellSize)
+            };
+        }
+
+        // コントロールパネルの表示切替（モバイル用）
+        function toggleControls() {
+            const content = document.querySelector('.controls-content');
+            const button = document.querySelector('.mobile-toggle');
+            controlsVisible = !controlsVisible;
+            
+            if (controlsVisible) {
+                content.classList.remove('collapsed');
+                button.textContent = '⚙️ コントロールパネル ▼';
+            } else {
+                content.classList.add('collapsed');
+                button.textContent = '⚙️ コントロールパネル ▶';
+            }
+        }
+
+        // 形状定義
         const shapes = {
-            // サイズ1: 1/3エリア (約177セル)
             'size1': [
-                // パターン1: L字型の大型
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
@@ -391,7 +587,6 @@
                     [0,6],[1,6],[2,6],[3,6],[4,6],
                     [0,7],[1,7],[2,7]
                 ],
-                // パターン2: T字型の大型
                 [
                     [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
                     [4,0],[5,0],
@@ -404,7 +599,6 @@
                     [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],
                     [2,9],[3,9],[4,9],[5,9],[6,9],[7,9]
                 ],
-                // パターン3: 正方形の大型
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
@@ -415,7 +609,6 @@
                     [0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
                     [0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7]
                 ],
-                // パターン4: 横長の大型
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],[11,1],
@@ -425,10 +618,7 @@
                     [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5]
                 ]
             ],
-            
-            // サイズ2: 1/6エリア (約88セル)
             'size2': [
-                // パターン1: L字型
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
@@ -437,7 +627,6 @@
                     [0,4],[1,4],[2,4],[3,4],
                     [0,5],[1,5],[2,5]
                 ],
-                // パターン2: T字型
                 [
                     [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],
                     [3,0],[4,0],
@@ -447,7 +636,6 @@
                     [2,5],[3,5],[4,5],[5,5],
                     [1,6],[2,6],[3,6],[4,6],[5,6],[6,6]
                 ],
-                // パターン3: 正方形
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
@@ -456,7 +644,6 @@
                     [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],
                     [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5]
                 ],
-                // パターン4: 横長
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
@@ -465,10 +652,7 @@
                     [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4]
                 ]
             ],
-            
-            // サイズ3: 1/12エリア (約44セル)
             'size3': [
-                // パターン1: L字型
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],
@@ -476,7 +660,6 @@
                     [0,3],[1,3],[2,3],
                     [0,4],[1,4],[2,4]
                 ],
-                // パターン2: T字型
                 [
                     [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],
                     [2,0],[3,0],
@@ -485,7 +668,6 @@
                     [1,4],[2,4],[3,4],[4,4],
                     [1,5],[2,5],[3,5],[4,5]
                 ],
-                // パターン3: 正方形
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],
@@ -493,7 +675,6 @@
                     [0,3],[1,3],[2,3],[3,3],[4,3],
                     [0,4],[1,4],[2,4],[3,4],[4,4]
                 ],
-                // パターン4: 横長
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],
@@ -501,10 +682,7 @@
                     [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3]
                 ]
             ],
-            
-            // サイズ4: 1/24エリア (約22セル)
             'size4': [
-                // パターン1: L字型
                 [
                     [0,0],[1,0],[2,0],[3,0],
                     [0,1],[1,1],[2,1],[3,1],
@@ -512,7 +690,6 @@
                     [0,3],[1,3],
                     [0,4],[1,4]
                 ],
-                // パターン2: T字型
                 [
                     [0,2],[1,2],[2,2],[3,2],[4,2],
                     [2,0],[2,1],
@@ -520,7 +697,6 @@
                     [1,3],[3,3],
                     [1,4],[3,4]
                 ],
-                // パターン3: 正方形
                 [
                     [0,0],[1,0],[2,0],[3,0],
                     [0,1],[1,1],[2,1],[3,1],
@@ -528,7 +704,6 @@
                     [0,3],[1,3],[2,3],[3,3],
                     [0,4],[1,4],[2,4],[3,4]
                 ],
-                // パターン4: 横長
                 [
                     [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
                     [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
@@ -554,35 +729,79 @@
                 }
             }
             
-            console.log(`総有効セル数: ${validHexCells.size}`);
             updateStats();
         }
 
         // 初期化
         function init() {
             calculateHexCells();
-            drawGrid();
+            adjustCanvasSize();
             generateShape();
+            
+            // イベントリスナー
             canvas.addEventListener('click', handleMapClick);
             canvas.addEventListener('mousemove', handleMapHover);
+            
+            // タッチイベント
+            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+            canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+            
+            // リサイズ対応
+            window.addEventListener('resize', debounce(adjustCanvasSize, 250));
+        }
+
+        // デバウンス関数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // タッチイベント処理
+        function handleTouchStart(e) {
+            e.preventDefault();
+            const pos = getTouchPos(e);
+            touchStartX = pos.x;
+            touchStartY = pos.y;
+            handleHover(pos.x, pos.y);
+        }
+
+        function handleTouchMove(e) {
+            e.preventDefault();
+            const pos = getTouchPos(e);
+            handleHover(pos.x, pos.y);
+        }
+
+        function handleTouchEnd(e) {
+            e.preventDefault();
+            const pos = getTouchPos(e);
+            
+            // タッチ開始位置とほぼ同じ場所でタッチが終わった場合のみクリックとみなす
+            if (Math.abs(pos.x - touchStartX) <= 1 && Math.abs(pos.y - touchStartY) <= 1) {
+                handleClick(pos.x, pos.y);
+            }
         }
 
         // グリッド描画
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 背景
             ctx.fillStyle = '#d4915c';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // 六角形エリア描画
             ctx.fillStyle = 'rgba(139, 90, 50, 0.3)';
             ctx.beginPath();
             ctx.arc(centerX * cellSize + cellSize/2, centerY * cellSize + cellSize/2, 
                     hexRadius * cellSize, 0, Math.PI * 2);
             ctx.fill();
             
-            // 六角形の境界線
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
             ctx.lineWidth = 3;
             ctx.beginPath();
@@ -590,7 +809,6 @@
                     hexRadius * cellSize, 0, Math.PI * 2);
             ctx.stroke();
             
-            // グリッド線（六角形内のみ）
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
             ctx.lineWidth = 1;
             
@@ -599,7 +817,6 @@
                 ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
             });
             
-            // 中央のキャピタル表示
             ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
             ctx.fillRect(centerX * cellSize - cellSize, centerY * cellSize - cellSize, 
                         cellSize * 2, cellSize * 2);
@@ -608,13 +825,13 @@
             ctx.strokeRect(centerX * cellSize - cellSize, centerY * cellSize - cellSize, 
                           cellSize * 2, cellSize * 2);
             
+            const fontSize = Math.max(cellSize * 0.4, 8);
             ctx.fillStyle = '#fff';
-            ctx.font = 'bold 12px Arial';
+            ctx.font = `bold ${fontSize}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('Capital', centerX * cellSize, centerY * cellSize);
             
-            // 配置済み同盟を再描画
             redrawPlacedAlliances();
         }
 
@@ -623,7 +840,6 @@
             currentShape = shapeType;
             rotation = 0;
             
-            // ボタンのアクティブ状態更新
             document.querySelectorAll('.shape-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
@@ -655,7 +871,6 @@
             
             const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
             
-            // スケーリング計算
             const maxX = Math.max(...shapeCoords.map(([x, y]) => x)) + 1;
             const maxY = Math.max(...shapeCoords.map(([x, y]) => y)) + 1;
             const scale = Math.min(160 / maxX, 160 / maxY);
@@ -683,7 +898,6 @@
                 );
             });
             
-            // 下部に同盟名と面積表示
             previewCtx.fillStyle = '#fff';
             previewCtx.font = 'bold 12px Arial';
             previewCtx.textAlign = 'center';
@@ -714,14 +928,15 @@
 
         // マップクリック処理
         function handleMapClick(e) {
+            const pos = getMousePos(e);
+            handleClick(pos.x, pos.y);
+        }
+
+        function handleClick(x, y) {
             if (!currentShapeData) {
                 alert('まず「形状を生成」をクリックしてください！');
                 return;
             }
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / cellSize);
-            const y = Math.floor((e.clientY - rect.top) / cellSize);
             
             if (canPlaceShape(x, y)) {
                 placeShape(x, y);
@@ -732,15 +947,15 @@
 
         // マップホバー処理
         function handleMapHover(e) {
+            const pos = getMousePos(e);
+            handleHover(pos.x, pos.y);
+        }
+
+        function handleHover(x, y) {
             if (!currentShapeData) return;
-            
-            const rect = canvas.getBoundingClientRect();
-            const x = Math.floor((e.clientX - rect.left) / cellSize);
-            const y = Math.floor((e.clientY - rect.top) / cellSize);
             
             drawGrid();
             
-            // ホバープレビュー
             const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
             const canPlace = canPlaceShape(x, y);
             
@@ -810,15 +1025,14 @@
                     ctx.strokeRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
                 });
                 
-                // テキスト描画
                 if (alliance.cells.length > 0) {
                     const centerX = alliance.cells.reduce((sum, [x, y]) => sum + x, 0) / alliance.cells.length;
                     const centerY = alliance.cells.reduce((sum, [x, y]) => sum + y, 0) / alliance.cells.length;
                     
-                    // フォントサイズをサイズに応じて調整
-                    let fontSize = 11;
-                    if (alliance.type === 'size3') fontSize = 9;
-                    if (alliance.type === 'size4') fontSize = 8;
+                    let fontSize = cellSize * 0.37;
+                    if (alliance.type === 'size3') fontSize = cellSize * 0.3;
+                    if (alliance.type === 'size4') fontSize = cellSize * 0.27;
+                    fontSize = Math.max(fontSize, 7);
                     
                     ctx.fillStyle = '#fff';
                     ctx.strokeStyle = '#000';
@@ -869,7 +1083,7 @@
                 const item = document.createElement('div');
                 item.className = 'alliance-item';
                 item.innerHTML = `
-                    <span style="background:${alliance.color}; padding:4px 8px; border-radius:4px; font-weight: 500;">
+                    <span class="alliance-name" style="background:${alliance.color}; padding:4px 8px; border-radius:4px; font-weight: 500;">
                         ${alliance.name} <span style="opacity:0.7; font-size:0.85em">[${sizeLabels[alliance.type]}]</span>
                     </span>
                     <button class="delete-btn" onclick="deleteAlliance(${alliance.id})">削除</button>
