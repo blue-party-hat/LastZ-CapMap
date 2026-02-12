@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LastZ Capital Territory Planner</title>
+    <title>LastZ 首都テリトリープランナー</title>
     <style>
         * {
             margin: 0;
@@ -13,7 +13,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
             background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #fff;
             padding: 0;
@@ -133,7 +133,6 @@
             color: #4CAF50;
         }
 
-        /* モーダル */
         .modal {
             display: none;
             position: fixed;
@@ -367,62 +366,57 @@
     </style>
 </head>
 <body>
-    <!-- ヘッダー -->
     <div class="header">
-        <h1>🏰 LastZ Capital Territory Planner</h1>
+        <h1>🏰 LastZ 首都テリトリープランナー</h1>
         <div class="header-controls">
-            <button class="header-btn btn-export" onclick="exportImage()">💾 Export</button>
-            <button class="header-btn btn-clear" onclick="clearAll()">🗑️ Clear All</button>
+            <button class="header-btn btn-export" onclick="exportImage()">💾 画像保存</button>
+            <button class="header-btn btn-clear" onclick="clearAll()">🗑️ 全削除</button>
         </div>
     </div>
 
-    <!-- メインコンテナ -->
     <div class="main-container">
         <canvas id="hexCanvas" width="900" height="900"></canvas>
         
-        <!-- 凡例 -->
         <div class="legend">
-            <h3>📍 Assigned Territories</h3>
+            <h3>📍 配置済み同盟</h3>
             <div id="legendList"></div>
         </div>
 
-        <!-- 使い方 -->
         <div class="instructions">
-            <h4>📖 How to Use</h4>
-            <p>🖱️ <strong>Click</strong>: Select single bar</p>
-            <p>✋ <strong>Click & Drag</strong>: Select multiple bars</p>
-            <p>🎨 Assign name and color to selected area</p>
+            <h4>📖 使い方</h4>
+            <p>🖱️ <strong>クリック</strong>：1つのエリアを選択</p>
+            <p>✋ <strong>ドラッグ</strong>：複数のエリアを選択</p>
+            <p>🎨 選択したエリアに名前と色を設定</p>
         </div>
     </div>
 
-    <!-- モーダル -->
     <div id="assignModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">🎨 Assign Alliance</span>
+                <span class="modal-title">🎨 同盟を配置</span>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
 
             <div class="selection-info">
-                <strong id="selectionLabel">0 bars selected</strong>
+                <strong id="selectionLabel">0 エリア選択中</strong>
             </div>
 
             <div class="form-section">
-                <h3>✏️ Alliance Info</h3>
+                <h3>✏️ 同盟情報</h3>
                 <div class="input-group">
-                    <label for="allianceName">Alliance Name:</label>
-                    <input type="text" id="allianceName" placeholder="e.g., [B777]SuperZeus" maxlength="20">
+                    <label for="allianceName">同盟名：</label>
+                    <input type="text" id="allianceName" placeholder="例: [B777]SuperZeus" maxlength="20">
                 </div>
             </div>
 
             <div class="form-section">
-                <h3>🎨 Choose Color</h3>
+                <h3>🎨 カラー選択</h3>
                 <div class="color-picker-wrapper" id="colorPicker"></div>
             </div>
 
             <div class="modal-actions">
-                <button class="modal-btn btn-clear-selection" onclick="clearSelection()">🗑️ Clear</button>
-                <button class="modal-btn btn-place" onclick="assignAlliance()">✓ Assign</button>
+                <button class="modal-btn btn-clear-selection" onclick="clearSelection()">🗑️ クリア</button>
+                <button class="modal-btn btn-place" onclick="assignAlliance()">✓ 配置</button>
             </div>
         </div>
     </div>
@@ -431,7 +425,7 @@
         const canvas = document.getElementById('hexCanvas');
         const ctx = canvas.getContext('2d');
         
-        let sections = {}; // 24個のセクション状態
+        let sections = {};
         let isDragging = false;
         let dragStartSection = null;
         let selectedSections = [];
@@ -447,7 +441,6 @@
         const centerX = 450;
         const centerY = 450;
         const hexRadius = 350;
-        const innerRadius = 100;
 
         const sectionPaths = [];
 
@@ -460,27 +453,23 @@
         }
 
         function initSections() {
-            for (let mainSec = 0; mainSec < 6; mainSec++) {
-                for (let subSec = 0; subSec < 4; subSec++) {
-                    const id = mainSec * 4 + subSec;
-                    sectionPaths.push({
-                        id: id,
-                        mainSection: mainSec,
-                        subSection: subSec,
-                        path: null
-                    });
-                }
+            for (let i = 0; i < 24; i++) {
+                sectionPaths.push({
+                    id: i,
+                    path: null
+                });
             }
         }
 
         function drawHexagon() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, hexRadius);
-            gradient.addColorStop(0, '#f5deb3');
-            gradient.addColorStop(1, '#daa520');
-            ctx.fillStyle = gradient;
-            
+            // 背景
+            ctx.fillStyle = '#d4915c';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // 六角形の背景色
+            ctx.fillStyle = '#c9864f';
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
                 const vertex = getHexagonVertex(i, hexRadius);
@@ -490,74 +479,55 @@
             ctx.closePath();
             ctx.fill();
 
-            sectionPaths.forEach(section => {
-                const mainSec = section.mainSection;
-                const subSec = section.subSection;
+            // 24個のセクションを描画（六角形の周囲に均等配置）
+            for (let i = 0; i < 24; i++) {
+                const section = sectionPaths[i];
                 
-                const angleStart = (Math.PI / 3) * mainSec - Math.PI / 2;
-                const angleEnd = angleStart + Math.PI / 3;
+                // 六角形の辺に沿って配置（各辺に4セクション）
+                const sideIndex = Math.floor(i / 4);
+                const positionOnSide = i % 4;
                 
-                const divisions = 4;
-                const widthPerDiv = 1 / divisions;
-                const startRatio = subSec * widthPerDiv;
-                const endRatio = (subSec + 1) * widthPerDiv;
+                const v1 = getHexagonVertex(sideIndex, hexRadius);
+                const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
                 
+                // 辺を4分割
+                const ratio1 = positionOnSide / 4;
+                const ratio2 = (positionOnSide + 1) / 4;
+                
+                const edgePoint1 = {
+                    x: v1.x + (v2.x - v1.x) * ratio1,
+                    y: v1.y + (v2.y - v1.y) * ratio1
+                };
+                const edgePoint2 = {
+                    x: v1.x + (v2.x - v1.x) * ratio2,
+                    y: v1.y + (v2.y - v1.y) * ratio2
+                };
+                
+                // 中心から辺へのパスを作成
                 const path = new Path2D();
-                
-                const innerAngle1 = angleStart + (angleEnd - angleStart) * startRatio;
-                const innerAngle2 = angleStart + (angleEnd - angleStart) * endRatio;
-                const inner1 = {
-                    x: centerX + innerRadius * Math.cos(innerAngle1),
-                    y: centerY + innerRadius * Math.sin(innerAngle1)
-                };
-                const inner2 = {
-                    x: centerX + innerRadius * Math.cos(innerAngle2),
-                    y: centerY + innerRadius * Math.sin(innerAngle2)
-                };
-                
-                const outer1 = {
-                    x: centerX + hexRadius * Math.cos(innerAngle1),
-                    y: centerY + hexRadius * Math.sin(innerAngle1)
-                };
-                const outer2 = {
-                    x: centerX + hexRadius * Math.cos(innerAngle2),
-                    y: centerY + hexRadius * Math.sin(innerAngle2)
-                };
-                
-                path.moveTo(inner1.x, inner1.y);
-                path.lineTo(outer1.x, outer1.y);
-                path.lineTo(outer2.x, outer2.y);
-                path.lineTo(inner2.x, inner2.y);
+                path.moveTo(centerX, centerY);
+                path.lineTo(edgePoint1.x, edgePoint1.y);
+                path.lineTo(edgePoint2.x, edgePoint2.y);
                 path.closePath();
                 
                 section.path = path;
                 
                 // セクションの塗りつぶし
-                if (sections[section.id]) {
-                    ctx.fillStyle = sections[section.id].color;
+                if (sections[i]) {
+                    ctx.fillStyle = sections[i].color;
                     ctx.fill(path);
-                } else if (selectedSections.includes(section.id)) {
+                } else if (selectedSections.includes(i)) {
                     ctx.fillStyle = selectedColor + '80'; // 半透明プレビュー
                     ctx.fill(path);
                 }
                 
-                ctx.strokeStyle = 'rgba(100, 70, 40, 0.5)';
-                ctx.lineWidth = 1.5;
+                // 境界線
+                ctx.strokeStyle = 'rgba(80, 60, 40, 0.6)';
+                ctx.lineWidth = 2;
                 ctx.stroke(path);
-            });
-
-            // メインの6分割線
-            ctx.strokeStyle = 'rgba(100, 70, 40, 0.8)';
-            ctx.lineWidth = 3;
-            for (let i = 0; i < 6; i++) {
-                const vertex = getHexagonVertex(i, hexRadius);
-                ctx.beginPath();
-                ctx.moveTo(centerX, centerY);
-                ctx.lineTo(vertex.x, vertex.y);
-                ctx.stroke();
             }
 
-            // 外枠
+            // 六角形の外枠
             ctx.strokeStyle = 'rgba(100, 70, 40, 0.8)';
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -569,27 +539,30 @@
             ctx.closePath();
             ctx.stroke();
 
-            // 中心の六角形（Capital）
-            ctx.fillStyle = 'rgba(30, 60, 114, 0.4)';
+            // 中心の円（首都）
+            ctx.fillStyle = 'rgba(30, 60, 114, 0.5)';
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.lineWidth = 4;
             ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                const vertex = getHexagonVertex(i, innerRadius);
-                if (i === 0) ctx.moveTo(vertex.x, vertex.y);
-                else ctx.lineTo(vertex.x, vertex.y);
-            }
+            ctx.arc(centerX, centerY, 60, 0, Math.PI * 2);
             ctx.closePath();
             ctx.fill();
             ctx.stroke();
 
-            drawStar(centerX, centerY, 40, '#1e3c72');
+            // 星マーク
+            drawStar(centerX, centerY, 35, '#1e3c72');
+
+            // 「首都」テキスト
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 18px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('首都', centerX, centerY + 25);
 
             // 配置されたアライアンス名を描画
             const drawnGroups = new Set();
             Object.keys(sections).forEach(id => {
-                const section = sectionPaths.find(s => s.id == id);
-                if (section && sections[id].name && !drawnGroups.has(sections[id].groupId)) {
+                if (sections[id].name && !drawnGroups.has(sections[id].groupId)) {
                     drawnGroups.add(sections[id].groupId);
                     
                     // 同じgroupIdのセクションを全て取得
@@ -598,38 +571,37 @@
                         .map(gid => parseInt(gid));
                     
                     // 中心位置を計算
-                    let centerAngle = 0;
-                    let centerRadius = 0;
-                    groupSections.forEach(gid => {
-                        const s = sectionPaths.find(p => p.id === gid);
-                        const mainSec = s.mainSection;
-                        const subSec = s.subSection;
+                    let avgX = 0;
+                    let avgY = 0;
+                    groupSections.forEach(i => {
+                        const sideIndex = Math.floor(i / 4);
+                        const positionOnSide = i % 4;
                         
-                        const angleStart = (Math.PI / 3) * mainSec - Math.PI / 2;
-                        const angleEnd = angleStart + Math.PI / 3;
-                        const divisions = 4;
-                        const widthPerDiv = 1 / divisions;
-                        const midRatio = (subSec + 0.5) * widthPerDiv;
-                        const midAngle = angleStart + (angleEnd - angleStart) * midRatio;
+                        const v1 = getHexagonVertex(sideIndex, hexRadius);
+                        const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
                         
-                        centerAngle += midAngle;
-                        centerRadius += (innerRadius + hexRadius) / 2;
+                        const ratio = (positionOnSide + 0.5) / 4;
+                        const edgeX = v1.x + (v2.x - v1.x) * ratio;
+                        const edgeY = v1.y + (v2.y - v1.y) * ratio;
+                        
+                        avgX += (centerX + edgeX) / 2;
+                        avgY += (centerY + edgeY) / 2;
                     });
                     
-                    centerAngle /= groupSections.length;
-                    centerRadius /= groupSections.length;
+                    avgX /= groupSections.length;
+                    avgY /= groupSections.length;
                     
-                    const textX = centerX + centerRadius * Math.cos(centerAngle);
-                    const textY = centerY + centerRadius * Math.sin(centerAngle);
+                    // テキストの角度を計算
+                    const angle = Math.atan2(avgY - centerY, avgX - centerX);
                     
                     ctx.save();
-                    ctx.translate(textX, textY);
-                    ctx.rotate(centerAngle + Math.PI / 2);
+                    ctx.translate(avgX, avgY);
+                    ctx.rotate(angle + Math.PI / 2);
                     
                     ctx.fillStyle = '#fff';
                     ctx.strokeStyle = '#000';
                     ctx.lineWidth = 3;
-                    ctx.font = 'bold 13px Arial';
+                    ctx.font = 'bold 14px sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     
@@ -678,28 +650,14 @@
         }
 
         function getSectionsInRange(start, end) {
-            if (!start || !end) return [];
-            
-            const startMainSec = start.mainSection;
-            const endMainSec = end.mainSection;
-            const startSubSec = start.subSection;
-            const endSubSec = end.subSection;
+            if (start > end) [start, end] = [end, start];
             
             const result = [];
-            
-            // 同じメインセクション内のみ
-            if (startMainSec === endMainSec) {
-                const minSub = Math.min(startSubSec, endSubSec);
-                const maxSub = Math.max(startSubSec, endSubSec);
-                
-                for (let sub = minSub; sub <= maxSub; sub++) {
-                    const id = startMainSec * 4 + sub;
-                    if (!sections[id]) { // 既に割り当てられていないもののみ
-                        result.push(id);
-                    }
+            for (let i = start; i <= end; i++) {
+                if (!sections[i]) {
+                    result.push(i);
                 }
             }
-            
             return result;
         }
 
@@ -708,19 +666,19 @@
             const section = getClickedSection(e.clientX, e.clientY);
             if (section && !sections[section.id]) {
                 isDragging = true;
-                dragStartSection = section;
+                dragStartSection = section.id;
                 selectedSections = [section.id];
                 drawHexagon();
             }
         });
 
         canvas.addEventListener('mousemove', function(e) {
-            if (isDragging && dragStartSection) {
+            if (isDragging && dragStartSection !== null) {
                 const section = getClickedSection(e.clientX, e.clientY);
                 if (section) {
-                    selectedSections = getSectionsInRange(dragStartSection, section);
+                    selectedSections = getSectionsInRange(dragStartSection, section.id);
                     if (selectedSections.length === 0) {
-                        selectedSections = [dragStartSection.id];
+                        selectedSections = [dragStartSection];
                     }
                     drawHexagon();
                 }
@@ -745,7 +703,7 @@
             const section = getClickedSection(touch.clientX, touch.clientY);
             if (section && !sections[section.id]) {
                 isDragging = true;
-                dragStartSection = section;
+                dragStartSection = section.id;
                 selectedSections = [section.id];
                 drawHexagon();
             }
@@ -753,13 +711,13 @@
 
         canvas.addEventListener('touchmove', function(e) {
             e.preventDefault();
-            if (isDragging && dragStartSection) {
+            if (isDragging && dragStartSection !== null) {
                 const touch = e.touches[0];
                 const section = getClickedSection(touch.clientX, touch.clientY);
                 if (section) {
-                    selectedSections = getSectionsInRange(dragStartSection, section);
+                    selectedSections = getSectionsInRange(dragStartSection, section.id);
                     if (selectedSections.length === 0) {
-                        selectedSections = [dragStartSection.id];
+                        selectedSections = [dragStartSection];
                     }
                     drawHexagon();
                 }
@@ -777,7 +735,7 @@
         function openModal() {
             document.getElementById('assignModal').style.display = 'block';
             document.getElementById('selectionLabel').textContent = 
-                `${selectedSections.length} bar${selectedSections.length > 1 ? 's' : ''} selected`;
+                `${selectedSections.length} エリア選択中`;
         }
 
         function closeModal() {
@@ -809,11 +767,11 @@
         function assignAlliance() {
             const name = document.getElementById('allianceName').value.trim();
             if (!name) {
-                alert('Please enter an alliance name!');
+                alert('同盟名を入力してください！');
                 return;
             }
 
-            const groupId = Date.now(); // ユニークなグループID
+            const groupId = Date.now();
             
             selectedSections.forEach(id => {
                 sections[id] = {
@@ -837,11 +795,11 @@
 
         function clearAll() {
             if (Object.keys(sections).length === 0) {
-                alert('No territories assigned yet!');
+                alert('まだ配置されていません');
                 return;
             }
             
-            if (confirm('Clear all territory assignments?')) {
+            if (confirm('全ての配置をクリアしますか？')) {
                 sections = {};
                 drawHexagon();
             }
@@ -852,7 +810,7 @@
             legendList.innerHTML = '';
             
             if (Object.keys(sections).length === 0) {
-                legendList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 5px 0;">No territories assigned</div>';
+                legendList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 5px 0;">配置なし</div>';
                 return;
             }
             
@@ -875,7 +833,7 @@
         function exportImage() {
             const link = document.createElement('a');
             const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
-            link.download = `LastZ_Capital_Territories_${timestamp}.png`;
+            link.download = `LastZ首都_${timestamp}.png`;
             link.href = canvas.toDataURL();
             link.click();
         }
