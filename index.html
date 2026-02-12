@@ -14,7 +14,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
             color: #fff;
             padding: 0;
             min-height: 100vh;
@@ -22,44 +22,58 @@
         }
 
         .header {
-            background: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(10px);
-            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            padding: 20px 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
-            font-size: clamp(1.2em, 4vw, 1.8em);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            font-size: clamp(1.3em, 4vw, 2em);
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+            letter-spacing: 0.5px;
         }
 
         .header-controls {
             display: flex;
-            gap: 10px;
+            gap: 12px;
         }
 
         .header-btn {
-            padding: 8px 16px;
+            padding: 10px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 0.9em;
-            font-weight: bold;
+            border-radius: 12px;
+            font-size: 0.95em;
+            font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.3s ease;
             touch-action: manipulation;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .btn-export {
-            background: linear-gradient(135deg, #FF9800, #F57C00);
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
         }
 
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(245, 87, 108, 0.4);
+        }
+
         .btn-clear {
-            background: linear-gradient(135deg, #f44336, #da190b);
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
             color: white;
+        }
+
+        .btn-clear:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(250, 112, 154, 0.4);
         }
 
         .header-btn:active {
@@ -67,7 +81,7 @@
         }
 
         .main-container {
-            height: calc(100vh - 70px);
+            height: calc(100vh - 90px);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -79,58 +93,75 @@
             cursor: crosshair;
             max-width: 90vmin;
             max-height: 90vmin;
-            filter: drop-shadow(0 10px 40px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 15px 50px rgba(0, 0, 0, 0.3));
+            border-radius: 20px;
         }
 
         .legend {
             position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.85em;
-            max-width: 250px;
+            top: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            max-width: 280px;
             max-height: 80vh;
             overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .legend h3 {
-            margin-bottom: 10px;
-            font-size: 1em;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            font-weight: 600;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 8px;
-            margin-bottom: 6px;
-            font-size: 0.85em;
+            gap: 10px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            padding: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
         }
 
         .legend-color {
-            width: 30px;
-            height: 20px;
-            border-radius: 4px;
+            width: 35px;
+            height: 25px;
+            border-radius: 6px;
             border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
 
         .instructions {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.85em;
-            max-width: 300px;
+            bottom: 30px;
+            left: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            max-width: 320px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
 
         .instructions h4 {
+            margin-bottom: 12px;
+            color: #ffd700;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .instructions p {
             margin-bottom: 8px;
-            color: #4CAF50;
+            line-height: 1.6;
         }
 
         .modal {
@@ -141,8 +172,8 @@
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
             animation: fadeIn 0.3s ease;
         }
 
@@ -156,15 +187,16 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            max-width: 500px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 35px;
+            border-radius: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            max-width: 550px;
             width: 90%;
             max-height: 85vh;
             overflow-y: auto;
             animation: slideUp 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         @keyframes slideUp {
@@ -184,33 +216,35 @@
             align-items: center;
             margin-bottom: 25px;
             padding-bottom: 15px;
-            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.3);
         }
 
         .modal-title {
-            font-size: 1.4em;
-            font-weight: bold;
+            font-size: 1.5em;
+            font-weight: 700;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
         }
 
         .close-btn {
-            background: none;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 2em;
+            font-size: 1.5em;
             cursor: pointer;
             line-height: 1;
-            padding: 0;
-            width: 30px;
-            height: 30px;
+            padding: 8px;
+            width: 40px;
+            height: 40px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
+            border-radius: 10px;
         }
 
         .close-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
             transform: rotate(90deg);
-            color: #f44336;
         }
 
         .form-section {
@@ -218,23 +252,26 @@
         }
 
         .form-section h3 {
-            font-size: 1.1em;
+            font-size: 1.2em;
             margin-bottom: 15px;
-            color: #4CAF50;
+            color: #ffd700;
+            font-weight: 600;
         }
 
         .selection-info {
-            background: rgba(76, 175, 80, 0.2);
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 25px;
             text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .selection-info strong {
-            font-size: 1.2em;
-            color: #4CAF50;
+            font-size: 1.3em;
+            color: #ffd700;
+            font-weight: 700;
         }
 
         .input-group {
@@ -243,54 +280,60 @@
 
         .input-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 0.95em;
+            margin-bottom: 10px;
+            font-weight: 600;
+            font-size: 1em;
+            color: #ffd700;
         }
 
         .input-group input[type="text"] {
             width: 100%;
-            padding: 12px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
+            padding: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 12px;
             font-size: 16px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.15);
             color: white;
             transition: all 0.3s;
+            font-weight: 500;
         }
 
         .input-group input[type="text"]:focus {
             outline: none;
-            border-color: #4CAF50;
-            background: rgba(255, 255, 255, 0.15);
+            border-color: #ffd700;
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
         }
 
         .input-group input[type="text"]::placeholder {
-            color: rgba(255, 255, 255, 0.5);
+            color: rgba(255, 255, 255, 0.6);
         }
 
         .color-picker-wrapper {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
+            gap: 12px;
         }
 
         .color-option {
-            height: 50px;
-            border-radius: 10px;
+            height: 55px;
+            border-radius: 12px;
             border: 3px solid transparent;
             cursor: pointer;
             transition: all 0.3s;
             position: relative;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .color-option:hover {
             transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
         }
 
         .color-option.selected {
             border-color: white;
-            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            transform: scale(1.05);
         }
 
         .color-option.selected::after {
@@ -300,25 +343,26 @@
             left: 50%;
             transform: translate(-50%, -50%);
             color: white;
-            font-size: 1.5em;
-            text-shadow: 0 0 5px black;
+            font-size: 1.8em;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
             font-weight: bold;
         }
 
         .modal-actions {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 12px;
+            gap: 15px;
         }
 
         .modal-btn {
-            padding: 14px;
+            padding: 16px;
             border: none;
-            border-radius: 10px;
-            font-size: 1em;
-            font-weight: bold;
+            border-radius: 14px;
+            font-size: 1.05em;
+            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
         }
 
         .modal-btn:active {
@@ -326,23 +370,33 @@
         }
 
         .btn-clear-selection {
-            background: linear-gradient(135deg, #f44336, #da190b);
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
             color: white;
         }
 
+        .btn-clear-selection:hover {
+            box-shadow: 0 6px 20px rgba(250, 112, 154, 0.4);
+            transform: translateY(-2px);
+        }
+
         .btn-place {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            color: #333;
+        }
+
+        .btn-place:hover {
+            box-shadow: 0 6px 20px rgba(168, 237, 234, 0.4);
+            transform: translateY(-2px);
         }
 
         @media (max-width: 768px) {
             .header {
-                padding: 10px 15px;
+                padding: 15px 20px;
             }
 
             .header-btn {
-                padding: 6px 12px;
-                font-size: 0.8em;
+                padding: 8px 15px;
+                font-size: 0.85em;
             }
 
             .main-container {
@@ -350,18 +404,37 @@
             }
 
             .legend, .instructions {
-                font-size: 0.75em;
-                padding: 10px;
-                max-width: 200px;
+                font-size: 0.8em;
+                padding: 15px;
+                max-width: 220px;
             }
 
             .modal-content {
-                padding: 20px;
+                padding: 25px;
             }
 
             .color-picker-wrapper {
                 grid-template-columns: repeat(3, 1fr);
             }
+        }
+
+        /* スクロールバーのスタイル */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.5);
         }
     </style>
 </head>
@@ -376,7 +449,7 @@
 
     <div class="main-container">
         <canvas id="hexCanvas" width="900" height="900"></canvas>
-        
+
         <div class="legend">
             <h3>📍 配置済み同盟</h3>
             <div id="legendList"></div>
@@ -405,7 +478,7 @@
                 <h3>✏️ 同盟情報</h3>
                 <div class="input-group">
                     <label for="allianceName">同盟名：</label>
-                    <input type="text" id="allianceName" placeholder="例: [B777]SuperZeus" maxlength="20">
+                    <input type="text" id="allianceName" placeholder="テキストを入力" maxlength="20">
                 </div>
             </div>
 
@@ -424,18 +497,18 @@
     <script>
         const canvas = document.getElementById('hexCanvas');
         const ctx = canvas.getContext('2d');
-        
+
         let sections = {};
         let isDragging = false;
         let dragStartSection = null;
         let selectedSections = [];
-        
+
         const colors = [
             '#4CAF50', '#2196F3', '#FF9800', '#E91E63', 
             '#9C27B0', '#00BCD4', '#FFEB3B', '#FF5722',
             '#8BC34A', '#3F51B5', '#FFC107', '#F44336'
         ];
-        
+
         let selectedColor = colors[0];
 
         const centerX = 450;
@@ -463,12 +536,10 @@
 
         function drawHexagon() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // 背景
+
             ctx.fillStyle = '#d4915c';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // 六角形の背景色
             ctx.fillStyle = '#c9864f';
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
@@ -479,21 +550,18 @@
             ctx.closePath();
             ctx.fill();
 
-            // 24個のセクションを描画（六角形の周囲に均等配置）
             for (let i = 0; i < 24; i++) {
                 const section = sectionPaths[i];
-                
-                // 六角形の辺に沿って配置（各辺に4セクション）
+
                 const sideIndex = Math.floor(i / 4);
                 const positionOnSide = i % 4;
-                
+
                 const v1 = getHexagonVertex(sideIndex, hexRadius);
                 const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
-                
-                // 辺を4分割
+
                 const ratio1 = positionOnSide / 4;
                 const ratio2 = (positionOnSide + 1) / 4;
-                
+
                 const edgePoint1 = {
                     x: v1.x + (v2.x - v1.x) * ratio1,
                     y: v1.y + (v2.y - v1.y) * ratio1
@@ -502,32 +570,28 @@
                     x: v1.x + (v2.x - v1.x) * ratio2,
                     y: v1.y + (v2.y - v1.y) * ratio2
                 };
-                
-                // 中心から辺へのパスを作成
+
                 const path = new Path2D();
                 path.moveTo(centerX, centerY);
                 path.lineTo(edgePoint1.x, edgePoint1.y);
                 path.lineTo(edgePoint2.x, edgePoint2.y);
                 path.closePath();
-                
+
                 section.path = path;
-                
-                // セクションの塗りつぶし
+
                 if (sections[i]) {
                     ctx.fillStyle = sections[i].color;
                     ctx.fill(path);
                 } else if (selectedSections.includes(i)) {
-                    ctx.fillStyle = selectedColor + '80'; // 半透明プレビュー
+                    ctx.fillStyle = selectedColor + '80';
                     ctx.fill(path);
                 }
-                
-                // 境界線
+
                 ctx.strokeStyle = 'rgba(80, 60, 40, 0.6)';
                 ctx.lineWidth = 2;
                 ctx.stroke(path);
             }
 
-            // 六角形の外枠
             ctx.strokeStyle = 'rgba(100, 70, 40, 0.8)';
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -539,7 +603,6 @@
             ctx.closePath();
             ctx.stroke();
 
-            // 中心の円（首都）
             ctx.fillStyle = 'rgba(30, 60, 114, 0.5)';
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.lineWidth = 4;
@@ -549,65 +612,59 @@
             ctx.fill();
             ctx.stroke();
 
-            // 星マーク
             drawStar(centerX, centerY, 35, '#1e3c72');
 
-            // 「首都」テキスト
             ctx.fillStyle = '#fff';
             ctx.font = 'bold 18px sans-serif';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('首都', centerX, centerY + 25);
 
-            // 配置されたアライアンス名を描画
             const drawnGroups = new Set();
             Object.keys(sections).forEach(id => {
                 if (sections[id].name && !drawnGroups.has(sections[id].groupId)) {
                     drawnGroups.add(sections[id].groupId);
-                    
-                    // 同じgroupIdのセクションを全て取得
+
                     const groupSections = Object.keys(sections)
                         .filter(gid => sections[gid].groupId === sections[id].groupId)
                         .map(gid => parseInt(gid));
-                    
-                    // 中心位置を計算
+
                     let avgX = 0;
                     let avgY = 0;
                     groupSections.forEach(i => {
                         const sideIndex = Math.floor(i / 4);
                         const positionOnSide = i % 4;
-                        
+
                         const v1 = getHexagonVertex(sideIndex, hexRadius);
                         const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
-                        
+
                         const ratio = (positionOnSide + 0.5) / 4;
                         const edgeX = v1.x + (v2.x - v1.x) * ratio;
                         const edgeY = v1.y + (v2.y - v1.y) * ratio;
-                        
+
                         avgX += (centerX + edgeX) / 2;
                         avgY += (centerY + edgeY) / 2;
                     });
-                    
+
                     avgX /= groupSections.length;
                     avgY /= groupSections.length;
-                    
-                    // テキストの角度を計算
+
                     const angle = Math.atan2(avgY - centerY, avgX - centerX);
-                    
+
                     ctx.save();
                     ctx.translate(avgX, avgY);
                     ctx.rotate(angle + Math.PI / 2);
-                    
+
                     ctx.fillStyle = '#fff';
                     ctx.strokeStyle = '#000';
                     ctx.lineWidth = 3;
                     ctx.font = 'bold 14px sans-serif';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
-                    
+
                     ctx.strokeText(sections[id].name, 0, 0);
                     ctx.fillText(sections[id].name, 0, 0);
-                    
+
                     ctx.restore();
                 }
             });
@@ -624,7 +681,7 @@
                 const y = cy + radius * Math.sin(angle);
                 if (i === 0) ctx.moveTo(x, y);
                 else ctx.lineTo(x, y);
-                
+
                 const innerAngle = angle + Math.PI / 5;
                 const ix = cx + (radius * 0.4) * Math.cos(innerAngle);
                 const iy = cy + (radius * 0.4) * Math.sin(innerAngle);
@@ -650,8 +707,9 @@
         }
 
         function getSectionsInRange(start, end) {
+            if (start === null || end === null) return [];
             if (start > end) [start, end] = [end, start];
-            
+
             const result = [];
             for (let i = start; i <= end; i++) {
                 if (!sections[i]) {
@@ -661,8 +719,8 @@
             return result;
         }
 
-        // マウスイベント
         canvas.addEventListener('mousedown', function(e) {
+            e.preventDefault();
             const section = getClickedSection(e.clientX, e.clientY);
             if (section && !sections[section.id]) {
                 isDragging = true;
@@ -675,7 +733,7 @@
         canvas.addEventListener('mousemove', function(e) {
             if (isDragging && dragStartSection !== null) {
                 const section = getClickedSection(e.clientX, e.clientY);
-                if (section) {
+                if (section && !sections[section.id]) {
                     selectedSections = getSectionsInRange(dragStartSection, section.id);
                     if (selectedSections.length === 0) {
                         selectedSections = [dragStartSection];
@@ -690,13 +748,18 @@
                 openModal();
             }
             isDragging = false;
+            dragStartSection = null;
         });
 
         canvas.addEventListener('mouseleave', function() {
-            isDragging = false;
+            if (isDragging) {
+                isDragging = false;
+                dragStartSection = null;
+                selectedSections = [];
+                drawHexagon();
+            }
         });
 
-        // タッチイベント
         canvas.addEventListener('touchstart', function(e) {
             e.preventDefault();
             const touch = e.touches[0];
@@ -714,7 +777,7 @@
             if (isDragging && dragStartSection !== null) {
                 const touch = e.touches[0];
                 const section = getClickedSection(touch.clientX, touch.clientY);
-                if (section) {
+                if (section && !sections[section.id]) {
                     selectedSections = getSectionsInRange(dragStartSection, section.id);
                     if (selectedSections.length === 0) {
                         selectedSections = [dragStartSection];
@@ -730,6 +793,7 @@
                 openModal();
             }
             isDragging = false;
+            dragStartSection = null;
         });
 
         function openModal() {
@@ -772,7 +836,7 @@
             }
 
             const groupId = Date.now();
-            
+
             selectedSections.forEach(id => {
                 sections[id] = {
                     name: name,
@@ -798,7 +862,7 @@
                 alert('まだ配置されていません');
                 return;
             }
-            
+
             if (confirm('全ての配置をクリアしますか？')) {
                 sections = {};
                 drawHexagon();
@@ -808,17 +872,17 @@
         function updateLegend() {
             const legendList = document.getElementById('legendList');
             legendList.innerHTML = '';
-            
+
             if (Object.keys(sections).length === 0) {
-                legendList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 5px 0;">配置なし</div>';
+                legendList.innerHTML = '<div style="color: rgba(255,255,255,0.7); font-size: 0.9em; padding: 8px 0;">配置なし</div>';
                 return;
             }
-            
+
             const uniqueAlliances = {};
             Object.values(sections).forEach(s => {
                 uniqueAlliances[s.name] = s.color;
             });
-            
+
             Object.entries(uniqueAlliances).forEach(([name, color]) => {
                 const item = document.createElement('div');
                 item.className = 'legend-item';
