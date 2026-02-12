@@ -14,197 +14,45 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: linear-gradient(135deg, #d4915c 0%, #c67d47 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
             color: #fff;
-            padding: 10px;
+            padding: 0;
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
+        .header {
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         h1 {
-            text-align: center;
-            margin-bottom: 15px;
-            font-size: clamp(1.5em, 5vw, 2.5em);
+            font-size: clamp(1.2em, 4vw, 1.8em);
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .main-layout {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-        }
-
-        @media (min-width: 768px) {
-            .main-layout {
-                grid-template-columns: 320px 1fr;
-                gap: 25px;
-            }
-            
-            body {
-                padding: 20px;
-            }
-            
-            h1 {
-                margin-bottom: 20px;
-            }
-        }
-
-        .controls-panel {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-            height: fit-content;
-        }
-
-        @media (min-width: 768px) {
-            .controls-panel {
-                padding: 20px;
-            }
-        }
-
-        .control-section {
-            margin-bottom: 15px;
-        }
-
-        .control-section h3 {
-            margin-bottom: 10px;
-            font-size: 1em;
-            border-bottom: 2px solid rgba(255,255,255,0.3);
-            padding-bottom: 6px;
-        }
-
-        @media (min-width: 768px) {
-            .control-section h3 {
-                font-size: 1.1em;
-                margin-bottom: 12px;
-            }
-        }
-
-        .shape-selector {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 8px;
-            margin-bottom: 12px;
-        }
-
-        .shape-btn {
-            padding: 12px 8px;
-            background: rgba(255, 255, 255, 0.15);
-            border: 2px solid transparent;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.85em;
-            color: #fff;
-            font-weight: 500;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 4px;
-            touch-action: manipulation;
+            gap: 10px;
         }
 
-        .shape-btn:active {
-            transform: scale(0.95);
+        .header-controls {
+            display: flex;
+            gap: 10px;
         }
 
-        .shape-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-        }
-
-        @media (min-width: 768px) {
-            .shape-btn:hover {
-                transform: scale(1.05);
-            }
-        }
-
-        .shape-btn.active {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.4);
-        }
-
-        .shape-size {
-            font-size: 0.75em;
-            opacity: 0.8;
-        }
-
-        .input-group {
-            margin-bottom: 12px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 5px;
+        .header-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
             font-size: 0.9em;
-            font-weight: 500;
-        }
-
-        .input-group input[type="text"],
-        .input-group input[type="color"] {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            background: rgba(255, 255, 255, 0.9);
-            color: #333;
-        }
-
-        .input-group input[type="color"] {
-            height: 50px;
-            cursor: pointer;
-            padding: 5px;
-        }
-
-        .btn {
-            width: 100%;
-            padding: 14px 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
-            margin-bottom: 8px;
             touch-action: manipulation;
-        }
-
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
-        }
-
-        .btn-secondary {
-            background: linear-gradient(135deg, #f44336, #da190b);
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.5);
-        }
-
-        .btn-info {
-            background: linear-gradient(135deg, #2196F3, #0b7dda);
-            color: white;
-        }
-
-        .btn-info:hover {
-            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.5);
         }
 
         .btn-export {
@@ -212,285 +60,524 @@
             color: white;
         }
 
-        .btn-export:hover {
-            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.5);
+        .btn-clear {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
         }
 
-        @media (min-width: 768px) {
-            .btn:hover {
-                transform: translateY(-2px);
-            }
+        .header-btn:active {
+            transform: scale(0.95);
         }
 
-        .map-container {
-            background: rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            padding: 10px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        .main-container {
+            height: calc(100vh - 70px);
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 20px;
             overflow: auto;
         }
 
-        @media (min-width: 768px) {
-            .map-container {
-                padding: 25px;
-            }
+        .map-wrapper {
+            position: relative;
+            max-width: 100%;
+            max-height: 100%;
         }
 
         #capitalMap {
-            background: #d4915c;
-            border: 4px solid rgba(0, 0, 0, 0.3);
+            background: linear-gradient(135deg, #d4915c 0%, #b87a47 100%);
+            border: 4px solid rgba(0, 0, 0, 0.4);
             border-radius: 10px;
             cursor: crosshair;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            max-width: 100%;
-            height: auto;
-            touch-action: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            display: block;
         }
 
-        .preview-container {
-            margin-top: 15px;
+        .legend {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
             padding: 15px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
+            border-radius: 10px;
+            font-size: 0.85em;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
         }
 
-        .preview-container h4 {
-            margin-bottom: 10px;
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid white;
+        }
+
+        /* モーダル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #2a2a3e 0%, #1f1f2e 100%);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translate(-50%, -40%);
+                opacity: 0;
+            }
+            to {
+                transform: translate(-50%, -50%);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-title {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 2em;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+            color: #f44336;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+        }
+
+        .form-section h3 {
+            font-size: 1.1em;
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+
+        .shape-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .shape-card {
+            background: rgba(255, 255, 255, 0.1);
+            border: 3px solid transparent;
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+
+        .shape-card:hover {
+            background: rgba(255, 255, 255, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .shape-card.selected {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.2);
+        }
+
+        .shape-icon {
+            font-size: 2em;
+            margin-bottom: 8px;
+        }
+
+        .shape-label {
+            font-size: 0.9em;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .shape-size {
+            font-size: 0.75em;
+            opacity: 0.7;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
             font-size: 0.95em;
+        }
+
+        .input-group input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .input-group input[type="text"]:focus {
+            outline: none;
+            border-color: #4CAF50;
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .color-picker-wrapper {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .color-option {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+
+        .color-option.selected {
+            border-color: white;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        .color-option.selected::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 1.5em;
+            text-shadow: 0 0 5px black;
+        }
+
+        .preview-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .preview-section h4 {
+            margin-bottom: 15px;
+            font-size: 1em;
         }
 
         #previewCanvas {
             background: rgba(255, 255, 255, 0.1);
             border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 5px;
-            display: block;
-            margin: 0 auto;
-            max-width: 100%;
-            height: auto;
-        }
-
-        .info-box {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 12px;
             border-radius: 8px;
-            margin-top: 15px;
-            font-size: 0.85em;
-            line-height: 1.6;
+            margin: 0 auto;
+            display: block;
         }
 
-        .placed-alliances {
-            margin-top: 15px;
-            max-height: 250px;
-            overflow-y: auto;
-            -webkit-overflow-scrolling: touch;
+        .modal-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
         }
 
-        .alliance-item {
-            background: rgba(255, 255, 255, 0.15);
-            padding: 10px;
-            margin-bottom: 6px;
-            border-radius: 5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.9em;
-            gap: 10px;
-        }
-
-        .alliance-item .alliance-name {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .alliance-item .delete-btn {
-            background: #f44336;
-            color: white;
+        .modal-btn {
+            padding: 14px;
             border: none;
-            padding: 6px 12px;
-            border-radius: 4px;
+            border-radius: 10px;
+            font-size: 1em;
+            font-weight: bold;
             cursor: pointer;
-            font-size: 0.85em;
-            transition: all 0.2s;
-            white-space: nowrap;
-            touch-action: manipulation;
+            transition: all 0.3s;
         }
 
-        .alliance-item .delete-btn:hover {
-            background: #da190b;
-        }
-
-        .alliance-item .delete-btn:active {
+        .modal-btn:active {
             transform: scale(0.95);
         }
 
-        .stats {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 15px;
+        .btn-rotate {
+            background: linear-gradient(135deg, #2196F3, #0b7dda);
+            color: white;
+        }
+
+        .btn-place {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .placed-list {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
+            max-width: 300px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .placed-list h4 {
+            margin-bottom: 10px;
+            font-size: 0.95em;
+        }
+
+        .alliance-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            margin: 4px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .chip-delete {
+            background: #f44336;
+            border: none;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 0.8em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 10px 15px;
+            }
+
+            .header-btn {
+                padding: 6px 12px;
+                font-size: 0.8em;
+            }
+
+            .main-container {
+                padding: 10px;
+            }
+
+            .legend, .placed-list {
+                font-size: 0.75em;
+                padding: 10px;
+            }
+
+            .modal-content {
+                padding: 20px;
+            }
+
+            .shape-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stats-bar {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
             font-size: 0.9em;
         }
 
-        /* スマホ用の折りたたみ可能なパネル */
-        @media (max-width: 767px) {
-            .controls-panel {
-                position: relative;
-            }
-            
-            .mobile-toggle {
-                display: block;
-                width: 100%;
-                padding: 12px;
-                background: rgba(255, 255, 255, 0.2);
-                border: none;
-                border-radius: 8px;
-                color: white;
-                font-size: 1em;
-                font-weight: bold;
-                margin-bottom: 15px;
-                cursor: pointer;
-                touch-action: manipulation;
-            }
-            
-            .mobile-toggle:active {
-                background: rgba(255, 255, 255, 0.3);
-            }
-            
-            .controls-content.collapsed {
-                display: none;
-            }
+        .stat-item {
+            margin-bottom: 8px;
         }
 
-        @media (min-width: 768px) {
-            .mobile-toggle {
-                display: none;
-            }
+        .stat-bar {
+            width: 150px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 5px;
         }
 
-        /* タッチデバイス用の調整 */
-        @media (hover: none) and (pointer: coarse) {
-            .btn {
-                padding: 16px 12px;
-            }
-            
-            .shape-btn {
-                padding: 14px 8px;
-            }
-        }
-
-        /* 横向きスマホ対応 */
-        @media (max-width: 767px) and (orientation: landscape) {
-            .main-layout {
-                grid-template-columns: 280px 1fr;
-                gap: 10px;
-            }
-            
-            body {
-                padding: 5px;
-            }
-            
-            h1 {
-                font-size: 1.5em;
-                margin-bottom: 10px;
-            }
-            
-            .controls-panel {
-                max-height: calc(100vh - 100px);
-                overflow-y: auto;
-            }
+        .stat-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            transition: width 0.3s ease;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🏰 LastZ 首都同盟配置ツール</h1>
-        
-        <div class="main-layout">
-            <!-- コントロールパネル -->
-            <div class="controls-panel">
-                <button class="mobile-toggle" onclick="toggleControls()">
-                    ⚙️ コントロールパネル
-                </button>
-                
-                <div class="controls-content">
-                    <div class="control-section">
-                        <h3>📐 建築物サイズ</h3>
-                        <div class="shape-selector">
-                            <button class="shape-btn active" onclick="selectShape('size1')">
-                                <span>⬛ サイズ1</span>
-                                <span class="shape-size">1/3エリア</span>
-                            </button>
-                            <button class="shape-btn" onclick="selectShape('size2')">
-                                <span>◼️ サイズ2</span>
-                                <span class="shape-size">1/6エリア</span>
-                            </button>
-                            <button class="shape-btn" onclick="selectShape('size3')">
-                                <span>▪️ サイズ3</span>
-                                <span class="shape-size">1/12エリア</span>
-                            </button>
-                            <button class="shape-btn" onclick="selectShape('size4')">
-                                <span>• サイズ4</span>
-                                <span class="shape-size">1/24エリア</span>
-                            </button>
-                        </div>
-                    </div>
+    <!-- ヘッダー -->
+    <div class="header">
+        <h1>🏰 LastZ Capital Planner</h1>
+        <div class="header-controls">
+            <button class="header-btn btn-export" onclick="exportImage()">💾 Export</button>
+            <button class="header-btn btn-clear" onclick="clearMap()">🗑️ Clear</button>
+        </div>
+    </div>
 
-                    <div class="control-section">
-                        <h3>✏️ 同盟設定</h3>
-                        <div class="input-group">
-                            <label for="allianceName">同盟名:</label>
-                            <input type="text" id="allianceName" placeholder="例: [B777]SuperZeus" maxlength="15">
-                        </div>
-                        <div class="input-group">
-                            <label for="allianceColor">カラー:</label>
-                            <input type="color" id="allianceColor" value="#4CAF50">
-                        </div>
-                    </div>
-
-                    <div class="control-section">
-                        <h3>🎮 操作</h3>
-                        <button class="btn btn-primary" onclick="generateShape()">🎲 形状を生成</button>
-                        <button class="btn btn-info" onclick="rotateShape()">🔄 90度回転</button>
-                        <button class="btn btn-export" onclick="exportImage()">💾 画像で保存</button>
-                        <button class="btn btn-secondary" onclick="clearMap()">🗑️ 全削除</button>
-                    </div>
-
-                    <div class="preview-container">
-                        <h4>現在の形状:</h4>
-                        <canvas id="previewCanvas" width="200" height="200"></canvas>
-                    </div>
-
-                    <div class="info-box">
-                        <strong>📖 使い方:</strong><br>
-                        1️⃣ 建築物のサイズを選択<br>
-                        2️⃣ 同盟名とカラーを入力<br>
-                        3️⃣ 「形状を生成」をクリック<br>
-                        4️⃣ 首都の六角形内をタップ/クリックして配置<br>
-                        5️⃣ 回転して最適な配置を探そう！
-                    </div>
-
-                    <div class="stats">
-                        <strong>📊 統計:</strong><br>
-                        配置済み: <span id="placedCount">0</span>個<br>
-                        使用率: <span id="usedCells">0</span>/<span id="totalCells">0</span> (<span id="percentage">0</span>%)
-                    </div>
-
-                    <div class="placed-alliances">
-                        <h4>📍 配置済み同盟:</h4>
-                        <div id="allianceList"></div>
+    <!-- メインコンテナ -->
+    <div class="main-container">
+        <div class="map-wrapper">
+            <canvas id="capitalMap" width="1000" height="1000"></canvas>
+            
+            <!-- 統計バー -->
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <strong>Placed:</strong> <span id="placedCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <strong>Coverage:</strong> <span id="percentage">0</span>%
+                    <div class="stat-bar">
+                        <div class="stat-bar-fill" id="statBarFill" style="width: 0%"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- マップエリア -->
-            <div class="map-container">
-                <canvas id="capitalMap" width="900" height="900"></canvas>
+            <!-- 凡例 -->
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(255,255,255,0.3);"></div>
+                    <span>Capital Zone</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(255,0,0,0.5);"></div>
+                    <span>Restricted (Turrets)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background: rgba(200,200,200,0.3);"></div>
+                    <span>Section Grid</span>
+                </div>
+            </div>
+
+            <!-- 配置済みリスト -->
+            <div class="placed-list">
+                <h4>📍 Placed Alliances (<span id="allianceCount">0</span>)</h4>
+                <div id="allianceChips"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- モーダル -->
+    <div id="placementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title">🎨 Place Alliance</span>
+                <button class="close-btn" onclick="closeModal()">&times;</button>
+            </div>
+
+            <div class="form-section">
+                <h3>📐 Select Size</h3>
+                <div class="shape-grid" id="shapeGrid">
+                    <div class="shape-card selected" data-size="size1">
+                        <div class="shape-icon">⬛</div>
+                        <div class="shape-label">Large</div>
+                        <div class="shape-size">1/3 Area</div>
+                    </div>
+                    <div class="shape-card" data-size="size2">
+                        <div class="shape-icon">◼️</div>
+                        <div class="shape-label">Medium</div>
+                        <div class="shape-size">1/6 Area</div>
+                    </div>
+                    <div class="shape-card" data-size="size3">
+                        <div class="shape-icon">▪️</div>
+                        <div class="shape-label">Small</div>
+                        <div class="shape-size">1/12 Area</div>
+                    </div>
+                    <div class="shape-card" data-size="size4">
+                        <div class="shape-icon">•</div>
+                        <div class="shape-label">Tiny</div>
+                        <div class="shape-size">1/24 Area</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>✏️ Alliance Info</h3>
+                <div class="input-group">
+                    <label for="allianceName">Alliance Name:</label>
+                    <input type="text" id="allianceName" placeholder="e.g., [B777]SuperZeus" maxlength="15">
+                </div>
+            </div>
+
+            <div class="form-section">
+                <h3>🎨 Choose Color</h3>
+                <div class="color-picker-wrapper" id="colorPicker"></div>
+            </div>
+
+            <div class="preview-section">
+                <h4>Preview:</h4>
+                <canvas id="previewCanvas" width="200" height="200"></canvas>
+            </div>
+
+            <div class="modal-actions">
+                <button class="modal-btn btn-rotate" onclick="rotateShape()">🔄 Rotate</button>
+                <button class="modal-btn btn-place" onclick="confirmPlacement()">✓ Place Alliance</button>
             </div>
         </div>
     </div>
@@ -502,11 +589,10 @@
         const previewCanvas = document.getElementById('previewCanvas');
         const previewCtx = previewCanvas.getContext('2d');
         
-        let canvasSize = 900;
-        let cellSize = 30;
-        const hexRadius = 13;
-        const centerX = 15;
-        const centerY = 15;
+        const cellSize = 25;
+        const hexRadius = 18;
+        const centerX = 20;
+        const centerY = 20;
         
         let currentShape = 'size1';
         let currentShapeData = null;
@@ -514,216 +600,199 @@
         let placedAlliances = [];
         let occupiedCells = new Set();
         let validHexCells = new Set();
-        let controlsVisible = true;
+        let restrictedCells = new Set();
+        let pendingPlacement = null;
+        let selectedColor = '#4CAF50';
 
-        // レスポンシブ対応のキャンバスサイズ調整
-        function adjustCanvasSize() {
-            const container = document.querySelector('.map-container');
-            const containerWidth = container.clientWidth - 20;
-            const isMobile = window.innerWidth < 768;
-            
-            if (isMobile) {
-                canvasSize = Math.min(containerWidth, 600);
-                cellSize = canvasSize / 30;
-            } else {
-                canvasSize = 900;
-                cellSize = 30;
-            }
-            
-            canvas.width = canvasSize;
-            canvas.height = canvasSize;
-            canvas.style.width = canvasSize + 'px';
-            canvas.style.height = canvasSize + 'px';
-            
-            drawGrid();
-        }
+        const colors = [
+            '#4CAF50', '#2196F3', '#FF9800', '#E91E63', 
+            '#9C27B0', '#00BCD4', '#FFEB3B', '#FF5722',
+            '#8BC34A', '#3F51B5', '#FFC107', '#F44336'
+        ];
 
-        // タッチイベント対応
-        let touchStartX = 0;
-        let touchStartY = 0;
-
-        function getTouchPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const touch = e.touches[0] || e.changedTouches[0];
-            return {
-                x: Math.floor((touch.clientX - rect.left) / cellSize),
-                y: Math.floor((touch.clientY - rect.top) / cellSize)
-            };
-        }
-
-        function getMousePos(e) {
-            const rect = canvas.getBoundingClientRect();
-            return {
-                x: Math.floor((e.clientX - rect.left) / cellSize),
-                y: Math.floor((e.clientY - rect.top) / cellSize)
-            };
-        }
-
-        // コントロールパネルの表示切替（モバイル用）
-        function toggleControls() {
-            const content = document.querySelector('.controls-content');
-            const button = document.querySelector('.mobile-toggle');
-            controlsVisible = !controlsVisible;
-            
-            if (controlsVisible) {
-                content.classList.remove('collapsed');
-                button.textContent = '⚙️ コントロールパネル ▼';
-            } else {
-                content.classList.add('collapsed');
-                button.textContent = '⚙️ コントロールパネル ▶';
-            }
-        }
-
-        // 形状定義
         const shapes = {
             'size1': [
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
-                    [0,3],[1,3],[2,3],[3,3],[4,3],
-                    [0,4],[1,4],[2,4],[3,4],[4,4],
-                    [0,5],[1,5],[2,5],[3,5],[4,5],
-                    [0,6],[1,6],[2,6],[3,6],[4,6],
-                    [0,7],[1,7],[2,7]
-                ],
-                [
-                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
-                    [4,0],[5,0],
-                    [4,1],[5,1],
-                    [4,2],[5,2],
-                    [4,3],[5,3],
-                    [3,5],[4,5],[5,5],[6,5],
-                    [3,6],[4,6],[5,6],[6,6],
-                    [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
-                    [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],
-                    [2,9],[3,9],[4,9],[5,9],[6,9],[7,9]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
-                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
-                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],
-                    [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],
-                    [0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
-                    [0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],[11,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
-                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
-                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],
-                    [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5]
-                ]
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+                 [0,3],[1,3],[2,3],[3,3],[4,3],
+                 [0,4],[1,4],[2,4],[3,4],[4,4],
+                 [0,5],[1,5],[2,5],[3,5],[4,5],
+                 [0,6],[1,6],[2,6],[3,6],[4,6],
+                 [0,7],[1,7],[2,7]],
+                [[0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
+                 [4,0],[5,0],[4,1],[5,1],[4,2],[5,2],[4,3],[5,3],
+                 [3,5],[4,5],[5,5],[6,5],[3,6],[4,6],[5,6],[6,6],
+                 [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
+                 [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],
+                 [2,9],[3,9],[4,9],[5,9],[6,9],[7,9]],
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
+                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],
+                 [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],
+                 [0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
+                 [0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7]],
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],[11,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
+                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
+                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],
+                 [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5]]
             ],
             'size2': [
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
-                    [0,2],[1,2],[2,2],[3,2],
-                    [0,3],[1,3],[2,3],[3,3],
-                    [0,4],[1,4],[2,4],[3,4],
-                    [0,5],[1,5],[2,5]
-                ],
-                [
-                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],
-                    [3,0],[4,0],
-                    [3,1],[4,1],
-                    [3,2],[4,2],
-                    [2,4],[3,4],[4,4],[5,4],
-                    [2,5],[3,5],[4,5],[5,5],
-                    [1,6],[2,6],[3,6],[4,6],[5,6],[6,6]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],
-                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],
-                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],
-                    [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
-                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
-                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4]
-                ]
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
+                 [0,2],[1,2],[2,2],[3,2],
+                 [0,3],[1,3],[2,3],[3,3],
+                 [0,4],[1,4],[2,4],[3,4],
+                 [0,5],[1,5],[2,5]],
+                [[0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],
+                 [3,0],[4,0],[3,1],[4,1],[3,2],[4,2],
+                 [2,4],[3,4],[4,4],[5,4],
+                 [2,5],[3,5],[4,5],[5,5],
+                 [1,6],[2,6],[3,6],[4,6],[5,6],[6,6]],
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],
+                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],
+                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],
+                 [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5]],
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
+                 [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4]]
             ],
             'size3': [
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],
-                    [0,2],[1,2],[2,2],
-                    [0,3],[1,3],[2,3],
-                    [0,4],[1,4],[2,4]
-                ],
-                [
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],
-                    [2,0],[3,0],
-                    [2,1],[3,1],
-                    [2,3],[3,3],
-                    [1,4],[2,4],[3,4],[4,4],
-                    [1,5],[2,5],[3,5],[4,5]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],
-                    [0,3],[1,3],[2,3],[3,3],[4,3],
-                    [0,4],[1,4],[2,4],[3,4],[4,4]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],
-                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3]
-                ]
+                [[0,0],[1,0],[2,0],[3,0],[4,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],
+                 [0,2],[1,2],[2,2],
+                 [0,3],[1,3],[2,3],
+                 [0,4],[1,4],[2,4]],
+                [[0,2],[1,2],[2,2],[3,2],[4,2],[5,2],
+                 [2,0],[3,0],[2,1],[3,1],
+                 [2,3],[3,3],
+                 [1,4],[2,4],[3,4],[4,4],
+                 [1,5],[2,5],[3,5],[4,5]],
+                [[0,0],[1,0],[2,0],[3,0],[4,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],
+                 [0,3],[1,3],[2,3],[3,3],[4,3],
+                 [0,4],[1,4],[2,4],[3,4],[4,4]],
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],
+                 [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3]]
             ],
             'size4': [
-                [
-                    [0,0],[1,0],[2,0],[3,0],
-                    [0,1],[1,1],[2,1],[3,1],
-                    [0,2],[1,2],
-                    [0,3],[1,3],
-                    [0,4],[1,4]
-                ],
-                [
-                    [0,2],[1,2],[2,2],[3,2],[4,2],
-                    [2,0],[2,1],
-                    [2,3],[2,4],
-                    [1,3],[3,3],
-                    [1,4],[3,4]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],
-                    [0,1],[1,1],[2,1],[3,1],
-                    [0,2],[1,2],[2,2],[3,2],
-                    [0,3],[1,3],[2,3],[3,3],
-                    [0,4],[1,4],[2,4],[3,4]
-                ],
-                [
-                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
-                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
-                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2]
-                ]
+                [[0,0],[1,0],[2,0],[3,0],
+                 [0,1],[1,1],[2,1],[3,1],
+                 [0,2],[1,2],
+                 [0,3],[1,3],
+                 [0,4],[1,4]],
+                [[0,2],[1,2],[2,2],[3,2],[4,2],
+                 [2,0],[2,1],
+                 [2,3],[2,4],
+                 [1,3],[3,3],
+                 [1,4],[3,4]],
+                [[0,0],[1,0],[2,0],[3,0],
+                 [0,1],[1,1],[2,1],[3,1],
+                 [0,2],[1,2],[2,2],[3,2],
+                 [0,3],[1,3],[2,3],[3,3],
+                 [0,4],[1,4],[2,4],[3,4]],
+                [[0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
+                 [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
+                 [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2]]
             ]
         };
 
-        // 六角形の有効セルを計算
+        function getHexagonPoints(cx, cy, radius) {
+            const points = [];
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i - Math.PI / 2;
+                const x = cx + radius * Math.cos(angle) * cellSize;
+                const y = cy + radius * Math.sin(angle) * cellSize;
+                points.push([x, y]);
+            }
+            return points;
+        }
+
+        function drawHexagon(cx, cy, radius, fillStyle, strokeStyle, lineWidth = 2) {
+            const points = getHexagonPoints(cx, cy, radius);
+            
+            ctx.beginPath();
+            ctx.moveTo(points[0][0], points[0][1]);
+            for (let i = 1; i < points.length; i++) {
+                ctx.lineTo(points[i][0], points[i][1]);
+            }
+            ctx.closePath();
+            
+            if (fillStyle) {
+                ctx.fillStyle = fillStyle;
+                ctx.fill();
+            }
+            
+            if (strokeStyle) {
+                ctx.strokeStyle = strokeStyle;
+                ctx.lineWidth = lineWidth;
+                ctx.stroke();
+            }
+        }
+
+        function isInHexagon(x, y) {
+            const dx = x - centerX;
+            const dy = y - centerY;
+            
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist > hexRadius) return false;
+            
+            const angle = Math.atan2(dy, dx);
+            const hexAngle = Math.floor((angle + Math.PI) / (Math.PI / 3));
+            const edgeAngle = (hexAngle * Math.PI / 3) - Math.PI / 6;
+            const distToEdge = Math.abs(dx * Math.sin(edgeAngle) - dy * Math.cos(edgeAngle));
+            
+            return distToEdge <= hexRadius * 0.866;
+        }
+
+        function calculateTurretZones() {
+            restrictedCells.clear();
+            
+            const turretPositions = [
+                { angle: 0, label: 'Turret 3' },
+                { angle: 210, label: 'Turret 1' },
+                { angle: 330, label: 'Turret 2' }
+            ];
+            
+            turretPositions.forEach(turret => {
+                const angleRad = (turret.angle * Math.PI) / 180;
+                const tx = centerX + Math.cos(angleRad) * (hexRadius - 2);
+                const ty = centerY + Math.sin(angleRad) * (hexRadius - 2);
+                
+                for (let dx = -1; dx <= 1; dx++) {
+                    for (let dy = -1; dy <= 1; dy++) {
+                        const cx = Math.round(tx + dx);
+                        const cy = Math.round(ty + dy);
+                        restrictedCells.add(`${cx},${cy}`);
+                    }
+                }
+            });
+            
+            for (let dx = -1; dx <= 1; dx++) {
+                for (let dy = -1; dy <= 1; dy++) {
+                    restrictedCells.add(`${centerX + dx},${centerY + dy}`);
+                }
+            }
+        }
+
         function calculateHexCells() {
             validHexCells.clear();
-            const radius = hexRadius;
+            calculateTurretZones();
             
-            for (let x = 0; x < 30; x++) {
-                for (let y = 0; y < 30; y++) {
-                    const dx = x - centerX;
-                    const dy = y - centerY;
-                    const distance = Math.sqrt(dx * dx + dy * dy);
-                    
-                    if (distance <= radius) {
+            for (let x = 0; x < 40; x++) {
+                for (let y = 0; y < 40; y++) {
+                    if (isInHexagon(x, y) && !restrictedCells.has(`${x},${y}`)) {
                         validHexCells.add(`${x},${y}`);
                     }
                 }
@@ -732,84 +801,52 @@
             updateStats();
         }
 
-        // 初期化
-        function init() {
-            calculateHexCells();
-            adjustCanvasSize();
-            generateShape();
-            
-            // イベントリスナー
-            canvas.addEventListener('click', handleMapClick);
-            canvas.addEventListener('mousemove', handleMapHover);
-            
-            // タッチイベント
-            canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-            canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-            canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-            
-            // リサイズ対応
-            window.addEventListener('resize', debounce(adjustCanvasSize, 250));
-        }
-
-        // デバウンス関数
-        function debounce(func, wait) {
-            let timeout;
-            return function executedFunction(...args) {
-                const later = () => {
-                    clearTimeout(timeout);
-                    func(...args);
-                };
-                clearTimeout(timeout);
-                timeout = setTimeout(later, wait);
-            };
-        }
-
-        // タッチイベント処理
-        function handleTouchStart(e) {
-            e.preventDefault();
-            const pos = getTouchPos(e);
-            touchStartX = pos.x;
-            touchStartY = pos.y;
-            handleHover(pos.x, pos.y);
-        }
-
-        function handleTouchMove(e) {
-            e.preventDefault();
-            const pos = getTouchPos(e);
-            handleHover(pos.x, pos.y);
-        }
-
-        function handleTouchEnd(e) {
-            e.preventDefault();
-            const pos = getTouchPos(e);
-            
-            // タッチ開始位置とほぼ同じ場所でタッチが終わった場合のみクリックとみなす
-            if (Math.abs(pos.x - touchStartX) <= 1 && Math.abs(pos.y - touchStartY) <= 1) {
-                handleClick(pos.x, pos.y);
-            }
-        }
-
-        // グリッド描画
         function drawGrid() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            ctx.fillStyle = '#d4915c';
+            const gradient = ctx.createRadialGradient(
+                canvas.width/2, canvas.height/2, 0,
+                canvas.width/2, canvas.height/2, canvas.width/2
+            );
+            gradient.addColorStop(0, '#d4915c');
+            gradient.addColorStop(1, '#b87a47');
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            ctx.fillStyle = 'rgba(139, 90, 50, 0.3)';
-            ctx.beginPath();
-            ctx.arc(centerX * cellSize + cellSize/2, centerY * cellSize + cellSize/2, 
-                    hexRadius * cellSize, 0, Math.PI * 2);
-            ctx.fill();
+            drawHexagon(
+                centerX * cellSize + cellSize/2,
+                centerY * cellSize + cellSize/2,
+                hexRadius,
+                'rgba(139, 90, 50, 0.3)',
+                'rgba(255, 255, 255, 0.6)',
+                4
+            );
             
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.lineWidth = 3;
-            ctx.beginPath();
-            ctx.arc(centerX * cellSize + cellSize/2, centerY * cellSize + cellSize/2, 
-                    hexRadius * cellSize, 0, Math.PI * 2);
-            ctx.stroke();
+            const cx = centerX * cellSize + cellSize/2;
+            const cy = centerY * cellSize + cellSize/2;
             
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.strokeStyle = 'rgba(200, 200, 200, 0.4)';
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 5]);
+            
+            for (let i = 0; i < 6; i++) {
+                const angle = (Math.PI / 3) * i - Math.PI / 2;
+                const x = cx + hexRadius * cellSize * Math.cos(angle);
+                const y = cy + hexRadius * cellSize * Math.sin(angle);
+                
+                ctx.beginPath();
+                ctx.moveTo(cx, cy);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            
+            ctx.setLineDash([]);
+            
+            for (let r of [hexRadius * 0.33, hexRadius * 0.66]) {
+                drawHexagon(cx, cy, r, null, 'rgba(200, 200, 200, 0.3)', 1);
+            }
+            
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
             ctx.lineWidth = 1;
             
             validHexCells.forEach(cell => {
@@ -817,53 +854,147 @@
                 ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
             });
             
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.fillRect(centerX * cellSize - cellSize, centerY * cellSize - cellSize, 
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.25)';
+            restrictedCells.forEach(cell => {
+                const [x, y] = cell.split(',').map(Number);
+                ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            });
+            
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.fillRect((centerX - 1) * cellSize, (centerY - 1) * cellSize, 
                         cellSize * 2, cellSize * 2);
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(centerX * cellSize - cellSize, centerY * cellSize - cellSize, 
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.strokeRect((centerX - 1) * cellSize, (centerY - 1) * cellSize, 
                           cellSize * 2, cellSize * 2);
             
-            const fontSize = Math.max(cellSize * 0.4, 8);
             ctx.fillStyle = '#fff';
-            ctx.font = `bold ${fontSize}px Arial`;
+            ctx.font = 'bold 12px Arial';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText('Capital', centerX * cellSize, centerY * cellSize);
             
+            const turretPositions = [
+                { angle: 0, label: 'T3' },
+                { angle: 210, label: 'T1' },
+                { angle: 330, label: 'T2' }
+            ];
+            
+            turretPositions.forEach(turret => {
+                const angleRad = (turret.angle * Math.PI) / 180;
+                const tx = (centerX + Math.cos(angleRad) * (hexRadius - 2)) * cellSize;
+                const ty = (centerY + Math.sin(angleRad) * (hexRadius - 2)) * cellSize;
+                
+                ctx.fillStyle = 'rgba(150, 150, 150, 0.6)';
+                ctx.beginPath();
+                ctx.arc(tx, ty, cellSize * 0.8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 10px Arial';
+                ctx.fillText(turret.label, tx, ty);
+            });
+            
             redrawPlacedAlliances();
         }
 
-        // 形状選択
-        function selectShape(shapeType) {
-            currentShape = shapeType;
-            rotation = 0;
-            
-            document.querySelectorAll('.shape-btn').forEach(btn => {
-                btn.classList.remove('active');
+        function redrawPlacedAlliances() {
+            placedAlliances.forEach(alliance => {
+                ctx.fillStyle = alliance.color;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                
+                alliance.cells.forEach(([x, y]) => {
+                    ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+                    ctx.strokeRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+                });
+                
+                if (alliance.cells.length > 0) {
+                    const centerX = alliance.cells.reduce((sum, [x, y]) => sum + x, 0) / alliance.cells.length;
+                    const centerY = alliance.cells.reduce((sum, [x, y]) => sum + y, 0) / alliance.cells.length;
+                    
+                    let fontSize = 10;
+                    if (alliance.type === 'size3') fontSize = 8;
+                    if (alliance.type === 'size4') fontSize = 7;
+                    
+                    ctx.fillStyle = '#fff';
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 3;
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    const textX = (centerX + 0.5) * cellSize;
+                    const textY = (centerY + 0.5) * cellSize;
+                    
+                    ctx.strokeText(alliance.name, textX, textY);
+                    ctx.fillText(alliance.name, textX, textY);
+                }
             });
-            event.target.closest('.shape-btn').classList.add('active');
-            
+        }
+
+        function initColorPicker() {
+            const picker = document.getElementById('colorPicker');
+            colors.forEach((color, index) => {
+                const option = document.createElement('div');
+                option.className = 'color-option';
+                if (index === 0) option.classList.add('selected');
+                option.style.background = color;
+                option.onclick = () => selectColor(color, option);
+                picker.appendChild(option);
+            });
+        }
+
+        function selectColor(color, element) {
+            selectedColor = color;
+            document.querySelectorAll('.color-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            if (currentShapeData) {
+                currentShapeData.color = color;
+                drawPreview();
+            }
+        }
+
+        function initShapeCards() {
+            const cards = document.querySelectorAll('.shape-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    cards.forEach(c => c.classList.remove('selected'));
+                    this.classList.add('selected');
+                    currentShape = this.dataset.size;
+                    rotation = 0;
+                    generateShape();
+                });
+            });
+        }
+
+        function openModal(x, y) {
+            pendingPlacement = { x, y };
+            document.getElementById('placementModal').style.display = 'block';
             generateShape();
         }
 
-        // 形状生成
+        function closeModal() {
+            document.getElementById('placementModal').style.display = 'none';
+            pendingPlacement = null;
+            drawGrid();
+        }
+
         function generateShape() {
-            const name = document.getElementById('allianceName').value || '同盟';
-            const color = document.getElementById('allianceColor').value;
+            const name = document.getElementById('allianceName').value || 'Alliance';
             
             currentShapeData = {
                 type: currentShape,
                 name: name,
-                color: color,
+                color: selectedColor,
                 rotation: rotation
             };
             
             drawPreview();
         }
 
-        // プレビュー描画
         function drawPreview() {
             previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
             
@@ -899,81 +1030,34 @@
             });
             
             previewCtx.fillStyle = '#fff';
-            previewCtx.font = 'bold 12px Arial';
+            previewCtx.font = 'bold 11px Arial';
             previewCtx.textAlign = 'center';
             previewCtx.fillText(currentShapeData.name, previewCanvas.width / 2, previewCanvas.height - 25);
             
-            const sizeLabels = {
-                'size1': '1/3',
-                'size2': '1/6',
-                'size3': '1/12',
-                'size4': '1/24'
-            };
-            
-            previewCtx.font = '10px Arial';
-            previewCtx.fillText(`${shapeCoords.length}マス (${sizeLabels[currentShapeData.type]})`, 
+            const sizeLabels = { 'size1': '1/3', 'size2': '1/6', 'size3': '1/12', 'size4': '1/24' };
+            previewCtx.font = '9px Arial';
+            previewCtx.fillText(`${shapeCoords.length} cells (${sizeLabels[currentShapeData.type]})`, 
                               previewCanvas.width / 2, previewCanvas.height - 10);
         }
 
-        // 回転
         function rotateShape() {
-            if (!currentShapeData) {
-                generateShape();
-                return;
-            }
             rotation = (rotation + 1) % shapes[currentShape].length;
-            currentShapeData.rotation = rotation;
-            drawPreview();
+            generateShape();
         }
 
-        // マップクリック処理
-        function handleMapClick(e) {
-            const pos = getMousePos(e);
-            handleClick(pos.x, pos.y);
-        }
-
-        function handleClick(x, y) {
-            if (!currentShapeData) {
-                alert('まず「形状を生成」をクリックしてください！');
-                return;
-            }
+        function confirmPlacement() {
+            if (!pendingPlacement || !currentShapeData) return;
+            
+            const { x, y } = pendingPlacement;
             
             if (canPlaceShape(x, y)) {
                 placeShape(x, y);
+                closeModal();
             } else {
-                alert('❌ この位置には配置できません！\n・首都の六角形内に配置してください\n・既に配置済みの場所は使えません');
+                alert('❌ Cannot place here!\n• Must be within hexagon\n• Cannot overlap turrets or other alliances');
             }
         }
 
-        // マップホバー処理
-        function handleMapHover(e) {
-            const pos = getMousePos(e);
-            handleHover(pos.x, pos.y);
-        }
-
-        function handleHover(x, y) {
-            if (!currentShapeData) return;
-            
-            drawGrid();
-            
-            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
-            const canPlace = canPlaceShape(x, y);
-            
-            ctx.fillStyle = canPlace ? 'rgba(76, 175, 80, 0.6)' : 'rgba(244, 67, 54, 0.6)';
-            ctx.strokeStyle = '#fff';
-            ctx.lineWidth = 2;
-            
-            shapeCoords.forEach(([dx, dy]) => {
-                const cellX = x + dx;
-                const cellY = y + dy;
-                if (validHexCells.has(`${cellX},${cellY}`)) {
-                    ctx.fillRect(cellX * cellSize + 1, cellY * cellSize + 1, cellSize - 2, cellSize - 2);
-                    ctx.strokeRect(cellX * cellSize + 1, cellY * cellSize + 1, cellSize - 2, cellSize - 2);
-                }
-            });
-        }
-
-        // 配置可能かチェック
         function canPlaceShape(x, y) {
             const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
             
@@ -993,7 +1077,6 @@
             return true;
         }
 
-        // 形状配置
         function placeShape(x, y) {
             const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
             const cells = shapeCoords.map(([dx, dy]) => [x + dx, y + dy]);
@@ -1013,86 +1096,52 @@
             updateStats();
         }
 
-        // 配置済み同盟再描画
-        function redrawPlacedAlliances() {
-            placedAlliances.forEach(alliance => {
-                ctx.fillStyle = alliance.color;
-                ctx.strokeStyle = '#fff';
-                ctx.lineWidth = 2;
-                
-                alliance.cells.forEach(([x, y]) => {
-                    ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
-                    ctx.strokeRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
-                });
-                
-                if (alliance.cells.length > 0) {
-                    const centerX = alliance.cells.reduce((sum, [x, y]) => sum + x, 0) / alliance.cells.length;
-                    const centerY = alliance.cells.reduce((sum, [x, y]) => sum + y, 0) / alliance.cells.length;
-                    
-                    let fontSize = cellSize * 0.37;
-                    if (alliance.type === 'size3') fontSize = cellSize * 0.3;
-                    if (alliance.type === 'size4') fontSize = cellSize * 0.27;
-                    fontSize = Math.max(fontSize, 7);
-                    
-                    ctx.fillStyle = '#fff';
-                    ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 3;
-                    ctx.font = `bold ${fontSize}px Arial`;
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-                    
-                    const textX = (centerX + 0.5) * cellSize;
-                    const textY = (centerY + 0.5) * cellSize;
-                    
-                    ctx.strokeText(alliance.name, textX, textY);
-                    ctx.fillText(alliance.name, textX, textY);
-                }
-            });
-        }
+        canvas.addEventListener('click', function(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / cellSize);
+            const y = Math.floor((e.clientY - rect.top) / cellSize);
+            
+            openModal(x, y);
+        });
 
-        // 統計更新
+        canvas.addEventListener('touchend', function(e) {
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const touch = e.changedTouches[0];
+            const x = Math.floor((touch.clientX - rect.left) / cellSize);
+            const y = Math.floor((touch.clientY - rect.top) / cellSize);
+            
+            openModal(x, y);
+        });
+
         function updateStats() {
             const totalCells = validHexCells.size;
             const usedCells = occupiedCells.size;
             const percentage = totalCells > 0 ? Math.round((usedCells / totalCells) * 100) : 0;
             
             document.getElementById('placedCount').textContent = placedAlliances.length;
-            document.getElementById('usedCells').textContent = usedCells;
-            document.getElementById('totalCells').textContent = totalCells;
             document.getElementById('percentage').textContent = percentage;
+            document.getElementById('statBarFill').style.width = percentage + '%';
         }
 
-        // 同盟リスト更新
         function updateAllianceList() {
-            const list = document.getElementById('allianceList');
-            list.innerHTML = '';
-            
-            if (placedAlliances.length === 0) {
-                list.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 10px;">まだ配置されていません</div>';
-                return;
-            }
-            
-            const sizeLabels = {
-                'size1': '1/3',
-                'size2': '1/6',
-                'size3': '1/12',
-                'size4': '1/24'
-            };
+            const chips = document.getElementById('allianceChips');
+            const count = document.getElementById('allianceCount');
+            chips.innerHTML = '';
+            count.textContent = placedAlliances.length;
             
             placedAlliances.forEach(alliance => {
-                const item = document.createElement('div');
-                item.className = 'alliance-item';
-                item.innerHTML = `
-                    <span class="alliance-name" style="background:${alliance.color}; padding:4px 8px; border-radius:4px; font-weight: 500;">
-                        ${alliance.name} <span style="opacity:0.7; font-size:0.85em">[${sizeLabels[alliance.type]}]</span>
-                    </span>
-                    <button class="delete-btn" onclick="deleteAlliance(${alliance.id})">削除</button>
+                const chip = document.createElement('div');
+                chip.className = 'alliance-chip';
+                chip.style.background = alliance.color;
+                chip.innerHTML = `
+                    <span>${alliance.name}</span>
+                    <button class="chip-delete" onclick="deleteAlliance(${alliance.id})">×</button>
                 `;
-                list.appendChild(item);
+                chips.appendChild(chip);
             });
         }
 
-        // 同盟削除
         function deleteAlliance(id) {
             const alliance = placedAlliances.find(a => a.id === id);
             if (alliance) {
@@ -1106,14 +1155,13 @@
             }
         }
 
-        // マップクリア
         function clearMap() {
             if (placedAlliances.length === 0) {
-                alert('配置されている同盟がありません');
+                alert('No alliances placed yet');
                 return;
             }
             
-            if (confirm('すべての配置をクリアしますか？')) {
+            if (confirm('Clear all placements?')) {
                 placedAlliances = [];
                 occupiedCells.clear();
                 drawGrid();
@@ -1122,7 +1170,6 @@
             }
         }
 
-        // 画像エクスポート
         function exportImage() {
             const link = document.createElement('a');
             const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
@@ -1131,7 +1178,15 @@
             link.click();
         }
 
-        // 起動
+        function init() {
+            calculateHexCells();
+            drawGrid();
+            initColorPicker();
+            initShapeCards();
+            
+            document.getElementById('allianceName').addEventListener('input', generateShape);
+        }
+
         init();
     </script>
 </body>
