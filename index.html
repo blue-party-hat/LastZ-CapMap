@@ -213,7 +213,6 @@
       .main-container{height:calc(100vh - 60px);padding:5px}
       #hexCanvas{max-width:95vmin;max-height:95vmin}
 
-      /* Keep legend visible at top on mobile */
       .legend{
         top:10px;right:10px;
         padding:12px;
@@ -222,7 +221,6 @@
         font-size:.75em;
       }
 
-      /* Keep instructions visible at bottom on mobile */
       .instructions{
         bottom:10px;left:10px;
         padding:12px;
@@ -236,7 +234,6 @@
     }
 
     @media (max-width:480px){
-      /* On very small screens, keep both visible but smaller and scrollable */
       .legend{
         top:8px;right:8px;
         padding:10px;
@@ -463,9 +460,17 @@
       ctx.lineWidth = 2;
       ctx.stroke();
 
-      const turretPositions = [1, 3, 5];
-      turretPositions.forEach(i => {
-        const v = getHexagonVertex(i, innerHexRadius);
+      // Turret positions with labels
+      // Flat-top hex: 0=right, 1=top-right, 2=top-left, 3=left, 4=bottom-left, 5=bottom-right
+      // T1 = bottom-left (4), T2 = top-left (2), T3 = right (0)
+      const turrets = [
+        { index: 4, label: 'T1' },  // bottom-left
+        { index: 2, label: 'T2' },  // top-left
+        { index: 0, label: 'T3' }   // right middle
+      ];
+
+      turrets.forEach(turret => {
+        const v = getHexagonVertex(turret.index, innerHexRadius);
 
         ctx.fillStyle = '#2196F3';
         ctx.beginPath();
@@ -477,10 +482,10 @@
         ctx.stroke();
 
         ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 20px sans-serif';
+        ctx.font = 'bold 16px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('T', v.x, v.y);
+        ctx.fillText(turret.label, v.x, v.y);
       });
 
       ctx.strokeStyle = 'rgba(255,255,255,0.28)';
