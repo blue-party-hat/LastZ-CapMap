@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LastZ 首都同盟配置ツール</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #d4915c 0%, #c67d47 100%);
+            color: #fff;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .main-layout {
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            gap: 25px;
+        }
+
+        .controls-panel {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            height: fit-content;
+        }
+
+        .control-section {
+            margin-bottom: 20px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 12px;
+            font-size: 1.1em;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 6px;
+        }
+
+        .shape-selector {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .shape-btn {
+            padding: 10px 8px;
+            background: rgba(255, 255, 255, 0.15);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85em;
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .shape-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.05);
+        }
+
+        .shape-btn.active {
+            border-color: #4CAF50;
+            background: rgba(76, 175, 80, 0.4);
+        }
+
+        .shape-size {
+            font-size: 0.75em;
+            opacity: 0.8;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .input-group input[type="text"],
+        .input-group input[type="color"] {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+        }
+
+        .input-group input[type="color"] {
+            height: 50px;
+            cursor: pointer;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(76, 175, 80, 0.5);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.5);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #2196F3, #0b7dda);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(33, 150, 243, 0.5);
+        }
+
+        .btn-export {
+            background: linear-gradient(135deg, #FF9800, #F57C00);
+            color: white;
+        }
+
+        .btn-export:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 152, 0, 0.5);
+        }
+
+        .map-container {
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #capitalMap {
+            background: #d4915c;
+            border: 4px solid rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            cursor: crosshair;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .preview-container {
+            margin-top: 15px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+        }
+
+        .preview-container h4 {
+            margin-bottom: 10px;
+            font-size: 1em;
+        }
+
+        #previewCanvas {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.85em;
+            line-height: 1.6;
+        }
+
+        .placed-alliances {
+            margin-top: 15px;
+            max-height: 250px;
+            overflow-y: auto;
+        }
+
+        .alliance-item {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 8px 10px;
+            margin-bottom: 6px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+        }
+
+        .alliance-item .delete-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: all 0.2s;
+        }
+
+        .alliance-item .delete-btn:hover {
+            background: #da190b;
+        }
+
+        .stats {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏰 LastZ 首都同盟配置ツール</h1>
+        
+        <div class="main-layout">
+            <!-- コントロールパネル -->
+            <div class="controls-panel">
+                <div class="control-section">
+                    <h3>📐 建築物サイズ</h3>
+                    <div class="shape-selector">
+                        <button class="shape-btn active" onclick="selectShape('size1')">
+                            <span>⬛ サイズ1</span>
+                            <span class="shape-size">1/3エリア</span>
+                        </button>
+                        <button class="shape-btn" onclick="selectShape('size2')">
+                            <span>◼️ サイズ2</span>
+                            <span class="shape-size">1/6エリア</span>
+                        </button>
+                        <button class="shape-btn" onclick="selectShape('size3')">
+                            <span>▪️ サイズ3</span>
+                            <span class="shape-size">1/12エリア</span>
+                        </button>
+                        <button class="shape-btn" onclick="selectShape('size4')">
+                            <span>• サイズ4</span>
+                            <span class="shape-size">1/24エリア</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>✏️ 同盟設定</h3>
+                    <div class="input-group">
+                        <label for="allianceName">同盟名:</label>
+                        <input type="text" id="allianceName" placeholder="例: [B777]SuperZeus" maxlength="15">
+                    </div>
+                    <div class="input-group">
+                        <label for="allianceColor">カラー:</label>
+                        <input type="color" id="allianceColor" value="#4CAF50">
+                    </div>
+                </div>
+
+                <div class="control-section">
+                    <h3>🎮 操作</h3>
+                    <button class="btn btn-primary" onclick="generateShape()">🎲 形状を生成</button>
+                    <button class="btn btn-info" onclick="rotateShape()">🔄 90度回転</button>
+                    <button class="btn btn-export" onclick="exportImage()">💾 画像で保存</button>
+                    <button class="btn btn-secondary" onclick="clearMap()">🗑️ 全削除</button>
+                </div>
+
+                <div class="preview-container">
+                    <h4>現在の形状:</h4>
+                    <canvas id="previewCanvas" width="200" height="200"></canvas>
+                </div>
+
+                <div class="info-box">
+                    <strong>📖 使い方:</strong><br>
+                    1️⃣ 建築物のサイズを選択<br>
+                    2️⃣ 同盟名とカラーを入力<br>
+                    3️⃣ 「形状を生成」をクリック<br>
+                    4️⃣ 首都の六角形内をクリックして配置<br>
+                    5️⃣ 回転して最適な配置を探そう！
+                </div>
+
+                <div class="stats">
+                    <strong>📊 統計:</strong><br>
+                    配置済み: <span id="placedCount">0</span>個<br>
+                    使用率: <span id="usedCells">0</span>/<span id="totalCells">0</span> (<span id="percentage">0</span>%)
+                </div>
+
+                <div class="placed-alliances">
+                    <h4>📍 配置済み同盟:</h4>
+                    <div id="allianceList"></div>
+                </div>
+            </div>
+
+            <!-- マップエリア -->
+            <div class="map-container">
+                <canvas id="capitalMap" width="900" height="900"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // グローバル変数
+        const canvas = document.getElementById('capitalMap');
+        const ctx = canvas.getContext('2d');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const previewCtx = previewCanvas.getContext('2d');
+        
+        const cellSize = 30;
+        const hexRadius = 13;
+        const centerX = 15;
+        const centerY = 15;
+        
+        let currentShape = 'size1';
+        let currentShapeData = null;
+        let rotation = 0;
+        let placedAlliances = [];
+        let occupiedCells = new Set();
+        let validHexCells = new Set();
+
+        // 六角形の総面積を計算: π * r^2 ≈ 3.14 * 13^2 ≈ 530セル
+        // サイズ1 (1/3): 約177セル
+        // サイズ2 (1/6): 約88セル
+        // サイズ3 (1/12): 約44セル
+        // サイズ4 (1/24): 約22セル
+        
+        // 形状定義（相対座標）
+        const shapes = {
+            // サイズ1: 1/3エリア (約177セル)
+            'size1': [
+                // パターン1: L字型の大型
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+                    [0,3],[1,3],[2,3],[3,3],[4,3],
+                    [0,4],[1,4],[2,4],[3,4],[4,4],
+                    [0,5],[1,5],[2,5],[3,5],[4,5],
+                    [0,6],[1,6],[2,6],[3,6],[4,6],
+                    [0,7],[1,7],[2,7]
+                ],
+                // パターン2: T字型の大型
+                [
+                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],
+                    [4,0],[5,0],
+                    [4,1],[5,1],
+                    [4,2],[5,2],
+                    [4,3],[5,3],
+                    [3,5],[4,5],[5,5],[6,5],
+                    [3,6],[4,6],[5,6],[6,6],
+                    [2,7],[3,7],[4,7],[5,7],[6,7],[7,7],
+                    [2,8],[3,8],[4,8],[5,8],[6,8],[7,8],
+                    [2,9],[3,9],[4,9],[5,9],[6,9],[7,9]
+                ],
+                // パターン3: 正方形の大型
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
+                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],
+                    [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],
+                    [0,6],[1,6],[2,6],[3,6],[4,6],[5,6],[6,6],[7,6],[8,6],
+                    [0,7],[1,7],[2,7],[3,7],[4,7],[5,7],[6,7],[7,7],[8,7]
+                ],
+                // パターン4: 横長の大型
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],[9,0],[10,0],[11,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],[9,1],[10,1],[11,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],[9,2],[10,2],[11,2],
+                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],[9,3],[10,3],[11,3],
+                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4],[9,4],[10,4],[11,4],
+                    [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5],[7,5],[8,5],[9,5],[10,5],[11,5]
+                ]
+            ],
+            
+            // サイズ2: 1/6エリア (約88セル)
+            'size2': [
+                // パターン1: L字型
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
+                    [0,2],[1,2],[2,2],[3,2],
+                    [0,3],[1,3],[2,3],[3,3],
+                    [0,4],[1,4],[2,4],[3,4],
+                    [0,5],[1,5],[2,5]
+                ],
+                // パターン2: T字型
+                [
+                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],
+                    [3,0],[4,0],
+                    [3,1],[4,1],
+                    [3,2],[4,2],
+                    [2,4],[3,4],[4,4],[5,4],
+                    [2,5],[3,5],[4,5],[5,5],
+                    [1,6],[2,6],[3,6],[4,6],[5,6],[6,6]
+                ],
+                // パターン3: 正方形
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],
+                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],
+                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],
+                    [0,5],[1,5],[2,5],[3,5],[4,5],[5,5],[6,5]
+                ],
+                // パターン4: 横長
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],[8,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],[8,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],[8,2],
+                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3],[8,3],
+                    [0,4],[1,4],[2,4],[3,4],[4,4],[5,4],[6,4],[7,4],[8,4]
+                ]
+            ],
+            
+            // サイズ3: 1/12エリア (約44セル)
+            'size3': [
+                // パターン1: L字型
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],
+                    [0,2],[1,2],[2,2],
+                    [0,3],[1,3],[2,3],
+                    [0,4],[1,4],[2,4]
+                ],
+                // パターン2: T字型
+                [
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],
+                    [2,0],[3,0],
+                    [2,1],[3,1],
+                    [2,3],[3,3],
+                    [1,4],[2,4],[3,4],[4,4],
+                    [1,5],[2,5],[3,5],[4,5]
+                ],
+                // パターン3: 正方形
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],
+                    [0,3],[1,3],[2,3],[3,3],[4,3],
+                    [0,4],[1,4],[2,4],[3,4],[4,4]
+                ],
+                // パターン4: 横長
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],[7,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],[7,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2],[7,2],
+                    [0,3],[1,3],[2,3],[3,3],[4,3],[5,3],[6,3],[7,3]
+                ]
+            ],
+            
+            // サイズ4: 1/24エリア (約22セル)
+            'size4': [
+                // パターン1: L字型
+                [
+                    [0,0],[1,0],[2,0],[3,0],
+                    [0,1],[1,1],[2,1],[3,1],
+                    [0,2],[1,2],
+                    [0,3],[1,3],
+                    [0,4],[1,4]
+                ],
+                // パターン2: T字型
+                [
+                    [0,2],[1,2],[2,2],[3,2],[4,2],
+                    [2,0],[2,1],
+                    [2,3],[2,4],
+                    [1,3],[3,3],
+                    [1,4],[3,4]
+                ],
+                // パターン3: 正方形
+                [
+                    [0,0],[1,0],[2,0],[3,0],
+                    [0,1],[1,1],[2,1],[3,1],
+                    [0,2],[1,2],[2,2],[3,2],
+                    [0,3],[1,3],[2,3],[3,3],
+                    [0,4],[1,4],[2,4],[3,4]
+                ],
+                // パターン4: 横長
+                [
+                    [0,0],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0],
+                    [0,1],[1,1],[2,1],[3,1],[4,1],[5,1],[6,1],
+                    [0,2],[1,2],[2,2],[3,2],[4,2],[5,2],[6,2]
+                ]
+            ]
+        };
+
+        // 六角形の有効セルを計算
+        function calculateHexCells() {
+            validHexCells.clear();
+            const radius = hexRadius;
+            
+            for (let x = 0; x < 30; x++) {
+                for (let y = 0; y < 30; y++) {
+                    const dx = x - centerX;
+                    const dy = y - centerY;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance <= radius) {
+                        validHexCells.add(`${x},${y}`);
+                    }
+                }
+            }
+            
+            console.log(`総有効セル数: ${validHexCells.size}`);
+            updateStats();
+        }
+
+        // 初期化
+        function init() {
+            calculateHexCells();
+            drawGrid();
+            generateShape();
+            canvas.addEventListener('click', handleMapClick);
+            canvas.addEventListener('mousemove', handleMapHover);
+        }
+
+        // グリッド描画
+        function drawGrid() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // 背景
+            ctx.fillStyle = '#d4915c';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // 六角形エリア描画
+            ctx.fillStyle = 'rgba(139, 90, 50, 0.3)';
+            ctx.beginPath();
+            ctx.arc(centerX * cellSize + cellSize/2, centerY * cellSize + cellSize/2, 
+                    hexRadius * cellSize, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // 六角形の境界線
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(centerX * cellSize + cellSize/2, centerY * cellSize + cellSize/2, 
+                    hexRadius * cellSize, 0, Math.PI * 2);
+            ctx.stroke();
+            
+            // グリッド線（六角形内のみ）
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            validHexCells.forEach(cell => {
+                const [x, y] = cell.split(',').map(Number);
+                ctx.strokeRect(x * cellSize, y * cellSize, cellSize, cellSize);
+            });
+            
+            // 中央のキャピタル表示
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
+            ctx.fillRect(centerX * cellSize - cellSize, centerY * cellSize - cellSize, 
+                        cellSize * 2, cellSize * 2);
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(centerX * cellSize - cellSize, centerY * cellSize - cellSize, 
+                          cellSize * 2, cellSize * 2);
+            
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 12px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('Capital', centerX * cellSize, centerY * cellSize);
+            
+            // 配置済み同盟を再描画
+            redrawPlacedAlliances();
+        }
+
+        // 形状選択
+        function selectShape(shapeType) {
+            currentShape = shapeType;
+            rotation = 0;
+            
+            // ボタンのアクティブ状態更新
+            document.querySelectorAll('.shape-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.closest('.shape-btn').classList.add('active');
+            
+            generateShape();
+        }
+
+        // 形状生成
+        function generateShape() {
+            const name = document.getElementById('allianceName').value || '同盟';
+            const color = document.getElementById('allianceColor').value;
+            
+            currentShapeData = {
+                type: currentShape,
+                name: name,
+                color: color,
+                rotation: rotation
+            };
+            
+            drawPreview();
+        }
+
+        // プレビュー描画
+        function drawPreview() {
+            previewCtx.clearRect(0, 0, previewCanvas.width, previewCanvas.height);
+            
+            if (!currentShapeData) return;
+            
+            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
+            
+            // スケーリング計算
+            const maxX = Math.max(...shapeCoords.map(([x, y]) => x)) + 1;
+            const maxY = Math.max(...shapeCoords.map(([x, y]) => y)) + 1;
+            const scale = Math.min(160 / maxX, 160 / maxY);
+            const previewCellSize = Math.max(Math.min(scale, 15), 5);
+            
+            const offsetX = (previewCanvas.width - maxX * previewCellSize) / 2;
+            const offsetY = 20;
+            
+            previewCtx.fillStyle = currentShapeData.color;
+            previewCtx.strokeStyle = '#fff';
+            previewCtx.lineWidth = 1;
+            
+            shapeCoords.forEach(([x, y]) => {
+                previewCtx.fillRect(
+                    offsetX + x * previewCellSize, 
+                    offsetY + y * previewCellSize, 
+                    previewCellSize - 1, 
+                    previewCellSize - 1
+                );
+                previewCtx.strokeRect(
+                    offsetX + x * previewCellSize, 
+                    offsetY + y * previewCellSize, 
+                    previewCellSize - 1, 
+                    previewCellSize - 1
+                );
+            });
+            
+            // 下部に同盟名と面積表示
+            previewCtx.fillStyle = '#fff';
+            previewCtx.font = 'bold 12px Arial';
+            previewCtx.textAlign = 'center';
+            previewCtx.fillText(currentShapeData.name, previewCanvas.width / 2, previewCanvas.height - 25);
+            
+            const sizeLabels = {
+                'size1': '1/3',
+                'size2': '1/6',
+                'size3': '1/12',
+                'size4': '1/24'
+            };
+            
+            previewCtx.font = '10px Arial';
+            previewCtx.fillText(`${shapeCoords.length}マス (${sizeLabels[currentShapeData.type]})`, 
+                              previewCanvas.width / 2, previewCanvas.height - 10);
+        }
+
+        // 回転
+        function rotateShape() {
+            if (!currentShapeData) {
+                generateShape();
+                return;
+            }
+            rotation = (rotation + 1) % shapes[currentShape].length;
+            currentShapeData.rotation = rotation;
+            drawPreview();
+        }
+
+        // マップクリック処理
+        function handleMapClick(e) {
+            if (!currentShapeData) {
+                alert('まず「形状を生成」をクリックしてください！');
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / cellSize);
+            const y = Math.floor((e.clientY - rect.top) / cellSize);
+            
+            if (canPlaceShape(x, y)) {
+                placeShape(x, y);
+            } else {
+                alert('❌ この位置には配置できません！\n・首都の六角形内に配置してください\n・既に配置済みの場所は使えません');
+            }
+        }
+
+        // マップホバー処理
+        function handleMapHover(e) {
+            if (!currentShapeData) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((e.clientX - rect.left) / cellSize);
+            const y = Math.floor((e.clientY - rect.top) / cellSize);
+            
+            drawGrid();
+            
+            // ホバープレビュー
+            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
+            const canPlace = canPlaceShape(x, y);
+            
+            ctx.fillStyle = canPlace ? 'rgba(76, 175, 80, 0.6)' : 'rgba(244, 67, 54, 0.6)';
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            
+            shapeCoords.forEach(([dx, dy]) => {
+                const cellX = x + dx;
+                const cellY = y + dy;
+                if (validHexCells.has(`${cellX},${cellY}`)) {
+                    ctx.fillRect(cellX * cellSize + 1, cellY * cellSize + 1, cellSize - 2, cellSize - 2);
+                    ctx.strokeRect(cellX * cellSize + 1, cellY * cellSize + 1, cellSize - 2, cellSize - 2);
+                }
+            });
+        }
+
+        // 配置可能かチェック
+        function canPlaceShape(x, y) {
+            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
+            
+            for (let [dx, dy] of shapeCoords) {
+                const cellX = x + dx;
+                const cellY = y + dy;
+                
+                if (!validHexCells.has(`${cellX},${cellY}`)) {
+                    return false;
+                }
+                
+                if (occupiedCells.has(`${cellX},${cellY}`)) {
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        // 形状配置
+        function placeShape(x, y) {
+            const shapeCoords = shapes[currentShapeData.type][currentShapeData.rotation % shapes[currentShapeData.type].length];
+            const cells = shapeCoords.map(([dx, dy]) => [x + dx, y + dy]);
+            
+            cells.forEach(([cx, cy]) => {
+                occupiedCells.add(`${cx},${cy}`);
+            });
+            
+            placedAlliances.push({
+                ...currentShapeData,
+                cells: cells,
+                id: Date.now()
+            });
+            
+            drawGrid();
+            updateAllianceList();
+            updateStats();
+        }
+
+        // 配置済み同盟再描画
+        function redrawPlacedAlliances() {
+            placedAlliances.forEach(alliance => {
+                ctx.fillStyle = alliance.color;
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 2;
+                
+                alliance.cells.forEach(([x, y]) => {
+                    ctx.fillRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+                    ctx.strokeRect(x * cellSize + 1, y * cellSize + 1, cellSize - 2, cellSize - 2);
+                });
+                
+                // テキスト描画
+                if (alliance.cells.length > 0) {
+                    const centerX = alliance.cells.reduce((sum, [x, y]) => sum + x, 0) / alliance.cells.length;
+                    const centerY = alliance.cells.reduce((sum, [x, y]) => sum + y, 0) / alliance.cells.length;
+                    
+                    // フォントサイズをサイズに応じて調整
+                    let fontSize = 11;
+                    if (alliance.type === 'size3') fontSize = 9;
+                    if (alliance.type === 'size4') fontSize = 8;
+                    
+                    ctx.fillStyle = '#fff';
+                    ctx.strokeStyle = '#000';
+                    ctx.lineWidth = 3;
+                    ctx.font = `bold ${fontSize}px Arial`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    
+                    const textX = (centerX + 0.5) * cellSize;
+                    const textY = (centerY + 0.5) * cellSize;
+                    
+                    ctx.strokeText(alliance.name, textX, textY);
+                    ctx.fillText(alliance.name, textX, textY);
+                }
+            });
+        }
+
+        // 統計更新
+        function updateStats() {
+            const totalCells = validHexCells.size;
+            const usedCells = occupiedCells.size;
+            const percentage = totalCells > 0 ? Math.round((usedCells / totalCells) * 100) : 0;
+            
+            document.getElementById('placedCount').textContent = placedAlliances.length;
+            document.getElementById('usedCells').textContent = usedCells;
+            document.getElementById('totalCells').textContent = totalCells;
+            document.getElementById('percentage').textContent = percentage;
+        }
+
+        // 同盟リスト更新
+        function updateAllianceList() {
+            const list = document.getElementById('allianceList');
+            list.innerHTML = '';
+            
+            if (placedAlliances.length === 0) {
+                list.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 10px;">まだ配置されていません</div>';
+                return;
+            }
+            
+            const sizeLabels = {
+                'size1': '1/3',
+                'size2': '1/6',
+                'size3': '1/12',
+                'size4': '1/24'
+            };
+            
+            placedAlliances.forEach(alliance => {
+                const item = document.createElement('div');
+                item.className = 'alliance-item';
+                item.innerHTML = `
+                    <span style="background:${alliance.color}; padding:4px 8px; border-radius:4px; font-weight: 500;">
+                        ${alliance.name} <span style="opacity:0.7; font-size:0.85em">[${sizeLabels[alliance.type]}]</span>
+                    </span>
+                    <button class="delete-btn" onclick="deleteAlliance(${alliance.id})">削除</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        // 同盟削除
+        function deleteAlliance(id) {
+            const alliance = placedAlliances.find(a => a.id === id);
+            if (alliance) {
+                alliance.cells.forEach(([x, y]) => {
+                    occupiedCells.delete(`${x},${y}`);
+                });
+                placedAlliances = placedAlliances.filter(a => a.id !== id);
+                drawGrid();
+                updateAllianceList();
+                updateStats();
+            }
+        }
+
+        // マップクリア
+        function clearMap() {
+            if (placedAlliances.length === 0) {
+                alert('配置されている同盟がありません');
+                return;
+            }
+            
+            if (confirm('すべての配置をクリアしますか？')) {
+                placedAlliances = [];
+                occupiedCells.clear();
+                drawGrid();
+                updateAllianceList();
+                updateStats();
+            }
+        }
+
+        // 画像エクスポート
+        function exportImage() {
+            const link = document.createElement('a');
+            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
+            link.download = `LastZ_Capital_${timestamp}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // 起動
+        init();
+    </script>
+</body>
+</html>
