@@ -128,6 +128,7 @@
             padding: 8px;
             background: rgba(255, 255, 255, 0.1);
             border-radius: 8px;
+            position: relative;
         }
 
         .legend-color {
@@ -136,6 +137,32 @@
             border-radius: 6px;
             border: 2px solid white;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .legend-name {
+            flex: 1;
+        }
+
+        .delete-alliance-btn {
+            background: rgba(255, 0, 0, 0.7);
+            border: none;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            flex-shrink: 0;
+        }
+
+        .delete-alliance-btn:hover {
+            background: rgba(255, 0, 0, 0.9);
+            transform: scale(1.1);
         }
 
         .instructions {
@@ -418,7 +445,6 @@
             }
         }
 
-        /* スクロールバーのスタイル */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -534,6 +560,14 @@
             }
         }
 
+        function shouldHideLine(id1, id2) {
+            // 両方のセクションが同じグループに属している場合は線を隠す
+            if (sections[id1] && sections[id2]) {
+                return sections[id1].groupId === sections[id2].groupId;
+            }
+            return false;
+        }
+
         function drawHexagon() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -550,6 +584,7 @@
             ctx.closePath();
             ctx.fill();
 
+            // セクションを描画
             for (let i = 0; i < 24; i++) {
                 const section = sectionPaths[i];
 
@@ -586,12 +621,36 @@
                     ctx.fillStyle = selectedColor + '80';
                     ctx.fill(path);
                 }
-
-                ctx.strokeStyle = 'rgba(80, 60, 40, 0.6)';
-                ctx.lineWidth = 2;
-                ctx.stroke(path);
             }
 
+            // 境界線を描画（同じグループの隣接セクション間の線は非表示）
+            for (let i = 0; i < 24; i++) {
+                const sideIndex = Math.floor(i / 4);
+                const positionOnSide = i % 4;
+
+                const v1 = getHexagonVertex(sideIndex, hexRadius);
+                const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
+
+                const ratio2 = (positionOnSide + 1) / 4;
+
+                const edgePoint2 = {
+                    x: v1.x + (v2.x - v1.x) * ratio2,
+                    y: v1.y + (v2.y - v1.y) * ratio2
+                };
+
+                // 隣接セクションとの境界線
+                const nextId = (i + 1) % 24;
+                if (!shouldHideLine(i, nextId)) {
+                    ctx.strokeStyle = 'rgba(80, 60, 40, 0.6)';
+                    ctx.lineWidth = 2;
+                    ctx.beginPath();
+                    ctx.moveTo(centerX, centerY);
+                    ctx.lineTo(edgePoint2.x, edgePoint2.y);
+                    ctx.stroke();
+                }
+            }
+
+            // 外枠
             ctx.strokeStyle = 'rgba(100, 70, 40, 0.8)';
             ctx.lineWidth = 4;
             ctx.beginPath();
@@ -603,6 +662,7 @@
             ctx.closePath();
             ctx.stroke();
 
+            // 中心の円
             ctx.fillStyle = 'rgba(30, 60, 114, 0.5)';
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.lineWidth = 4;
@@ -620,6 +680,7 @@
             ctx.textBaseline = 'middle';
             ctx.fillText('首都', centerX, centerY + 25);
 
+            // テキストを描画（下半分は反転しない）
             const drawnGroups = new Set();
             Object.keys(sections).forEach(id => {
                 if (sections[id].name && !drawnGroups.has(sections[id].groupId)) {
@@ -649,7 +710,12 @@
                     avgX /= groupSections.length;
                     avgY /= groupSections.length;
 
-                    const angle = Math.atan2(avgY - centerY, avgX - centerX);
+                    let angle = Math.atan2(avgY - centerY, avgX - centerX);
+
+                    // テキストが下半分にある場合は180度回転させて読みやすくする
+                    if (avgY > centerY) {
+                        angle += Math.PI;
+                    }
 
                     ctx.save();
                     ctx.translate(avgX, avgY);
@@ -857,6 +923,18 @@
             drawHexagon();
         }
 
+        function deleteAlliance(allianceName) {
+            if (confirm(`「${allianceName}」を削除しますか？`)) {
+                // この同盟に属する全てのセクションを削除
+                Object.keys(sections).forEach(id => {
+                    if (sections[id].name === allianceName) {
+                        delete sections[id];
+                    }
+                });
+                drawHexagon();
+            }
+        }
+
         function clearAll() {
             if (Object.keys(sections).length === 0) {
                 alert('まだ配置されていません');
@@ -888,7 +966,8 @@
                 item.className = 'legend-item';
                 item.innerHTML = `
                     <div class="legend-color" style="background: ${color};"></div>
-                    <span>${name}</span>
+                    <span class="legend-name">${name}</span>
+                    <button class="delete-alliance-btn" onclick="deleteAlliance('${name.replace(/'/g, "\'")}')">✕</button>
                 `;
                 legendList.appendChild(item);
             });
