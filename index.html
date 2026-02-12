@@ -76,7 +76,7 @@
         }
 
         #hexCanvas {
-            cursor: pointer;
+            cursor: crosshair;
             max-width: 90vmin;
             max-height: 90vmin;
             filter: drop-shadow(0 10px 40px rgba(0,0,0,0.5));
@@ -114,6 +114,23 @@
             height: 20px;
             border-radius: 4px;
             border: 2px solid white;
+        }
+
+        .instructions {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 0.85em;
+            max-width: 300px;
+        }
+
+        .instructions h4 {
+            margin-bottom: 8px;
+            color: #4CAF50;
         }
 
         /* モーダル */
@@ -207,41 +224,18 @@
             color: #4CAF50;
         }
 
-        .size-selector {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-bottom: 15px;
-        }
-
-        .size-card {
-            background: rgba(255, 255, 255, 0.1);
-            border: 3px solid transparent;
-            border-radius: 12px;
-            padding: 15px 10px;
-            cursor: pointer;
-            transition: all 0.3s;
+        .selection-info {
+            background: rgba(76, 175, 80, 0.2);
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
             text-align: center;
         }
 
-        .size-card:hover {
-            background: rgba(255, 255, 255, 0.15);
-            transform: translateY(-2px);
-        }
-
-        .size-card.selected {
-            border-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.2);
-        }
-
-        .size-icon {
-            font-size: 2em;
-            margin-bottom: 8px;
-        }
-
-        .size-label {
-            font-size: 0.9em;
-            font-weight: bold;
+        .selection-info strong {
+            font-size: 1.2em;
+            color: #4CAF50;
         }
 
         .input-group {
@@ -314,7 +308,7 @@
 
         .modal-actions {
             display: grid;
-            grid-template-columns: 1fr;
+            grid-template-columns: 1fr 1fr;
             gap: 12px;
         }
 
@@ -330,6 +324,11 @@
 
         .modal-btn:active {
             transform: scale(0.95);
+        }
+
+        .btn-clear-selection {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
         }
 
         .btn-place {
@@ -351,7 +350,7 @@
                 padding: 10px;
             }
 
-            .legend {
+            .legend, .instructions {
                 font-size: 0.75em;
                 padding: 10px;
                 max-width: 200px;
@@ -386,32 +385,26 @@
             <h3>📍 Assigned Territories</h3>
             <div id="legendList"></div>
         </div>
+
+        <!-- 使い方 -->
+        <div class="instructions">
+            <h4>📖 How to Use</h4>
+            <p>🖱️ <strong>Click</strong>: Select single bar</p>
+            <p>✋ <strong>Click & Drag</strong>: Select multiple bars</p>
+            <p>🎨 Assign name and color to selected area</p>
+        </div>
     </div>
 
     <!-- モーダル -->
     <div id="assignModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title">🎨 Generate Alliance Bar</span>
+                <span class="modal-title">🎨 Assign Alliance</span>
                 <button class="close-btn" onclick="closeModal()">&times;</button>
             </div>
 
-            <div class="form-section">
-                <h3>📏 Bar Size</h3>
-                <div class="size-selector">
-                    <div class="size-card selected" data-size="4" onclick="selectSize(4)">
-                        <div class="size-icon">🟦🟦🟦🟦</div>
-                        <div class="size-label">4 Bars</div>
-                    </div>
-                    <div class="size-card" data-size="2" onclick="selectSize(2)">
-                        <div class="size-icon">🟦🟦</div>
-                        <div class="size-label">2 Bars</div>
-                    </div>
-                    <div class="size-card" data-size="1" onclick="selectSize(1)">
-                        <div class="size-icon">🟦</div>
-                        <div class="size-label">1 Bar</div>
-                    </div>
-                </div>
+            <div class="selection-info">
+                <strong id="selectionLabel">0 bars selected</strong>
             </div>
 
             <div class="form-section">
@@ -428,7 +421,8 @@
             </div>
 
             <div class="modal-actions">
-                <button class="modal-btn btn-place" onclick="placeBar()">✓ Place on Map</button>
+                <button class="modal-btn btn-clear-selection" onclick="clearSelection()">🗑️ Clear</button>
+                <button class="modal-btn btn-place" onclick="assignAlliance()">✓ Assign</button>
             </div>
         </div>
     </div>
@@ -438,9 +432,9 @@
         const ctx = canvas.getContext('2d');
         
         let sections = {}; // 24個のセクション状態
-        let selectedSize = 4;
-        let hoveredSection = null;
-        let previewSections = [];
+        let isDragging = false;
+        let dragStartSection = null;
+        let selectedSections = [];
         
         const colors = [
             '#4CAF50', '#2196F3', '#FF9800', '#E91E63', 
@@ -466,7 +460,6 @@
         }
 
         function initSections() {
-            // 6つのメインセクション × 4分割 = 24セクション
             for (let mainSec = 0; mainSec < 6; mainSec++) {
                 for (let subSec = 0; subSec < 4; subSec++) {
                     const id = mainSec * 4 + subSec;
@@ -483,13 +476,11 @@
         function drawHexagon() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
-            // 背景グラデーション
             const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, hexRadius);
             gradient.addColorStop(0, '#f5deb3');
             gradient.addColorStop(1, '#daa520');
             ctx.fillStyle = gradient;
             
-            // 外側の六角形
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
                 const vertex = getHexagonVertex(i, hexRadius);
@@ -499,29 +490,44 @@
             ctx.closePath();
             ctx.fill();
 
-            // 各セクションを描画
             sectionPaths.forEach(section => {
                 const mainSec = section.mainSection;
                 const subSec = section.subSection;
                 
-                // 4分割の境界を計算
-                const subDivisions = 4;
-                const radiusStep = (hexRadius - innerRadius) / subDivisions;
-                const innerR = innerRadius + radiusStep * subSec;
-                const outerR = innerRadius + radiusStep * (subSec + 1);
+                const angleStart = (Math.PI / 3) * mainSec - Math.PI / 2;
+                const angleEnd = angleStart + Math.PI / 3;
+                
+                const divisions = 4;
+                const widthPerDiv = 1 / divisions;
+                const startRatio = subSec * widthPerDiv;
+                const endRatio = (subSec + 1) * widthPerDiv;
                 
                 const path = new Path2D();
                 
-                // 六角形の1つの面の頂点
-                const v1 = getHexagonVertex(mainSec, innerR);
-                const v2 = getHexagonVertex(mainSec + 1, innerR);
-                const v3 = getHexagonVertex(mainSec + 1, outerR);
-                const v4 = getHexagonVertex(mainSec, outerR);
+                const innerAngle1 = angleStart + (angleEnd - angleStart) * startRatio;
+                const innerAngle2 = angleStart + (angleEnd - angleStart) * endRatio;
+                const inner1 = {
+                    x: centerX + innerRadius * Math.cos(innerAngle1),
+                    y: centerY + innerRadius * Math.sin(innerAngle1)
+                };
+                const inner2 = {
+                    x: centerX + innerRadius * Math.cos(innerAngle2),
+                    y: centerY + innerRadius * Math.sin(innerAngle2)
+                };
                 
-                path.moveTo(v1.x, v1.y);
-                path.lineTo(v2.x, v2.y);
-                path.lineTo(v3.x, v3.y);
-                path.lineTo(v4.x, v4.y);
+                const outer1 = {
+                    x: centerX + hexRadius * Math.cos(innerAngle1),
+                    y: centerY + hexRadius * Math.sin(innerAngle1)
+                };
+                const outer2 = {
+                    x: centerX + hexRadius * Math.cos(innerAngle2),
+                    y: centerY + hexRadius * Math.sin(innerAngle2)
+                };
+                
+                path.moveTo(inner1.x, inner1.y);
+                path.lineTo(outer1.x, outer1.y);
+                path.lineTo(outer2.x, outer2.y);
+                path.lineTo(inner2.x, inner2.y);
                 path.closePath();
                 
                 section.path = path;
@@ -530,19 +536,18 @@
                 if (sections[section.id]) {
                     ctx.fillStyle = sections[section.id].color;
                     ctx.fill(path);
-                } else if (previewSections.includes(section.id)) {
-                    ctx.fillStyle = selectedColor + '80'; // 半透明
+                } else if (selectedSections.includes(section.id)) {
+                    ctx.fillStyle = selectedColor + '80'; // 半透明プレビュー
                     ctx.fill(path);
                 }
                 
-                // 境界線
-                ctx.strokeStyle = 'rgba(139, 90, 50, 0.6)';
-                ctx.lineWidth = 2;
+                ctx.strokeStyle = 'rgba(100, 70, 40, 0.5)';
+                ctx.lineWidth = 1.5;
                 ctx.stroke(path);
             });
 
-            // 中心線（6分割）
-            ctx.strokeStyle = 'rgba(139, 90, 50, 0.8)';
+            // メインの6分割線
+            ctx.strokeStyle = 'rgba(100, 70, 40, 0.8)';
             ctx.lineWidth = 3;
             for (let i = 0; i < 6; i++) {
                 const vertex = getHexagonVertex(i, hexRadius);
@@ -552,25 +557,21 @@
                 ctx.stroke();
             }
 
-            // 4分割の円
-            for (let i = 1; i < 4; i++) {
-                const r = innerRadius + ((hexRadius - innerRadius) / 4) * i;
-                ctx.strokeStyle = 'rgba(139, 90, 50, 0.5)';
-                ctx.lineWidth = 2;
-                
-                ctx.beginPath();
-                for (let j = 0; j < 6; j++) {
-                    const v = getHexagonVertex(j, r);
-                    if (j === 0) ctx.moveTo(v.x, v.y);
-                    else ctx.lineTo(v.x, v.y);
-                }
-                ctx.closePath();
-                ctx.stroke();
+            // 外枠
+            ctx.strokeStyle = 'rgba(100, 70, 40, 0.8)';
+            ctx.lineWidth = 4;
+            ctx.beginPath();
+            for (let i = 0; i < 6; i++) {
+                const vertex = getHexagonVertex(i, hexRadius);
+                if (i === 0) ctx.moveTo(vertex.x, vertex.y);
+                else ctx.lineTo(vertex.x, vertex.y);
             }
+            ctx.closePath();
+            ctx.stroke();
 
             // 中心の六角形（Capital）
-            ctx.fillStyle = 'rgba(30, 60, 114, 0.3)';
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.fillStyle = 'rgba(30, 60, 114, 0.4)';
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.lineWidth = 4;
             ctx.beginPath();
             for (let i = 0; i < 6; i++) {
@@ -582,43 +583,53 @@
             ctx.fill();
             ctx.stroke();
 
-            // Capital テキスト
-            ctx.fillStyle = '#fff';
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 3;
-            ctx.font = 'bold 24px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.strokeText('Capital', centerX, centerY);
-            ctx.fillText('Capital', centerX, centerY);
+            drawStar(centerX, centerY, 40, '#1e3c72');
 
             // 配置されたアライアンス名を描画
+            const drawnGroups = new Set();
             Object.keys(sections).forEach(id => {
                 const section = sectionPaths.find(s => s.id == id);
-                if (section && sections[id].name) {
-                    const mainSec = section.mainSection;
-                    const subSec = section.subSection;
+                if (section && sections[id].name && !drawnGroups.has(sections[id].groupId)) {
+                    drawnGroups.add(sections[id].groupId);
                     
-                    const subDivisions = 4;
-                    const radiusStep = (hexRadius - innerRadius) / subDivisions;
-                    const midR = innerRadius + radiusStep * (subSec + 0.5);
+                    // 同じgroupIdのセクションを全て取得
+                    const groupSections = Object.keys(sections)
+                        .filter(gid => sections[gid].groupId === sections[id].groupId)
+                        .map(gid => parseInt(gid));
                     
-                    const v1 = getHexagonVertex(mainSec, midR);
-                    const v2 = getHexagonVertex(mainSec + 1, midR);
+                    // 中心位置を計算
+                    let centerAngle = 0;
+                    let centerRadius = 0;
+                    groupSections.forEach(gid => {
+                        const s = sectionPaths.find(p => p.id === gid);
+                        const mainSec = s.mainSection;
+                        const subSec = s.subSection;
+                        
+                        const angleStart = (Math.PI / 3) * mainSec - Math.PI / 2;
+                        const angleEnd = angleStart + Math.PI / 3;
+                        const divisions = 4;
+                        const widthPerDiv = 1 / divisions;
+                        const midRatio = (subSec + 0.5) * widthPerDiv;
+                        const midAngle = angleStart + (angleEnd - angleStart) * midRatio;
+                        
+                        centerAngle += midAngle;
+                        centerRadius += (innerRadius + hexRadius) / 2;
+                    });
                     
-                    const textX = (v1.x + v2.x) / 2;
-                    const textY = (v1.y + v2.y) / 2;
+                    centerAngle /= groupSections.length;
+                    centerRadius /= groupSections.length;
                     
-                    const angle = (Math.PI / 3) * mainSec;
+                    const textX = centerX + centerRadius * Math.cos(centerAngle);
+                    const textY = centerY + centerRadius * Math.sin(centerAngle);
                     
                     ctx.save();
                     ctx.translate(textX, textY);
-                    ctx.rotate(angle);
+                    ctx.rotate(centerAngle + Math.PI / 2);
                     
                     ctx.fillStyle = '#fff';
                     ctx.strokeStyle = '#000';
                     ctx.lineWidth = 3;
-                    ctx.font = 'bold 12px Arial';
+                    ctx.font = 'bold 13px Arial';
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'middle';
                     
@@ -630,6 +641,25 @@
             });
 
             updateLegend();
+        }
+
+        function drawStar(cx, cy, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            for (let i = 0; i < 5; i++) {
+                const angle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
+                const x = cx + radius * Math.cos(angle);
+                const y = cy + radius * Math.sin(angle);
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
+                
+                const innerAngle = angle + Math.PI / 5;
+                const ix = cx + (radius * 0.4) * Math.cos(innerAngle);
+                const iy = cy + (radius * 0.4) * Math.sin(innerAngle);
+                ctx.lineTo(ix, iy);
+            }
+            ctx.closePath();
+            ctx.fill();
         }
 
         function getClickedSection(x, y) {
@@ -647,76 +677,114 @@
             return null;
         }
 
-        function updatePreview(section) {
-            if (!section) {
-                previewSections = [];
-                drawHexagon();
-                return;
-            }
-
-            const startId = section.id;
-            previewSections = [];
-
-            // selectedSize分のバーをハイライト
-            for (let i = 0; i < selectedSize; i++) {
-                const id = (startId + i) % 24;
-                if (!sections[id]) {
-                    previewSections.push(id);
+        function getSectionsInRange(start, end) {
+            if (!start || !end) return [];
+            
+            const startMainSec = start.mainSection;
+            const endMainSec = end.mainSection;
+            const startSubSec = start.subSection;
+            const endSubSec = end.subSection;
+            
+            const result = [];
+            
+            // 同じメインセクション内のみ
+            if (startMainSec === endMainSec) {
+                const minSub = Math.min(startSubSec, endSubSec);
+                const maxSub = Math.max(startSubSec, endSubSec);
+                
+                for (let sub = minSub; sub <= maxSub; sub++) {
+                    const id = startMainSec * 4 + sub;
+                    if (!sections[id]) { // 既に割り当てられていないもののみ
+                        result.push(id);
+                    }
                 }
             }
-
-            drawHexagon();
+            
+            return result;
         }
 
-        canvas.addEventListener('mousemove', function(e) {
+        // マウスイベント
+        canvas.addEventListener('mousedown', function(e) {
             const section = getClickedSection(e.clientX, e.clientY);
-            hoveredSection = section;
-            updatePreview(section);
+            if (section && !sections[section.id]) {
+                isDragging = true;
+                dragStartSection = section;
+                selectedSections = [section.id];
+                drawHexagon();
+            }
+        });
+
+        canvas.addEventListener('mousemove', function(e) {
+            if (isDragging && dragStartSection) {
+                const section = getClickedSection(e.clientX, e.clientY);
+                if (section) {
+                    selectedSections = getSectionsInRange(dragStartSection, section);
+                    if (selectedSections.length === 0) {
+                        selectedSections = [dragStartSection.id];
+                    }
+                    drawHexagon();
+                }
+            }
+        });
+
+        canvas.addEventListener('mouseup', function(e) {
+            if (isDragging && selectedSections.length > 0) {
+                openModal();
+            }
+            isDragging = false;
         });
 
         canvas.addEventListener('mouseleave', function() {
-            hoveredSection = null;
-            updatePreview(null);
+            isDragging = false;
         });
 
-        canvas.addEventListener('click', function(e) {
-            const section = getClickedSection(e.clientX, e.clientY);
-            if (section) {
-                openModal(section);
+        // タッチイベント
+        canvas.addEventListener('touchstart', function(e) {
+            e.preventDefault();
+            const touch = e.touches[0];
+            const section = getClickedSection(touch.clientX, touch.clientY);
+            if (section && !sections[section.id]) {
+                isDragging = true;
+                dragStartSection = section;
+                selectedSections = [section.id];
+                drawHexagon();
+            }
+        });
+
+        canvas.addEventListener('touchmove', function(e) {
+            e.preventDefault();
+            if (isDragging && dragStartSection) {
+                const touch = e.touches[0];
+                const section = getClickedSection(touch.clientX, touch.clientY);
+                if (section) {
+                    selectedSections = getSectionsInRange(dragStartSection, section);
+                    if (selectedSections.length === 0) {
+                        selectedSections = [dragStartSection.id];
+                    }
+                    drawHexagon();
+                }
             }
         });
 
         canvas.addEventListener('touchend', function(e) {
             e.preventDefault();
-            const touch = e.changedTouches[0];
-            const section = getClickedSection(touch.clientX, touch.clientY);
-            if (section) {
-                openModal(section);
+            if (isDragging && selectedSections.length > 0) {
+                openModal();
             }
+            isDragging = false;
         });
 
-        function openModal(section) {
-            hoveredSection = section;
-            updatePreview(section);
+        function openModal() {
             document.getElementById('assignModal').style.display = 'block';
+            document.getElementById('selectionLabel').textContent = 
+                `${selectedSections.length} bar${selectedSections.length > 1 ? 's' : ''} selected`;
         }
 
         function closeModal() {
             document.getElementById('assignModal').style.display = 'none';
-            hoveredSection = null;
-            previewSections = [];
+            selectedSections = [];
+            dragStartSection = null;
             drawHexagon();
-        }
-
-        function selectSize(size) {
-            selectedSize = size;
-            document.querySelectorAll('.size-card').forEach(card => {
-                card.classList.remove('selected');
-                if (parseInt(card.dataset.size) === size) {
-                    card.classList.add('selected');
-                }
-            });
-            updatePreview(hoveredSection);
         }
 
         function initColorPicker() {
@@ -732,47 +800,37 @@
                         opt.classList.remove('selected');
                     });
                     option.classList.add('selected');
-                    updatePreview(hoveredSection);
+                    drawHexagon();
                 };
                 picker.appendChild(option);
             });
         }
 
-        function placeBar() {
-            if (!hoveredSection) return;
-            
+        function assignAlliance() {
             const name = document.getElementById('allianceName').value.trim();
             if (!name) {
                 alert('Please enter an alliance name!');
                 return;
             }
 
-            const startId = hoveredSection.id;
-            let canPlace = true;
-
-            // 配置可能かチェック
-            for (let i = 0; i < selectedSize; i++) {
-                const id = (startId + i) % 24;
-                if (sections[id]) {
-                    canPlace = false;
-                    break;
-                }
-            }
-
-            if (!canPlace) {
-                alert('Cannot place here - sections already occupied!');
-                return;
-            }
-
-            // 配置
-            for (let i = 0; i < selectedSize; i++) {
-                const id = (startId + i) % 24;
+            const groupId = Date.now(); // ユニークなグループID
+            
+            selectedSections.forEach(id => {
                 sections[id] = {
                     name: name,
-                    color: selectedColor
+                    color: selectedColor,
+                    groupId: groupId
                 };
-            }
+            });
 
+            closeModal();
+            drawHexagon();
+        }
+
+        function clearSelection() {
+            selectedSections.forEach(id => {
+                delete sections[id];
+            });
             closeModal();
             drawHexagon();
         }
