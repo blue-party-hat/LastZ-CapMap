@@ -1,1050 +1,743 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>LastZ 首都テリトリープランナー</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Hiragino Sans', 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
-            background: #0a0a0a;
-            color: #fff;
-            padding: 0;
-            min-height: 100vh;
-            overflow: hidden;
-        }
-
-        .header {
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-        }
-
-        h1 {
-            font-size: clamp(1.1em, 3.5vw, 2em);
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
-            font-weight: 700;
-            letter-spacing: 1px;
-            color: #ffffff;
-        }
-
-        .header-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .header-btn {
-            padding: 8px 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            font-size: 0.85em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            touch-action: manipulation;
-            background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
-        }
-
-        .btn-export:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-clear:hover {
-            background: rgba(255, 50, 50, 0.2);
-            border-color: rgba(255, 50, 50, 0.5);
-            box-shadow: 0 0 20px rgba(255, 50, 50, 0.3);
-        }
-
-        .header-btn:active {
-            transform: scale(0.95);
-        }
-
-        .main-container {
-            height: calc(100vh - 70px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 10px;
-            position: relative;
-        }
-
-        #hexCanvas {
-            cursor: crosshair;
-            max-width: 85vmin;
-            max-height: 85vmin;
-            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.1));
-        }
-
-        .legend {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            max-width: 200px;
-            max-height: 40vh;
-            overflow-y: auto;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-        }
-
-        .legend h3 {
-            margin-bottom: 12px;
-            font-size: 1em;
-            font-weight: 600;
-            color: #c0c0c0;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-            font-size: 0.85em;
-            padding: 8px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-            position: relative;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        .legend-color {
-            width: 30px;
-            height: 20px;
-            border-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-            flex-shrink: 0;
-        }
-
-        .legend-name {
-            flex: 1;
-            color: #e0e0e0;
-            word-break: break-word;
-        }
-
-        .delete-alliance-btn {
-            background: rgba(255, 50, 50, 0.2);
-            border: 1px solid rgba(255, 50, 50, 0.3);
-            color: #ff6b6b;
-            width: 22px;
-            height: 22px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            flex-shrink: 0;
-        }
-
-        .delete-alliance-btn:hover {
-            background: rgba(255, 50, 50, 0.4);
-            border-color: rgba(255, 50, 50, 0.6);
-            transform: scale(1.1);
-        }
-
-        .instructions {
-            position: absolute;
-            bottom: 15px;
-            left: 15px;
-            background: rgba(20, 20, 20, 0.95);
-            backdrop-filter: blur(20px);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 0.8em;
-            max-width: 200px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-        }
-
-        .instructions h4 {
-            margin-bottom: 10px;
-            color: #c0c0c0;
-            font-size: 1em;
-            font-weight: 600;
-        }
-
-        .instructions p {
-            margin-bottom: 6px;
-            line-height: 1.5;
-            color: #a0a0a0;
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(10px);
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .modal-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #1a1a1a;
-            padding: 25px;
-            border-radius: 16px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.9);
-            max-width: 90%;
-            width: 450px;
-            max-height: 90vh;
-            overflow-y: auto;
-            animation: slideUp 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translate(-50%, -40%);
-                opacity: 0;
-            }
-            to {
-                transform: translate(-50%, -50%);
-                opacity: 1;
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .modal-title {
-            font-size: 1.3em;
-            font-weight: 700;
-            color: #ffffff;
-        }
-
-        .close-btn {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            font-size: 1.3em;
-            cursor: pointer;
-            line-height: 1;
-            padding: 6px;
-            width: 35px;
-            height: 35px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-            border-radius: 8px;
-        }
-
-        .close-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: rotate(90deg);
-        }
-
-        .form-section {
-            margin-bottom: 20px;
-        }
-
-        .form-section h3 {
-            font-size: 1em;
-            margin-bottom: 12px;
-            color: #c0c0c0;
-            font-weight: 600;
-        }
-
-        .selection-info {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-
-        .selection-info strong {
-            font-size: 1.2em;
-            color: #ffffff;
-            font-weight: 700;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 0.95em;
-            color: #c0c0c0;
-        }
-
-        .input-group input[type="text"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            font-size: 16px;
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .input-group input[type="text"]:focus {
-            outline: none;
-            border-color: rgba(255, 255, 255, 0.4);
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-        }
-
-        .input-group input[type="text"]::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        .color-picker-wrapper {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-        }
-
-        .color-option {
-            height: 50px;
-            border-radius: 8px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-        }
-
-        .color-option:hover {
-            transform: scale(1.1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-        }
-
-        .color-option.selected {
-            border-color: white;
-            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-            transform: scale(1.05);
-        }
-
-        .color-option.selected::after {
-            content: '✓';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 1.6em;
-            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-            font-weight: bold;
-        }
-
-        .modal-actions {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 12px;
-        }
-
-        .modal-btn {
-            padding: 14px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.05);
-            color: white;
-        }
-
-        .modal-btn:active {
-            transform: scale(0.95);
-        }
-
-        .btn-clear-selection:hover {
-            background: rgba(255, 50, 50, 0.2);
-            border-color: rgba(255, 50, 50, 0.5);
-        }
-
-        .btn-place:hover {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 12px 15px;
-            }
-
-            h1 {
-                font-size: 1em;
-            }
-
-            .header-btn {
-                padding: 6px 12px;
-                font-size: 0.75em;
-            }
-
-            .main-container {
-                height: calc(100vh - 60px);
-                padding: 5px;
-            }
-
-            #hexCanvas {
-                max-width: 95vmin;
-                max-height: 95vmin;
-            }
-
-            .legend {
-                top: 10px;
-                right: 10px;
-                padding: 12px;
-                max-width: 160px;
-                max-height: 35vh;
-                font-size: 0.75em;
-            }
-
-            .instructions {
-                bottom: 10px;
-                left: 10px;
-                padding: 12px;
-                max-width: 160px;
-                font-size: 0.7em;
-            }
-
-            .modal-content {
-                padding: 20px;
-                max-width: 95%;
-            }
-
-            .modal-title {
-                font-size: 1.1em;
-            }
-
-            .color-picker-wrapper {
-                gap: 8px;
-            }
-
-            .color-option {
-                height: 45px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .legend, .instructions {
-                display: none;
-            }
-
-            .main-container {
-                padding: 0;
-            }
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.3);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>LastZ 首都テリトリープランナー</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+    body{
+      font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
+      background:#0a0a0a;color:#fff;min-height:100vh;overflow:hidden;
+    }
+
+    .header{
+      background:rgba(20,20,20,.95);
+      backdrop-filter:blur(20px);
+      padding:15px 20px;
+      display:flex;justify-content:space-between;align-items:center;
+      border-bottom:1px solid rgba(255,255,255,.1);
+      box-shadow:0 4px 30px rgba(0,0,0,.5);
+    }
+
+    h1{
+      font-size:clamp(1.1em,3.5vw,2em);
+      font-weight:700;letter-spacing:1px;color:#fff;
+      text-shadow:0 0 20px rgba(255,255,255,.3);
+    }
+
+    .main-container{
+      height:calc(100vh - 70px);
+      display:flex;justify-content:center;align-items:center;
+      padding:10px;position:relative;
+    }
+
+    #hexCanvas{
+      cursor:crosshair;
+      max-width:85vmin;max-height:85vmin;
+      filter:drop-shadow(0 0 30px rgba(255,255,255,.1));
+      touch-action:none;
+    }
+
+    .legend{
+      position:absolute;top:15px;right:15px;
+      background:rgba(20,20,20,.95);
+      backdrop-filter:blur(20px);
+      padding:15px;border-radius:12px;
+      font-size:.85em;
+      max-width:200px;max-height:40vh;overflow-y:auto;
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:0 8px 32px rgba(0,0,0,.8);
+    }
+
+    .legend h3{margin-bottom:12px;font-size:1em;font-weight:600;color:#c0c0c0}
+
+    .legend-item{
+      display:flex;align-items:center;gap:8px;
+      margin-bottom:8px;
+      font-size:.85em;
+      padding:8px;
+      background:rgba(255,255,255,.05);
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.05);
+    }
+
+    .legend-color{
+      width:30px;height:20px;border-radius:4px;
+      border:1px solid rgba(255,255,255,.3);
+      box-shadow:0 2px 8px rgba(0,0,0,.5);
+      flex-shrink:0;
+    }
+
+    .legend-name{flex:1;color:#e0e0e0;word-break:break-word}
+
+    .delete-alliance-btn{
+      background:rgba(255,50,50,.2);
+      border:1px solid rgba(255,50,50,.3);
+      color:#ff6b6b;
+      width:22px;height:22px;
+      border-radius:4px;
+      cursor:pointer;
+      font-size:12px;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .2s;
+      flex-shrink:0;
+    }
+
+    .delete-alliance-btn:hover{background:rgba(255,50,50,.4);border-color:rgba(255,50,50,.6);transform:scale(1.06)}
+
+    .instructions{
+      position:absolute;bottom:15px;left:15px;
+      background:rgba(20,20,20,.95);
+      backdrop-filter:blur(20px);
+      padding:15px;border-radius:12px;
+      font-size:.8em;
+      max-width:200px;
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:0 8px 32px rgba(0,0,0,.8);
+    }
+
+    .instructions h4{margin-bottom:10px;color:#c0c0c0;font-size:1em;font-weight:600}
+    .instructions p{margin-bottom:6px;line-height:1.5;color:#a0a0a0}
+
+    .modal{
+      display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;
+      background:rgba(0,0,0,.85);
+      backdrop-filter:blur(10px);
+      animation:fadeIn .25s ease;
+    }
+
+    @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+    .modal-content{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      background:#1a1a1a;
+      padding:25px;border-radius:16px;
+      box-shadow:0 20px 60px rgba(0,0,0,.9);
+      width:450px;max-width:92%;
+      max-height:90vh;overflow-y:auto;
+      border:1px solid rgba(255,255,255,.1);
+      animation:slideUp .25s ease;
+    }
+
+    @keyframes slideUp{from{transform:translate(-50%,-40%);opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
+
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .modal-title{font-size:1.3em;font-weight:700;color:#fff}
+
+    .close-btn{
+      background:rgba(255,255,255,.1);
+      border:1px solid rgba(255,255,255,.1);
+      color:#fff;
+      font-size:1.3em;
+      cursor:pointer;
+      line-height:1;
+      width:35px;height:35px;
+      display:flex;align-items:center;justify-content:center;
+      border-radius:8px;
+      transition:all .2s;
+    }
+
+    .close-btn:hover{background:rgba(255,255,255,.2);transform:rotate(90deg)}
+
+    .selection-info{
+      background:rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.1);
+      border-radius:10px;
+      padding:15px;margin-bottom:20px;text-align:center;
+    }
+
+    .selection-info strong{font-size:1.2em;color:#fff;font-weight:700}
+
+    .form-section{margin-bottom:20px}
+    .form-section h3{font-size:1em;margin-bottom:12px;color:#c0c0c0;font-weight:600}
+
+    .input-group{margin-bottom:15px}
+    .input-group label{display:block;margin-bottom:8px;font-weight:600;font-size:.95em;color:#c0c0c0}
+
+    .input-group input[type="text"]{
+      width:100%;padding:12px;
+      border:1px solid rgba(255,255,255,.2);
+      border-radius:8px;
+      font-size:16px;
+      background:rgba(255,255,255,.05);
+      color:#fff;
+      transition:all .2s;
+      font-weight:500;
+    }
+
+    .input-group input[type="text"]:focus{
+      outline:none;
+      border-color:rgba(255,255,255,.4);
+      background:rgba(255,255,255,.1);
+      box-shadow:0 0 20px rgba(255,255,255,.1);
+    }
+
+    .input-group input[type="text"]::placeholder{color:rgba(255,255,255,.4)}
+
+    .color-picker-wrapper{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+
+    .color-option{
+      height:50px;border-radius:8px;border:2px solid transparent;
+      cursor:pointer;transition:all .2s;
+      position:relative;box-shadow:0 4px 15px rgba(0,0,0,.3);
+    }
+
+    .color-option:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,.5)}
+
+    .color-option.selected{border-color:#fff;box-shadow:0 0 18px rgba(255,255,255,.45);transform:scale(1.03)}
+
+    .color-option.selected::after{
+      content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      color:#fff;font-size:1.6em;font-weight:800;
+      text-shadow:0 2px 8px rgba(0,0,0,.8);
+    }
+
+    .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+    .modal-btn{
+      padding:14px;border:1px solid rgba(255,255,255,.2);
+      border-radius:8px;font-size:1em;font-weight:700;
+      cursor:pointer;transition:all .2s;
+      background:rgba(255,255,255,.05);color:#fff;
+    }
+
+    .modal-btn:active{transform:scale(.98)}
+    .btn-clear-selection:hover{background:rgba(255,50,50,.2);border-color:rgba(255,50,50,.5)}
+    .btn-place:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
+
+    @media (max-width:768px){
+      .header{padding:12px 15px}
+      h1{font-size:1em}
+      .main-container{height:calc(100vh - 60px);padding:5px}
+      #hexCanvas{max-width:95vmin;max-height:95vmin}
+
+      /* Keep legend visible at top on mobile */
+      .legend{
+        top:10px;right:10px;
+        padding:12px;
+        max-width:160px;
+        max-height:30vh;
+        font-size:.75em;
+      }
+
+      /* Keep instructions visible at bottom on mobile */
+      .instructions{
+        bottom:10px;left:10px;
+        padding:12px;
+        max-width:160px;
+        font-size:.7em;
+      }
+
+      .modal-content{padding:20px;max-width:95%}
+      .modal-title{font-size:1.1em}
+      .color-option{height:45px}
+    }
+
+    @media (max-width:480px){
+      /* On very small screens, keep both visible but smaller and scrollable */
+      .legend{
+        top:8px;right:8px;
+        padding:10px;
+        max-width:140px;
+        max-height:25vh;
+        font-size:.7em;
+      }
+
+      .instructions{
+        bottom:8px;left:8px;
+        padding:10px;
+        max-width:140px;
+        font-size:.65em;
+      }
+
+      .main-container{padding:0}
+    }
+
+    ::-webkit-scrollbar{width:6px}
+    ::-webkit-scrollbar-track{background:rgba(255,255,255,.05);border-radius:10px}
+    ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.2);border-radius:10px}
+    ::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.3)}
+  </style>
 </head>
 <body>
-    <div class="header">
-        <h1>LastZ 首都テリトリープランナー</h1>
-        <div class="header-controls">
-            <button class="header-btn btn-export" onclick="exportImage()">画像保存</button>
-            <button class="header-btn btn-clear" onclick="clearAll()">全削除</button>
-        </div>
+  <div class="header">
+    <h1>LastZ 首都テリトリープランナー</h1>
+  </div>
+
+  <div class="main-container">
+    <canvas id="hexCanvas" width="900" height="900"></canvas>
+
+    <div class="legend">
+      <h3>配置済み同盟</h3>
+      <div id="legendList"></div>
     </div>
 
-    <div class="main-container">
-        <canvas id="hexCanvas" width="900" height="900"></canvas>
-
-        <div class="legend">
-            <h3>配置済み同盟</h3>
-            <div id="legendList"></div>
-        </div>
-
-        <div class="instructions">
-            <h4>使い方</h4>
-            <p><strong>クリック</strong>：1つのエリアを選択</p>
-            <p><strong>ドラッグ</strong>：複数のエリアを選択</p>
-            <p><strong>設定</strong>：選択したエリアに名前と色を設定</p>
-        </div>
+    <div class="instructions">
+      <h4>使い方</h4>
+      <p><strong>クリック</strong>：1つのエリアを選択</p>
+      <p><strong>ドラッグ</strong>：複数のエリアを選択</p>
+      <p><strong>設定</strong>：選択したエリアに名前と色を設定</p>
     </div>
+  </div>
 
-    <div id="assignModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <span class="modal-title">同盟を配置</span>
-                <button class="close-btn" onclick="closeModal()">&times;</button>
-            </div>
+  <div id="assignModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <span class="modal-title">同盟を配置</span>
+        <button class="close-btn" onclick="closeModal()">&times;</button>
+      </div>
 
-            <div class="selection-info">
-                <strong id="selectionLabel">0 エリア選択中</strong>
-            </div>
+      <div class="selection-info">
+        <strong id="selectionLabel">0 エリア選択中</strong>
+      </div>
 
-            <div class="form-section">
-                <h3>同盟情報</h3>
-                <div class="input-group">
-                    <label for="allianceName">同盟名</label>
-                    <input type="text" id="allianceName" placeholder="テキストを入力" maxlength="20">
-                </div>
-            </div>
-
-            <div class="form-section">
-                <h3>カラー選択</h3>
-                <div class="color-picker-wrapper" id="colorPicker"></div>
-            </div>
-
-            <div class="modal-actions">
-                <button class="modal-btn btn-clear-selection" onclick="clearSelection()">クリア</button>
-                <button class="modal-btn btn-place" onclick="assignAlliance()">配置</button>
-            </div>
+      <div class="form-section">
+        <h3>同盟情報</h3>
+        <div class="input-group">
+          <label for="allianceName">同盟名</label>
+          <input type="text" id="allianceName" placeholder="テキストを入力" maxlength="20" />
         </div>
+      </div>
+
+      <div class="form-section">
+        <h3>カラー選択</h3>
+        <div class="color-picker-wrapper" id="colorPicker"></div>
+      </div>
+
+      <div class="modal-actions">
+        <button class="modal-btn btn-clear-selection" onclick="clearSelection()">クリア</button>
+        <button class="modal-btn btn-place" onclick="assignAlliance()">配置</button>
+      </div>
     </div>
+  </div>
 
-    <script>
-        const canvas = document.getElementById('hexCanvas');
-        const ctx = canvas.getContext('2d');
+  <script>
+    const canvas = document.getElementById('hexCanvas');
+    const ctx = canvas.getContext('2d');
 
-        let sections = {};
-        let isDragging = false;
-        let dragStartSection = null;
-        let selectedSections = [];
+    let sections = {};
+    let isDragging = false;
+    let dragStartSection = null;
+    let selectedSections = [];
 
-        const colors = [
-            '#FF6B6B', // Vibrant Red
-            '#4ECDC4', // Vibrant Cyan
-            '#FFE66D', // Vibrant Yellow
-            '#A8E6CF', // Vibrant Mint
-            '#FF8B94', // Vibrant Pink
-            '#95E1D3', // Vibrant Teal
-            '#C7CEEA', // Vibrant Lavender
-            '#FFAAA5', // Vibrant Coral
-            '#B4A7D6'  // Vibrant Purple
-        ];
+    const colors = [
+      '#FF6B6B', '#4ECDC4', '#FFE66D',
+      '#A8E6CF', '#FF8B94', '#95E1D3',
+      '#C7CEEA', '#FFAAA5', '#B4A7D6'
+    ];
 
-        let selectedColor = colors[0];
+    let selectedColor = colors[0];
 
-        const centerX = 450;
-        const centerY = 450;
-        const hexRadius = 350;
-        const innerHexRadius = 120;
+    const centerX = 450;
+    const centerY = 450;
+    const hexRadius = 350;
+    const innerHexRadius = 120;
 
-        const sectionPaths = [];
+    const sectionPaths = [];
 
-        function getHexagonVertex(index, radius) {
-            const angle = (Math.PI / 3) * index;
-            return {
-                x: centerX + radius * Math.cos(angle),
-                y: centerY + radius * Math.sin(angle)
-            };
+    function getHexagonVertex(index, radius) {
+      const angle = (Math.PI / 3) * index;
+      return {
+        x: centerX + radius * Math.cos(angle),
+        y: centerY + radius * Math.sin(angle)
+      };
+    }
+
+    function initSections() {
+      for (let i = 0; i < 24; i++) {
+        sectionPaths.push({ id: i, path: null });
+      }
+    }
+
+    function shouldHideLine(id1, id2) {
+      if (sections[id1] && sections[id2]) {
+        return sections[id1].groupId === sections[id2].groupId;
+      }
+      return false;
+    }
+
+    function isPointInInnerHexagon(canvasX, canvasY) {
+      const p = { x: canvasX, y: canvasY };
+      const poly = [];
+      for (let i = 0; i < 6; i++) poly.push(getHexagonVertex(i, innerHexRadius));
+      let inside = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const xi = poly[i].x, yi = poly[i].y;
+        const xj = poly[j].x, yj = poly[j].y;
+        const intersect = ((yi > p.y) !== (yj > p.y)) &&
+          (p.x < (xj - xi) * (p.y - yi) / (yj - yi + 0.000001) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    }
+
+    function drawHexagon() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#0a0a0a';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = '#1a1a1a';
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const v = getHexagonVertex(i, hexRadius);
+        if (i === 0) ctx.moveTo(v.x, v.y);
+        else ctx.lineTo(v.x, v.y);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      for (let i = 0; i < 24; i++) {
+        const sideIndex = Math.floor(i / 4);
+        const positionOnSide = i % 4;
+
+        const v1 = getHexagonVertex(sideIndex, hexRadius);
+        const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
+
+        const ratio1 = positionOnSide / 4;
+        const ratio2 = (positionOnSide + 1) / 4;
+
+        const edgePoint1 = {
+          x: v1.x + (v2.x - v1.x) * ratio1,
+          y: v1.y + (v2.y - v1.y) * ratio1
+        };
+        const edgePoint2 = {
+          x: v1.x + (v2.x - v1.x) * ratio2,
+          y: v1.y + (v2.y - v1.y) * ratio2
+        };
+
+        const path = new Path2D();
+        path.moveTo(centerX, centerY);
+        path.lineTo(edgePoint1.x, edgePoint1.y);
+        path.lineTo(edgePoint2.x, edgePoint2.y);
+        path.closePath();
+
+        sectionPaths[i].path = path;
+
+        if (sections[i]) {
+          ctx.fillStyle = sections[i].color;
+          ctx.fill(path);
+        } else if (selectedSections.includes(i)) {
+          ctx.fillStyle = selectedColor + '60';
+          ctx.fill(path);
         }
+      }
 
-        function initSections() {
-            for (let i = 0; i < 24; i++) {
-                sectionPaths.push({
-                    id: i,
-                    path: null
-                });
-            }
+      for (let i = 0; i < 24; i++) {
+        const sideIndex = Math.floor(i / 4);
+        const positionOnSide = i % 4;
+
+        const v1 = getHexagonVertex(sideIndex, hexRadius);
+        const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
+
+        const ratio2 = (positionOnSide + 1) / 4;
+        const edgePoint2 = {
+          x: v1.x + (v2.x - v1.x) * ratio2,
+          y: v1.y + (v2.y - v1.y) * ratio2
+        };
+
+        const nextId = (i + 1) % 24;
+        if (!shouldHideLine(i, nextId)) {
+          ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(centerX, centerY);
+          ctx.lineTo(edgePoint2.x, edgePoint2.y);
+          ctx.stroke();
         }
+      }
 
-        function shouldHideLine(id1, id2) {
-            if (sections[id1] && sections[id2]) {
-                return sections[id1].groupId === sections[id2].groupId;
-            }
-            return false;
+      ctx.fillStyle = '#8B5A3C';
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const v = getHexagonVertex(i, innerHexRadius);
+        if (i === 0) ctx.moveTo(v.x, v.y);
+        else ctx.lineTo(v.x, v.y);
+      }
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      const turretPositions = [1, 3, 5];
+      turretPositions.forEach(i => {
+        const v = getHexagonVertex(i, innerHexRadius);
+
+        ctx.fillStyle = '#2196F3';
+        ctx.beginPath();
+        ctx.arc(v.x, v.y, 18, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 20px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('T', v.x, v.y);
+      });
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = 'rgba(255,255,255,0.25)';
+      ctx.beginPath();
+      for (let i = 0; i < 6; i++) {
+        const v = getHexagonVertex(i, hexRadius);
+        if (i === 0) ctx.moveTo(v.x, v.y);
+        else ctx.lineTo(v.x, v.y);
+      }
+      ctx.closePath();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#2196F3';
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffffff';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 32px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('C', centerX, centerY);
+
+      const drawnGroups = new Set();
+      Object.keys(sections).forEach(id => {
+        if (sections[id].name && !drawnGroups.has(sections[id].groupId)) {
+          drawnGroups.add(sections[id].groupId);
+
+          const groupSections = Object.keys(sections)
+            .filter(gid => sections[gid].groupId === sections[id].groupId)
+            .map(gid => parseInt(gid, 10));
+
+          let avgX = 0;
+          let avgY = 0;
+          groupSections.forEach(i => {
+            const sideIndex = Math.floor(i / 4);
+            const positionOnSide = i % 4;
+
+            const v1 = getHexagonVertex(sideIndex, hexRadius);
+            const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
+
+            const ratio = (positionOnSide + 0.5) / 4;
+            const edgeX = v1.x + (v2.x - v1.x) * ratio;
+            const edgeY = v1.y + (v2.y - v1.y) * ratio;
+
+            avgX += (centerX + edgeX) / 2;
+            avgY += (centerY + edgeY) / 2;
+          });
+
+          avgX /= groupSections.length;
+          avgY /= groupSections.length;
+
+          let angle = Math.atan2(avgY - centerY, avgX - centerX);
+          if (avgY > centerY) angle += Math.PI;
+
+          ctx.save();
+          ctx.translate(avgX, avgY);
+          ctx.rotate(angle + Math.PI / 2);
+
+          ctx.fillStyle = '#fff';
+          ctx.strokeStyle = '#000';
+          ctx.lineWidth = 3;
+          ctx.font = 'bold 14px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+
+          ctx.strokeText(sections[id].name, 0, 0);
+          ctx.fillText(sections[id].name, 0, 0);
+
+          ctx.restore();
         }
+      });
 
-        function isPointInInnerHexagon(x, y) {
-            // Check if point is inside inner hexagon (capital area)
-            const dx = x - centerX;
-            const dy = y - centerY;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            return distance < innerHexRadius;
+      updateLegend();
+    }
+
+    function getClickedSection(clientX, clientY) {
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      const canvasX = (clientX - rect.left) * scaleX;
+      const canvasY = (clientY - rect.top) * scaleY;
+
+      if (isPointInInnerHexagon(canvasX, canvasY)) return null;
+
+      for (const section of sectionPaths) {
+        if (section.path && ctx.isPointInPath(section.path, canvasX, canvasY)) {
+          return section;
         }
+      }
+      return null;
+    }
 
-        function drawHexagon() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function getSectionsInRange(start, end) {
+      if (start === null || end === null) return [];
+      if (start > end) [start, end] = [end, start];
 
-            ctx.fillStyle = '#0a0a0a';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const result = [];
+      for (let i = start; i <= end; i++) {
+        if (!sections[i]) result.push(i);
+      }
+      return result;
+    }
 
-            ctx.fillStyle = '#1a1a1a';
-            ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                const vertex = getHexagonVertex(i, hexRadius);
-                if (i === 0) ctx.moveTo(vertex.x, vertex.y);
-                else ctx.lineTo(vertex.x, vertex.y);
-            }
-            ctx.closePath();
-            ctx.fill();
+    canvas.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      const section = getClickedSection(e.clientX, e.clientY);
+      if (!section || sections[section.id]) return;
+      isDragging = true;
+      dragStartSection = section.id;
+      selectedSections = [section.id];
+      drawHexagon();
+    });
 
-            for (let i = 0; i < 24; i++) {
-                const section = sectionPaths[i];
+    canvas.addEventListener('mousemove', (e) => {
+      if (!isDragging || dragStartSection === null) return;
+      const section = getClickedSection(e.clientX, e.clientY);
+      if (!section || sections[section.id]) return;
+      selectedSections = getSectionsInRange(dragStartSection, section.id);
+      if (selectedSections.length === 0) selectedSections = [dragStartSection];
+      drawHexagon();
+    });
 
-                const sideIndex = Math.floor(i / 4);
-                const positionOnSide = i % 4;
+    window.addEventListener('mouseup', () => {
+      if (isDragging && selectedSections.length > 0) openModal();
+      isDragging = false;
+      dragStartSection = null;
+    });
 
-                const v1 = getHexagonVertex(sideIndex, hexRadius);
-                const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const t = e.touches[0];
+      const section = getClickedSection(t.clientX, t.clientY);
+      if (!section || sections[section.id]) return;
+      isDragging = true;
+      dragStartSection = section.id;
+      selectedSections = [section.id];
+      drawHexagon();
+    }, { passive: false });
 
-                const ratio1 = positionOnSide / 4;
-                const ratio2 = (positionOnSide + 1) / 4;
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (!isDragging || dragStartSection === null) return;
+      const t = e.touches[0];
+      const section = getClickedSection(t.clientX, t.clientY);
+      if (!section || sections[section.id]) return;
+      selectedSections = getSectionsInRange(dragStartSection, section.id);
+      if (selectedSections.length === 0) selectedSections = [dragStartSection];
+      drawHexagon();
+    }, { passive: false });
 
-                const edgePoint1 = {
-                    x: v1.x + (v2.x - v1.x) * ratio1,
-                    y: v1.y + (v2.y - v1.y) * ratio1
-                };
-                const edgePoint2 = {
-                    x: v1.x + (v2.x - v1.x) * ratio2,
-                    y: v1.y + (v2.y - v1.y) * ratio2
-                };
+    window.addEventListener('touchend', (e) => {
+      if (isDragging && selectedSections.length > 0) openModal();
+      isDragging = false;
+      dragStartSection = null;
+    });
 
-                const path = new Path2D();
-                path.moveTo(centerX, centerY);
-                path.lineTo(edgePoint1.x, edgePoint1.y);
-                path.lineTo(edgePoint2.x, edgePoint2.y);
-                path.closePath();
+    function openModal() {
+      document.getElementById('assignModal').style.display = 'block';
+      document.getElementById('selectionLabel').textContent = `${selectedSections.length} エリア選択中`;
+      setTimeout(() => document.getElementById('allianceName').focus(), 50);
+    }
 
-                section.path = path;
+    function closeModal() {
+      document.getElementById('assignModal').style.display = 'none';
+      selectedSections = [];
+      dragStartSection = null;
+      drawHexagon();
+    }
 
-                if (sections[i]) {
-                    ctx.fillStyle = sections[i].color;
-                    ctx.fill(path);
-                } else if (selectedSections.includes(i)) {
-                    ctx.fillStyle = selectedColor + '60';
-                    ctx.fill(path);
-                }
-            }
-
-            for (let i = 0; i < 24; i++) {
-                const sideIndex = Math.floor(i / 4);
-                const positionOnSide = i % 4;
-
-                const v1 = getHexagonVertex(sideIndex, hexRadius);
-                const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
-
-                const ratio2 = (positionOnSide + 1) / 4;
-
-                const edgePoint2 = {
-                    x: v1.x + (v2.x - v1.x) * ratio2,
-                    y: v1.y + (v2.y - v1.y) * ratio2
-                };
-
-                const nextId = (i + 1) % 24;
-                if (!shouldHideLine(i, nextId)) {
-                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(centerX, centerY);
-                    ctx.lineTo(edgePoint2.x, edgePoint2.y);
-                    ctx.stroke();
-                }
-            }
-
-            // Desert brown color for inner hexagon
-            ctx.fillStyle = '#8B5A3C';
-            ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                const vertex = getHexagonVertex(i, innerHexRadius);
-                if (i === 0) ctx.moveTo(vertex.x, vertex.y);
-                else ctx.lineTo(vertex.x, vertex.y);
-            }
-            ctx.closePath();
-            ctx.fill();
-
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-            ctx.lineWidth = 2;
-            ctx.stroke();
-
-            const turretPositions = [1, 3, 5];
-            turretPositions.forEach(i => {
-                const vertex = getHexagonVertex(i, innerHexRadius);
-
-                ctx.fillStyle = '#2196F3';
-                ctx.beginPath();
-                ctx.arc(vertex.x, vertex.y, 18, 0, Math.PI * 2);
-                ctx.fill();
-
-                ctx.strokeStyle = '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.stroke();
-
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 20px sans-serif';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.fillText('T', vertex.x, vertex.y);
-            });
-
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = 15;
-            ctx.shadowColor = 'rgba(255, 255, 255, 0.3)';
-            ctx.beginPath();
-            for (let i = 0; i < 6; i++) {
-                const vertex = getHexagonVertex(i, hexRadius);
-                if (i === 0) ctx.moveTo(vertex.x, vertex.y);
-                else ctx.lineTo(vertex.x, vertex.y);
-            }
-            ctx.closePath();
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            ctx.fillStyle = '#2196F3';
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
-            ctx.fill();
-
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 3;
-            ctx.stroke();
-
-            ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 32px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillText('C', centerX, centerY);
-
-            const drawnGroups = new Set();
-            Object.keys(sections).forEach(id => {
-                if (sections[id].name && !drawnGroups.has(sections[id].groupId)) {
-                    drawnGroups.add(sections[id].groupId);
-
-                    const groupSections = Object.keys(sections)
-                        .filter(gid => sections[gid].groupId === sections[id].groupId)
-                        .map(gid => parseInt(gid));
-
-                    let avgX = 0;
-                    let avgY = 0;
-                    groupSections.forEach(i => {
-                        const sideIndex = Math.floor(i / 4);
-                        const positionOnSide = i % 4;
-
-                        const v1 = getHexagonVertex(sideIndex, hexRadius);
-                        const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
-
-                        const ratio = (positionOnSide + 0.5) / 4;
-                        const edgeX = v1.x + (v2.x - v1.x) * ratio;
-                        const edgeY = v1.y + (v2.y - v1.y) * ratio;
-
-                        avgX += (centerX + edgeX) / 2;
-                        avgY += (centerY + edgeY) / 2;
-                    });
-
-                    avgX /= groupSections.length;
-                    avgY /= groupSections.length;
-
-                    let angle = Math.atan2(avgY - centerY, avgX - centerX);
-
-                    if (avgY > centerY) {
-                        angle += Math.PI;
-                    }
-
-                    ctx.save();
-                    ctx.translate(avgX, avgY);
-                    ctx.rotate(angle + Math.PI / 2);
-
-                    ctx.fillStyle = '#fff';
-                    ctx.strokeStyle = '#000';
-                    ctx.lineWidth = 3;
-                    ctx.font = 'bold 14px sans-serif';
-                    ctx.textAlign = 'center';
-                    ctx.textBaseline = 'middle';
-
-                    ctx.strokeText(sections[id].name, 0, 0);
-                    ctx.fillText(sections[id].name, 0, 0);
-
-                    ctx.restore();
-                }
-            });
-
-            updateLegend();
-        }
-
-        function getClickedSection(x, y) {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const canvasX = (x - rect.left) * scaleX;
-            const canvasY = (y - rect.top) * scaleY;
-
-            // Don't select if clicking on inner hexagon
-            if (isPointInInnerHexagon(canvasX, canvasY)) {
-                return null;
-            }
-
-            for (let section of sectionPaths) {
-                if (ctx.isPointInPath(section.path, canvasX, canvasY)) {
-                    return section;
-                }
-            }
-            return null;
-        }
-
-        function getSectionsInRange(start, end) {
-            if (start === null || end === null) return [];
-            if (start > end) [start, end] = [end, start];
-
-            const result = [];
-            for (let i = start; i <= end; i++) {
-                if (!sections[i]) {
-                    result.push(i);
-                }
-            }
-            return result;
-        }
-
-        canvas.addEventListener('mousedown', function(e) {
-            e.preventDefault();
-            const section = getClickedSection(e.clientX, e.clientY);
-            if (section && !sections[section.id]) {
-                isDragging = true;
-                dragStartSection = section.id;
-                selectedSections = [section.id];
-                drawHexagon();
-            }
+    function initColorPicker() {
+      const picker = document.getElementById('colorPicker');
+      picker.innerHTML = '';
+      colors.forEach((color, index) => {
+        const option = document.createElement('div');
+        option.className = 'color-option' + (index === 0 ? ' selected' : '');
+        option.style.background = color;
+        option.addEventListener('click', () => {
+          selectedColor = color;
+          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
+          option.classList.add('selected');
+          drawHexagon();
         });
+        picker.appendChild(option);
+      });
+    }
 
-        canvas.addEventListener('mousemove', function(e) {
-            if (isDragging && dragStartSection !== null) {
-                const section = getClickedSection(e.clientX, e.clientY);
-                if (section && !sections[section.id]) {
-                    selectedSections = getSectionsInRange(dragStartSection, section.id);
-                    if (selectedSections.length === 0) {
-                        selectedSections = [dragStartSection];
-                    }
-                    drawHexagon();
-                }
-            }
-        });
+    function assignAlliance() {
+      const name = document.getElementById('allianceName').value.trim();
+      if (!name) {
+        alert('同盟名を入力してください！');
+        return;
+      }
 
-        canvas.addEventListener('mouseup', function(e) {
-            if (isDragging && selectedSections.length > 0) {
-                openModal();
-            }
-            isDragging = false;
-            dragStartSection = null;
-        });
+      const groupId = Date.now();
+      selectedSections.forEach(id => {
+        sections[id] = { name, color: selectedColor, groupId };
+      });
 
-        canvas.addEventListener('mouseleave', function() {
-            if (isDragging) {
-                isDragging = false;
-                dragStartSection = null;
-                selectedSections = [];
-                drawHexagon();
-            }
-        });
+      document.getElementById('allianceName').value = '';
+      closeModal();
+      drawHexagon();
+    }
 
-        canvas.addEventListener('touchstart', function(e) {
-            e.preventDefault();
-            const touch = e.touches[0];
-            const section = getClickedSection(touch.clientX, touch.clientY);
-            if (section && !sections[section.id]) {
-                isDragging = true;
-                dragStartSection = section.id;
-                selectedSections = [section.id];
-                drawHexagon();
-            }
-        });
+    function clearSelection() {
+      document.getElementById('allianceName').value = '';
+      closeModal();
+    }
 
-        canvas.addEventListener('touchmove', function(e) {
-            e.preventDefault();
-            if (isDragging && dragStartSection !== null) {
-                const touch = e.touches[0];
-                const section = getClickedSection(touch.clientX, touch.clientY);
-                if (section && !sections[section.id]) {
-                    selectedSections = getSectionsInRange(dragStartSection, section.id);
-                    if (selectedSections.length === 0) {
-                        selectedSections = [dragStartSection];
-                    }
-                    drawHexagon();
-                }
-            }
-        });
+    function deleteAlliance(allianceName) {
+      if (!confirm(`「${allianceName}」を削除しますか？`)) return;
+      Object.keys(sections).forEach(id => {
+        if (sections[id].name === allianceName) delete sections[id];
+      });
+      drawHexagon();
+    }
 
-        canvas.addEventListener('touchend', function(e) {
-            e.preventDefault();
-            if (isDragging && selectedSections.length > 0) {
-                openModal();
-            }
-            isDragging = false;
-            dragStartSection = null;
-        });
+    function updateLegend() {
+      const legendList = document.getElementById('legendList');
+      legendList.innerHTML = '';
 
-        function openModal() {
-            document.getElementById('assignModal').style.display = 'block';
-            document.getElementById('selectionLabel').textContent = 
-                `${selectedSections.length} エリア選択中`;
-        }
+      if (Object.keys(sections).length === 0) {
+        legendList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 8px 0;">配置なし</div>';
+        return;
+      }
 
-        function closeModal() {
-            document.getElementById('assignModal').style.display = 'none';
-            selectedSections = [];
-            dragStartSection = null;
-            drawHexagon();
-        }
+      const uniqueAlliances = {};
+      Object.values(sections).forEach(s => { uniqueAlliances[s.name] = s.color; });
 
-        function initColorPicker() {
-            const picker = document.getElementById('colorPicker');
-            colors.forEach((color, index) => {
-                const option = document.createElement('div');
-                option.className = 'color-option';
-                if (index === 0) option.classList.add('selected');
-                option.style.background = color;
-                option.onclick = () => {
-                    selectedColor = color;
-                    document.querySelectorAll('.color-option').forEach(opt => {
-                        opt.classList.remove('selected');
-                    });
-                    option.classList.add('selected');
-                    drawHexagon();
-                };
-                picker.appendChild(option);
-            });
-        }
+      Object.entries(uniqueAlliances).forEach(([name, color]) => {
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        const safeName = name.replace(/'/g, "\\'");
+        item.innerHTML = `
+          <div class="legend-color" style="background:${color}"></div>
+          <span class="legend-name">${name}</span>
+          <button class="delete-alliance-btn" onclick="deleteAlliance('${safeName}')">✕</button>
+        `;
+        legendList.appendChild(item);
+      });
+    }
 
-        function assignAlliance() {
-            const name = document.getElementById('allianceName').value.trim();
-            if (!name) {
-                alert('同盟名を入力してください！');
-                return;
-            }
+    function init() {
+      initSections();
+      initColorPicker();
+      drawHexagon();
+    }
 
-            const groupId = Date.now();
-
-            selectedSections.forEach(id => {
-                sections[id] = {
-                    name: name,
-                    color: selectedColor,
-                    groupId: groupId
-                };
-            });
-
-            closeModal();
-            drawHexagon();
-        }
-
-        function clearSelection() {
-            selectedSections.forEach(id => {
-                delete sections[id];
-            });
-            closeModal();
-            drawHexagon();
-        }
-
-        function deleteAlliance(allianceName) {
-            if (confirm(`「${allianceName}」を削除しますか？`)) {
-                Object.keys(sections).forEach(id => {
-                    if (sections[id].name === allianceName) {
-                        delete sections[id];
-                    }
-                });
-                drawHexagon();
-            }
-        }
-
-        function clearAll() {
-            if (Object.keys(sections).length === 0) {
-                alert('まだ配置されていません');
-                return;
-            }
-
-            if (confirm('全ての配置をクリアしますか？')) {
-                sections = {};
-                drawHexagon();
-            }
-        }
-
-        function updateLegend() {
-            const legendList = document.getElementById('legendList');
-            legendList.innerHTML = '';
-
-            if (Object.keys(sections).length === 0) {
-                legendList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 8px 0;">配置なし</div>';
-                return;
-            }
-
-            const uniqueAlliances = {};
-            Object.values(sections).forEach(s => {
-                uniqueAlliances[s.name] = s.color;
-            });
-
-            Object.entries(uniqueAlliances).forEach(([name, color]) => {
-                const item = document.createElement('div');
-                item.className = 'legend-item';
-                item.innerHTML = `
-                    <div class="legend-color" style="background: ${color};"></div>
-                    <span class="legend-name">${name}</span>
-                    <button class="delete-alliance-btn" onclick="deleteAlliance('${name.replace(/'/g, "\'")}')">✕</button>
-                `;
-                legendList.appendChild(item);
-            });
-        }
-
-        function exportImage() {
-            const link = document.createElement('a');
-            const timestamp = new Date().toISOString().slice(0,19).replace(/:/g,'-');
-            link.download = `LastZ首都_${timestamp}.png`;
-            link.href = canvas.toDataURL();
-            link.click();
-        }
-
-        function init() {
-            initSections();
-            initColorPicker();
-            drawHexagon();
-        }
-
-        init();
-    </script>
+    init();
+  </script>
 </body>
 </html>
