@@ -103,7 +103,6 @@
         justify-content: center;
         transition: all 0.2s;
         flex-shrink: 0;
-        /* Ensure it's clickable */
         pointer-events: auto;
         touch-action: manipulation;
     }
@@ -127,7 +126,7 @@
         box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
         max-width: 200px;
         z-index: 10;
-        pointer-events: none; /* Let clicks pass through if needed, though text selection might be wanted */
+        pointer-events: none;
     }
 
     .instructions-container h4 {
@@ -164,7 +163,7 @@
       touch-action:none;
     }
 
-    /* Modal Styles (Unchanged) */
+    /* Modal Styles */
     .modal{
       display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;
       background:rgba(0,0,0,.85);
@@ -212,11 +211,10 @@
     .btn-clear-selection:hover{background:rgba(255,50,50,.2);border-color:rgba(255,50,50,.5)}
     .btn-place:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
 
-    /* Mobile Layout Updates */
     @media (max-width: 768px) {
         body {
             height: 100vh;
-            overflow: hidden; /* Prevent body scroll */
+            overflow: hidden;
         }
 
         .header {
@@ -227,20 +225,18 @@
         .main-container {
             display: flex;
             flex-direction: column;
-            justify-content: space-between; /* Push canvas to middle */
+            justify-content: space-between;
             height: calc(100vh - 50px);
             padding: 0;
             background: #0a0a0a;
         }
 
         #hexCanvas {
-            /* Limit canvas size to ensure it doesn't overlap top/bottom bars */
             max-width: 100%;
-            max-height: calc(100% - 140px); /* Reserve space for top and bottom bars */
+            max-height: calc(100% - 140px);
             margin: auto;
         }
 
-        /* Top Bar: Legend (Horizontal) */
         .legend-container {
             position: relative;
             top: 0;
@@ -255,7 +251,7 @@
             padding: 8px 12px;
             display: flex;
             align-items: center;
-            overflow-x: auto; /* Horizontal scroll */
+            overflow-x: auto;
             white-space: nowrap;
             flex-shrink: 0;
             border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -283,7 +279,6 @@
             font-size: 0.9em;
         }
 
-        /* Bottom Bar: Instructions (Horizontal) */
         .instructions-container {
             position: relative;
             bottom: 0;
@@ -304,7 +299,7 @@
         }
 
         .instructions-container h4 {
-            display: none; /* Hide title to save space on mobile */
+            display: none;
         }
 
         .instructions-content {
@@ -333,7 +328,6 @@
   </div>
 
   <div class="main-container">
-    <!-- Top Horizontal Legend (Mobile) / Absolute Right (Desktop) -->
     <div class="legend-container">
       <h3>配置済み:</h3>
       <div id="legendList"></div>
@@ -341,7 +335,6 @@
 
     <canvas id="hexCanvas" width="900" height="900"></canvas>
 
-    <!-- Bottom Horizontal Instructions (Mobile) / Absolute Left (Desktop) -->
     <div class="instructions-container">
       <h4>使い方</h4>
       <div class="instructions-content">
@@ -352,7 +345,6 @@
     </div>
   </div>
 
-  <!-- Modal -->
   <div id="assignModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -627,14 +619,38 @@
       return null;
     }
 
+    // UPDATED: Fixed wrap-around logic for selection
     function getSectionsInRange(start, end) {
       if (start === null || end === null) return [];
-      if (start > end) [start, end] = [end, start];
-      const result = [];
-      for (let i = start; i <= end; i++) {
-        if (!sections[i]) result.push(i);
+
+      const total = 24;
+      const dist = Math.abs(end - start);
+
+      // Standard linear selection (less than half circle)
+      if (dist <= total / 2) {
+          const min = Math.min(start, end);
+          const max = Math.max(start, end);
+          const result = [];
+          for (let i = min; i <= max; i++) {
+              if (!sections[i]) result.push(i);
+          }
+          return result;
+      } else {
+          // Wrapped selection (shortest path across 0/23 boundary)
+          const min = Math.min(start, end);
+          const max = Math.max(start, end);
+          const result = [];
+
+          // From 0 to min
+          for (let i = 0; i <= min; i++) {
+               if (!sections[i]) result.push(i);
+          }
+          // From max to end (total-1)
+          for (let i = max; i < total; i++) {
+               if (!sections[i]) result.push(i);
+          }
+          return result;
       }
-      return result;
     }
 
     canvas.addEventListener('mousedown', (e) => {
@@ -740,7 +756,6 @@
       closeModal();
     }
 
-    // Attach to window so it's accessible by onclick even with module scoping
     window.deleteAlliance = function(allianceName) {
       if (confirm(`「${allianceName}」を削除しますか？`)) {
         Object.keys(sections).forEach(id => {
@@ -762,7 +777,6 @@
       Object.entries(uniqueAlliances).forEach(([name, color]) => {
         const item = document.createElement('div');
         item.className = 'legend-item';
-        // Need to escape single quotes safely for the onclick handler
         const safeName = name.replace(/'/g, "\\'");
         item.innerHTML = `
           <div class="legend-color" style="background:${color}"></div>
