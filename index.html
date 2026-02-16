@@ -113,7 +113,7 @@
     .instructions-container h4{margin:0 0 10px 0;color:#c0c0c0;font-size:1em;font-weight:600}
     .instructions-container p{margin:0 0 6px 0;line-height:1.5;color:#a0a0a0;font-size:.85em}
 
-    #gridCanvas{
+    #hexCanvas{
       cursor:crosshair;
       max-width:88vmin;
       max-height:88vmin;
@@ -150,7 +150,7 @@
     @media (max-width:768px){
       .header{padding:10px 12px;height:50px}
       .main-container{flex-direction:column;justify-content:space-between;height:calc(100vh - 50px)}
-      #gridCanvas{max-width:100%;max-height:calc(100% - 140px);margin:auto}
+      #hexCanvas{max-width:100%;max-height:calc(100% - 140px);margin:auto}
 
       .legend-container{
         position:relative;top:0;right:0;
@@ -197,7 +197,7 @@
       <div id="legendList"></div>
     </div>
 
-    <canvas id="gridCanvas" width="960" height="960"></canvas>
+    <canvas id="hexCanvas" width="960" height="960"></canvas>
 
     <div class="instructions-container">
       <h4>使い方</h4>
@@ -220,7 +220,7 @@
         <button class="close-btn" onclick="closeModal()">&times;</button>
       </div>
       <div class="selection-info">
-        <strong id="selectionLabel">0 マス選択中</strong>
+        <strong id="selectionLabel">0 ピース選択中</strong>
       </div>
       <div class="form-section">
         <h3>同盟情報</h3>
@@ -241,7 +241,7 @@
   </div>
 
   <script>
-    const canvas = document.getElementById('gridCanvas');
+    const canvas = document.getElementById('hexCanvas');
     const ctx = canvas.getContext('2d');
 
     const colors = [
@@ -259,14 +259,24 @@
     const outerRadius = 410;
     const innerRadius = 140;
 
-    // Bigger squares
-    const gridSize = 36;
+    // Pizza slices: 24 angular segments, each split into 3 radial bands
+    const ANG_SEGMENTS = 24;
+    const RADIAL_BANDS = 3;
 
+    // Exclude the inner hex region from selection by starting bands outside innerRadius.
+    const rMin = innerRadius + 6;
+    const rMax = outerRadius;
+    const bandThickness = (rMax - rMin) / RADIAL_BANDS;
+
+    // paths[pieceId] => { seg, band, path, cx, cy }
+    const piecePaths = [];
+
+    // placedPieces: pieceId -> { name, color, groupId }
     const placed = new Map();
-    let selected = new Set();
 
     let isDragging = false;
-    let dragStartKey = null;
+    let dragStartId = null;
+    let selectedIds = new Set();
 
     function hexVertex(i, radius) {
       const angle = (Math.PI/3)*i;
@@ -287,95 +297,100 @@
     const outerHexPath = buildHexPath(outerRadius);
     const innerHexPath = buildHexPath(innerRadius);
 
-    function pointInOuterHex(x,y){ return ctx.isPointInPath(outerHexPath, x, y); }
-    function pointInInnerHex(x,y){ return ctx.isPointInPath(innerHexPath, x, y); }
-
-    function pointToCell(x,y){
-      const col = Math.floor(x / gridSize);
-      const row = Math.floor(y / gridSize);
-      return { col, row, key: `${col},${row}` };
+    function angleFromCenter(x,y){
+      let a = Math.atan2(y-centerY, x-centerX); // -pi..pi
+      if (a < 0) a += Math.PI*2;
+      return a;
     }
 
-    function cellRect(col,row){
-      return { x: col*gridSize, y: row*gridSize, w: gridSize, h: gridSize };
+    function distFromCenter(x,y){
+      const dx = x-centerX;
+      const dy = y-centerY;
+      return Math.sqrt(dx*dx + dy*dy);
     }
 
-    function cellIsPlayable(col,row){
-      const r = cellRect(col,row);
-      const cx = r.x + r.w/2;
-      const cy = r.y + r.h/2;
-      if (!pointInOuterHex(cx,cy)) return false;
-      if (pointInInnerHex(cx,cy)) return false;
-      return true;
-    }
+    function buildPiecePaths(){
+      piecePaths.length = 0;
+      const angleStep = (Math.PI*2) / ANG_SEGMENTS;
 
-    function nearestPlayableCellFromPoint(x, y){
-      const base = pointToCell(x,y);
-      if (cellIsPlayable(base.col, base.row)) return base;
+      for (let seg=0; seg<ANG_SEGMENTS; seg++){
+        const a1 = seg * angleStep;
+        const a2 = (seg+1) * angleStep;
 
-      const maxC = Math.ceil(W / gridSize);
-      const maxR = Math.ceil(H / gridSize);
+        for (let band=0; band<RADIAL_BANDS; band++){
+          const r1 = rMin + band*bandThickness;
+          const r2 = rMin + (band+1)*bandThickness;
 
-      const maxRadius = 30;
-      for (let rad=1; rad<=maxRadius; rad++){
-        for (let dc=-rad; dc<=rad; dc++){
-          const dr = rad - Math.abs(dc);
-          const candidates = [
-            {c: base.col + dc, r: base.row + dr},
-            {c: base.col + dc, r: base.row - dr},
-          ];
-          for (const cand of candidates){
-            if (cand.c < 0 || cand.r < 0 || cand.c >= maxC || cand.r >= maxR) continue;
-            if (cellIsPlayable(cand.c, cand.r)) return { col: cand.c, row: cand.r, key: `${cand.c},${cand.r}` };
-          }
+          // Ring-sector path, clipped by hex in draw.
+          const path = new Path2D();
+          path.arc(centerX, centerY, r2, a1, a2);
+          path.arc(centerX, centerY, r1, a2, a1, true);
+          path.closePath();
+
+          // centroid approx
+          const ac = (a1+a2)/2;
+          const rc = (r1+r2)/2;
+          const cx = centerX + rc*Math.cos(ac);
+          const cy = centerY + rc*Math.sin(ac);
+
+          const id = seg*RADIAL_BANDS + band;
+          piecePaths[id] = { id, seg, band, path, cx, cy };
         }
       }
-      return null;
     }
 
-    function draw() {
+    function draw(){
       ctx.clearRect(0,0,W,H);
-
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0,0,W,H);
 
+      // base inside outer hex
       ctx.save();
       ctx.clip(outerHexPath);
       ctx.fillStyle = '#141414';
       ctx.fillRect(0,0,W,H);
 
-      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      // fills
+      for (const p of piecePaths){
+        if (!p) continue;
+        if (placed.has(p.id)){
+          ctx.fillStyle = placed.get(p.id).color;
+          ctx.fill(p.path);
+        } else if (selectedIds.has(p.id)){
+          ctx.fillStyle = selectedColor + '66';
+          ctx.fill(p.path);
+        }
+      }
+
+      // division lines: angular + radial
+      ctx.strokeStyle = 'rgba(255,255,255,0.13)';
       ctx.lineWidth = 1;
-      for (let x=0; x<=W; x+=gridSize){
+
+      // angular lines
+      const angleStep = (Math.PI*2)/ANG_SEGMENTS;
+      for (let seg=0; seg<ANG_SEGMENTS; seg++){
+        const a = seg*angleStep;
+        const x1 = centerX + rMin*Math.cos(a);
+        const y1 = centerY + rMin*Math.sin(a);
+        const x2 = centerX + rMax*Math.cos(a);
+        const y2 = centerY + rMax*Math.sin(a);
         ctx.beginPath();
-        ctx.moveTo(x,0);
-        ctx.lineTo(x,H);
-        ctx.stroke();
-      }
-      for (let y=0; y<=H; y+=gridSize){
-        ctx.beginPath();
-        ctx.moveTo(0,y);
-        ctx.lineTo(W,y);
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
         ctx.stroke();
       }
 
-      for (const [key,val] of placed.entries()){
-        const [c,r] = key.split(',').map(Number);
-        const rect = cellRect(c,r);
-        ctx.fillStyle = val.color;
-        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-      }
-
-      for (const key of selected){
-        if (placed.has(key)) continue;
-        const [c,r] = key.split(',').map(Number);
-        const rect = cellRect(c,r);
-        ctx.fillStyle = selectedColor + '66';
-        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+      // radial band arcs
+      for (let band=1; band<RADIAL_BANDS; band++){
+        const rr = rMin + band*bandThickness;
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, rr, 0, Math.PI*2);
+        ctx.stroke();
       }
 
       ctx.restore();
 
+      // outer hex outline
       ctx.strokeStyle = 'rgba(255,255,255,0.28)';
       ctx.lineWidth = 2;
       ctx.shadowBlur = 14;
@@ -383,12 +398,14 @@
       ctx.stroke(outerHexPath);
       ctx.shadowBlur = 0;
 
+      // inner hex
       ctx.fillStyle = '#8B5A3C';
       ctx.fill(innerHexPath);
       ctx.strokeStyle = 'rgba(255,255,255,0.35)';
       ctx.lineWidth = 2;
       ctx.stroke(innerHexPath);
 
+      // turrets
       const turrets = [
         { index: 4, label: 'T1' },
         { index: 2, label: 'T2' },
@@ -410,6 +427,7 @@
         ctx.fillText(t.label, v.x, v.y);
       });
 
+      // capital
       ctx.fillStyle = '#2196F3';
       ctx.beginPath();
       ctx.arc(centerX, centerY, 38, 0, Math.PI*2);
@@ -423,10 +441,11 @@
       ctx.textBaseline = 'middle';
       ctx.fillText('C', centerX, centerY);
 
+      // group labels
       const groups = new Map();
-      for (const [key,val] of placed.entries()){
-        if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, cells: [] });
-        groups.get(val.groupId).cells.push(key);
+      for (const [id,val] of placed.entries()){
+        if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, ids: [] });
+        groups.get(val.groupId).ids.push(id);
       }
 
       ctx.font = 'bold 14px sans-serif';
@@ -434,17 +453,15 @@
       ctx.textBaseline = 'middle';
       for (const g of groups.values()){
         let sx=0, sy=0;
-        for (const key of g.cells){
-          const [c,r] = key.split(',').map(Number);
-          const rect = cellRect(c,r);
-          sx += rect.x + rect.w/2;
-          sy += rect.y + rect.h/2;
+        for (const id of g.ids){
+          const p = piecePaths[id];
+          sx += p.cx; sy += p.cy;
         }
-        const cx = sx / g.cells.length;
-        const cy = sy / g.cells.length;
+        const cx = sx / g.ids.length;
+        const cy = sy / g.ids.length;
         ctx.save();
         ctx.fillStyle = '#fff';
-        ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+        ctx.strokeStyle = 'rgba(0,0,0,0.85)';
         ctx.lineWidth = 4;
         ctx.strokeText(g.name, cx, cy);
         ctx.fillText(g.name, cx, cy);
@@ -454,23 +471,6 @@
       updateLegend();
     }
 
-    function cellsInDrag(startKey, endKey){
-      const [sc,sr] = startKey.split(',').map(Number);
-      const [ec,er] = endKey.split(',').map(Number);
-      const minC = Math.min(sc,ec), maxC = Math.max(sc,ec);
-      const minR = Math.min(sr,er), maxR = Math.max(sr,er);
-      const result = new Set();
-      for (let r=minR;r<=maxR;r++){
-        for (let c=minC;c<=maxC;c++){
-          const key = `${c},${r}`;
-          if (!cellIsPlayable(c,r)) continue;
-          if (placed.has(key)) continue;
-          result.add(key);
-        }
-      }
-      return result;
-    }
-
     function clientToCanvas(clientX, clientY){
       const rect = canvas.getBoundingClientRect();
       const scaleX = W / rect.width;
@@ -478,57 +478,105 @@
       return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
     }
 
-    function startDragAt(clientX, clientY){
+    function pointToPieceId(x,y){
+      if (!ctx.isPointInPath(outerHexPath, x, y)) return null;
+      if (ctx.isPointInPath(innerHexPath, x, y)) return null;
+
+      const r = distFromCenter(x,y);
+      if (r < rMin || r > rMax) return null;
+
+      const a = angleFromCenter(x,y);
+      const angleStep = (Math.PI*2)/ANG_SEGMENTS;
+      let seg = Math.floor(a / angleStep);
+      if (seg < 0) seg = 0;
+      if (seg >= ANG_SEGMENTS) seg = ANG_SEGMENTS-1;
+
+      let band = Math.floor((r - rMin) / bandThickness);
+      if (band < 0) band = 0;
+      if (band >= RADIAL_BANDS) band = RADIAL_BANDS-1;
+
+      return seg*RADIAL_BANDS + band;
+    }
+
+    function pieceKey(seg, band){
+      return seg*RADIAL_BANDS + band;
+    }
+
+    function getSelectedIdsBetween(startId, endId){
+      const startSeg = Math.floor(startId / RADIAL_BANDS);
+      const startBand = startId % RADIAL_BANDS;
+      const endSeg = Math.floor(endId / RADIAL_BANDS);
+      const endBand = endId % RADIAL_BANDS;
+
+      const minBand = Math.min(startBand, endBand);
+      const maxBand = Math.max(startBand, endBand);
+
+      const forward = (endSeg - startSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
+      const backward = (startSeg - endSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
+      const useForward = forward <= backward;
+
+      const result = new Set();
+
+      let seg = startSeg;
+      const steps = useForward ? forward : backward;
+      const dir = useForward ? 1 : -1;
+
+      for (let i=0; i<=steps; i++){
+        for (let band=minBand; band<=maxBand; band++){
+          const id = pieceKey(seg, band);
+          if (!placed.has(id)) result.add(id);
+        }
+        seg = (seg + dir + ANG_SEGMENTS) % ANG_SEGMENTS;
+      }
+
+      return result;
+    }
+
+    function startDrag(clientX, clientY){
       const p = clientToCanvas(clientX, clientY);
-      if (pointInInnerHex(p.x,p.y)) return;
-
-      const cell = nearestPlayableCellFromPoint(p.x, p.y);
-      if (!cell) return;
-      if (placed.has(cell.key)) return;
-
+      const id = pointToPieceId(p.x,p.y);
+      if (id === null) return;
+      if (placed.has(id)) return;
       isDragging = true;
-      dragStartKey = cell.key;
-      selected = new Set([cell.key]);
+      dragStartId = id;
+      selectedIds = new Set([id]);
       draw();
     }
 
-    function updateDragTo(clientX, clientY){
-      if (!isDragging || !dragStartKey) return;
+    function updateDrag(clientX, clientY){
+      if (!isDragging || dragStartId === null) return;
       const p = clientToCanvas(clientX, clientY);
-
-      // Allow dragging outside the hex; clamp to nearest playable cell.
-      const cell = nearestPlayableCellFromPoint(p.x, p.y);
-      if (!cell) return;
-
-      selected = cellsInDrag(dragStartKey, cell.key);
-      if (selected.size === 0) selected = new Set([dragStartKey]);
+      const id = pointToPieceId(p.x,p.y);
+      if (id === null) return;
+      selectedIds = getSelectedIdsBetween(dragStartId, id);
+      if (selectedIds.size === 0) selectedIds = new Set([dragStartId]);
       draw();
     }
 
     function endDrag(){
-      if (isDragging && selected.size > 0) openModal();
+      if (isDragging && selectedIds.size > 0) openModal();
       isDragging = false;
-      dragStartKey = null;
+      dragStartId = null;
     }
 
-    canvas.addEventListener('mousedown', (e)=>{ e.preventDefault(); startDragAt(e.clientX, e.clientY); });
-    canvas.addEventListener('mousemove', (e)=>{ e.preventDefault(); updateDragTo(e.clientX, e.clientY); });
+    canvas.addEventListener('mousedown', (e)=>{ e.preventDefault(); startDrag(e.clientX, e.clientY); });
+    canvas.addEventListener('mousemove', (e)=>{ e.preventDefault(); updateDrag(e.clientX, e.clientY); });
     window.addEventListener('mouseup', ()=> endDrag());
 
-    canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); const t=e.touches[0]; startDragAt(t.clientX, t.clientY); }, {passive:false});
-    canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); const t=e.touches[0]; updateDragTo(t.clientX, t.clientY); }, {passive:false});
+    canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); const t=e.touches[0]; startDrag(t.clientX, t.clientY); }, {passive:false});
+    canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); const t=e.touches[0]; updateDrag(t.clientX, t.clientY); }, {passive:false});
     window.addEventListener('touchend', ()=> endDrag());
 
     function openModal(){
       document.getElementById('assignModal').style.display = 'block';
-      document.getElementById('selectionLabel').textContent = `${selected.size} マス選択中`;
+      document.getElementById('selectionLabel').textContent = `${selectedIds.size} ピース選択中`;
       setTimeout(()=>document.getElementById('allianceName').focus(), 50);
     }
 
     function closeModal(){
       document.getElementById('assignModal').style.display = 'none';
-      selected = new Set();
-      dragStartKey = null;
+      selectedIds = new Set();
+      dragStartId = null;
       draw();
     }
 
@@ -541,8 +589,8 @@
       const name = document.getElementById('allianceName').value.trim();
       if (!name){ alert('同盟名を入力してください！'); return; }
       const groupId = Date.now();
-      for (const key of selected){
-        placed.set(key, { name, color: selectedColor, groupId });
+      for (const id of selectedIds){
+        placed.set(id, { name, color: selectedColor, groupId });
       }
       document.getElementById('allianceName').value = '';
       closeModal();
@@ -551,8 +599,8 @@
 
     window.deleteAlliance = function(allianceName){
       if (!confirm(`「${allianceName}」を削除しますか？`)) return;
-      for (const [key,val] of placed.entries()){
-        if (val.name === allianceName) placed.delete(key);
+      for (const [id,val] of placed.entries()){
+        if (val.name === allianceName) placed.delete(id);
       }
       draw();
     };
@@ -605,6 +653,7 @@
     window.clearSelection = clearSelection;
     window.assignAlliance = assignAlliance;
 
+    buildPiecePaths();
     initColorPicker();
     draw();
   </script>
