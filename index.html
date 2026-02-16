@@ -44,7 +44,6 @@
       width:100%;
     }
 
-    /* Desktop floating legend */
     .legend-container{
       position:absolute;
       top:15px;right:15px;
@@ -61,7 +60,6 @@
     }
 
     .legend-container h3{margin:0 0 12px 0;font-size:1em;font-weight:600;color:#c0c0c0;white-space:nowrap}
-
     #legendList{display:flex;flex-direction:column;gap:8px}
 
     .legend-item{
@@ -98,7 +96,6 @@
 
     .delete-alliance-btn:hover{background:rgba(255,50,50,.4);border-color:rgba(255,50,50,.6);transform:scale(1.06)}
 
-    /* Desktop floating instructions */
     .instructions-container{
       position:absolute;
       bottom:15px;left:15px;
@@ -124,7 +121,6 @@
       touch-action:none;
     }
 
-    /* Modal */
     .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);animation:fadeIn .25s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .modal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a1a;padding:22px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.9);width:480px;max-width:92%;max-height:90vh;overflow:auto;border:1px solid rgba(255,255,255,.1)}
@@ -151,7 +147,6 @@
     .btn-clear-selection:hover{background:rgba(255,50,50,.2);border-color:rgba(255,50,50,.5)}
     .btn-place:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
 
-    /* Mobile: top horizontal legend, bottom horizontal how-to */
     @media (max-width:768px){
       .header{padding:10px 12px;height:50px}
       .main-container{flex-direction:column;justify-content:space-between;height:calc(100vh - 50px)}
@@ -249,7 +244,6 @@
     const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
 
-    // Palette (9)
     const colors = [
       '#FF6B6B', '#4ECDC4', '#FFE66D',
       '#A8E6CF', '#FF8B94', '#95E1D3',
@@ -257,29 +251,24 @@
     ];
     let selectedColor = colors[0];
 
-    // Geometry
     const W = canvas.width;
     const H = canvas.height;
     const centerX = W/2;
     const centerY = H/2;
 
-    // Outer hex + inner hex
     const outerRadius = 410;
     const innerRadius = 140;
 
-    // Square grid settings
-    const gridSize = 30;
+    // Bigger squares
+    const gridSize = 36;
 
-    // Data: selected squares during drag, and placed squares
-    // key = "c,r" (col,row)
-    const placed = new Map(); // key -> { name, color, groupId }
+    const placed = new Map();
     let selected = new Set();
 
     let isDragging = false;
     let dragStartKey = null;
 
     function hexVertex(i, radius) {
-      // flat-top hex
       const angle = (Math.PI/3)*i;
       return { x: centerX + radius*Math.cos(angle), y: centerY + radius*Math.sin(angle) };
     }
@@ -298,14 +287,9 @@
     const outerHexPath = buildHexPath(outerRadius);
     const innerHexPath = buildHexPath(innerRadius);
 
-    function pointInOuterHex(x,y){
-      return ctx.isPointInPath(outerHexPath, x, y);
-    }
-    function pointInInnerHex(x,y){
-      return ctx.isPointInPath(innerHexPath, x, y);
-    }
+    function pointInOuterHex(x,y){ return ctx.isPointInPath(outerHexPath, x, y); }
+    function pointInInnerHex(x,y){ return ctx.isPointInPath(innerHexPath, x, y); }
 
-    // Convert canvas point to grid cell (col,row)
     function pointToCell(x,y){
       const col = Math.floor(x / gridSize);
       const row = Math.floor(y / gridSize);
@@ -316,7 +300,6 @@
       return { x: col*gridSize, y: row*gridSize, w: gridSize, h: gridSize };
     }
 
-    // Only allow cells whose CENTER lies inside the outer hex and outside inner hex.
     function cellIsPlayable(col,row){
       const r = cellRect(col,row);
       const cx = r.x + r.w/2;
@@ -326,20 +309,41 @@
       return true;
     }
 
+    function nearestPlayableCellFromPoint(x, y){
+      const base = pointToCell(x,y);
+      if (cellIsPlayable(base.col, base.row)) return base;
+
+      const maxC = Math.ceil(W / gridSize);
+      const maxR = Math.ceil(H / gridSize);
+
+      const maxRadius = 30;
+      for (let rad=1; rad<=maxRadius; rad++){
+        for (let dc=-rad; dc<=rad; dc++){
+          const dr = rad - Math.abs(dc);
+          const candidates = [
+            {c: base.col + dc, r: base.row + dr},
+            {c: base.col + dc, r: base.row - dr},
+          ];
+          for (const cand of candidates){
+            if (cand.c < 0 || cand.r < 0 || cand.c >= maxC || cand.r >= maxR) continue;
+            if (cellIsPlayable(cand.c, cand.r)) return { col: cand.c, row: cand.r, key: `${cand.c},${cand.r}` };
+          }
+        }
+      }
+      return null;
+    }
+
     function draw() {
       ctx.clearRect(0,0,W,H);
 
-      // background
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0,0,W,H);
 
-      // base fill inside outer hex
       ctx.save();
       ctx.clip(outerHexPath);
       ctx.fillStyle = '#141414';
       ctx.fillRect(0,0,W,H);
 
-      // grid lines (only inside hex clip)
       ctx.strokeStyle = 'rgba(255,255,255,0.07)';
       ctx.lineWidth = 1;
       for (let x=0; x<=W; x+=gridSize){
@@ -355,7 +359,6 @@
         ctx.stroke();
       }
 
-      // fill placed cells
       for (const [key,val] of placed.entries()){
         const [c,r] = key.split(',').map(Number);
         const rect = cellRect(c,r);
@@ -363,7 +366,6 @@
         ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
       }
 
-      // selection preview (only for empty cells)
       for (const key of selected){
         if (placed.has(key)) continue;
         const [c,r] = key.split(',').map(Number);
@@ -374,7 +376,6 @@
 
       ctx.restore();
 
-      // outer hex outline
       ctx.strokeStyle = 'rgba(255,255,255,0.28)';
       ctx.lineWidth = 2;
       ctx.shadowBlur = 14;
@@ -382,14 +383,12 @@
       ctx.stroke(outerHexPath);
       ctx.shadowBlur = 0;
 
-      // inner hex (desert)
       ctx.fillStyle = '#8B5A3C';
       ctx.fill(innerHexPath);
       ctx.strokeStyle = 'rgba(255,255,255,0.35)';
       ctx.lineWidth = 2;
       ctx.stroke(innerHexPath);
 
-      // Turrets: T1 bottom-left (index 4), T2 top-left (2), T3 right (0)
       const turrets = [
         { index: 4, label: 'T1' },
         { index: 2, label: 'T2' },
@@ -411,7 +410,6 @@
         ctx.fillText(t.label, v.x, v.y);
       });
 
-      // Capital C
       ctx.fillStyle = '#2196F3';
       ctx.beginPath();
       ctx.arc(centerX, centerY, 38, 0, Math.PI*2);
@@ -425,10 +423,9 @@
       ctx.textBaseline = 'middle';
       ctx.fillText('C', centerX, centerY);
 
-      // Alliance labels: per group centroid
       const groups = new Map();
       for (const [key,val] of placed.entries()){
-        if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, color: val.color, cells: [] });
+        if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, cells: [] });
         groups.get(val.groupId).cells.push(key);
       }
 
@@ -445,7 +442,6 @@
         }
         const cx = sx / g.cells.length;
         const cy = sy / g.cells.length;
-
         ctx.save();
         ctx.fillStyle = '#fff';
         ctx.strokeStyle = 'rgba(0,0,0,0.8)';
@@ -458,7 +454,6 @@
       updateLegend();
     }
 
-    // Selection from drag: rectangle selection in cell space, but only playable cells.
     function cellsInDrag(startKey, endKey){
       const [sc,sr] = startKey.split(',').map(Number);
       const [ec,er] = endKey.split(',').map(Number);
@@ -480,21 +475,15 @@
       const rect = canvas.getBoundingClientRect();
       const scaleX = W / rect.width;
       const scaleY = H / rect.height;
-      return {
-        x: (clientX - rect.left) * scaleX,
-        y: (clientY - rect.top) * scaleY,
-      };
+      return { x: (clientX - rect.left) * scaleX, y: (clientY - rect.top) * scaleY };
     }
 
     function startDragAt(clientX, clientY){
       const p = clientToCanvas(clientX, clientY);
-
-      // Block selection if starting in inner hex (capital)
       if (pointInInnerHex(p.x,p.y)) return;
 
-      const cell = pointToCell(p.x,p.y);
-      const [c,r] = [cell.col, cell.row];
-      if (!cellIsPlayable(c,r)) return;
+      const cell = nearestPlayableCellFromPoint(p.x, p.y);
+      if (!cell) return;
       if (placed.has(cell.key)) return;
 
       isDragging = true;
@@ -506,9 +495,11 @@
     function updateDragTo(clientX, clientY){
       if (!isDragging || !dragStartKey) return;
       const p = clientToCanvas(clientX, clientY);
-      const cell = pointToCell(p.x,p.y);
-      const [c,r] = [cell.col, cell.row];
-      if (!cellIsPlayable(c,r)) return;
+
+      // Allow dragging outside the hex; clamp to nearest playable cell.
+      const cell = nearestPlayableCellFromPoint(p.x, p.y);
+      if (!cell) return;
+
       selected = cellsInDrag(dragStartKey, cell.key);
       if (selected.size === 0) selected = new Set([dragStartKey]);
       draw();
@@ -520,17 +511,14 @@
       dragStartKey = null;
     }
 
-    // Mouse
     canvas.addEventListener('mousedown', (e)=>{ e.preventDefault(); startDragAt(e.clientX, e.clientY); });
     canvas.addEventListener('mousemove', (e)=>{ e.preventDefault(); updateDragTo(e.clientX, e.clientY); });
     window.addEventListener('mouseup', ()=> endDrag());
 
-    // Touch
     canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); const t=e.touches[0]; startDragAt(t.clientX, t.clientY); }, {passive:false});
     canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); const t=e.touches[0]; updateDragTo(t.clientX, t.clientY); }, {passive:false});
     window.addEventListener('touchend', ()=> endDrag());
 
-    // Modal + legend
     function openModal(){
       document.getElementById('assignModal').style.display = 'block';
       document.getElementById('selectionLabel').textContent = `${selected.size} マス選択中`;
@@ -552,12 +540,10 @@
     function assignAlliance(){
       const name = document.getElementById('allianceName').value.trim();
       if (!name){ alert('同盟名を入力してください！'); return; }
-
       const groupId = Date.now();
       for (const key of selected){
         placed.set(key, { name, color: selectedColor, groupId });
       }
-
       document.getElementById('allianceName').value = '';
       closeModal();
       draw();
@@ -615,7 +601,6 @@
       });
     }
 
-    // Expose modal funcs
     window.closeModal = closeModal;
     window.clearSelection = clearSelection;
     window.assignAlliance = assignAlliance;
