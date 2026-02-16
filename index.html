@@ -10,8 +10,7 @@
     body{
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
       background:#0a0a0a;color:#fff;min-height:100vh;overflow:hidden;
-      display: flex;
-      flex-direction: column;
+      display:flex;flex-direction:column;
     }
 
     .header{
@@ -21,304 +20,174 @@
       display:flex;justify-content:center;align-items:center;
       border-bottom:1px solid rgba(255,255,255,.1);
       box-shadow:0 4px 30px rgba(0,0,0,.5);
-      flex-shrink: 0;
-      z-index: 20;
+      flex-shrink:0;
+      z-index:20;
     }
 
     h1{
-      font-size:clamp(1.1em,3.5vw,2em);
+      font-size:clamp(1.05em,3.5vw,2em);
       font-weight:700;letter-spacing:1px;color:#fff;
       text-shadow:0 0 20px rgba(255,255,255,.3);
-    }
-
-    /* Legend Area - Top horizontal strip on mobile, absolute top-right on desktop */
-    .legend-container {
-        position: absolute;
-        top: 15px;
-        right: 15px;
-        background: rgba(20, 20, 20, 0.95);
-        backdrop-filter: blur(20px);
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-        max-width: 200px;
-        max-height: 40vh;
-        overflow-y: auto;
-        z-index: 10;
-        transition: all 0.3s ease;
-    }
-
-    .legend-container h3 {
-        margin-bottom: 12px;
-        font-size: 1em;
-        font-weight: 600;
-        color: #c0c0c0;
-        white-space: nowrap;
-    }
-
-    #legendList {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-    }
-
-    .legend-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.85em;
-        padding: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
-    .legend-color {
-        width: 30px;
-        height: 20px;
-        border-radius: 4px;
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
-        flex-shrink: 0;
-    }
-
-    .legend-name {
-        flex: 1;
-        color: #e0e0e0;
-        word-break: break-word;
-    }
-
-    .delete-alliance-btn {
-        background: rgba(255, 50, 50, 0.2);
-        border: 1px solid rgba(255, 50, 50, 0.3);
-        color: #ff6b6b;
-        width: 24px;
-        height: 24px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
-        flex-shrink: 0;
-        pointer-events: auto;
-        touch-action: manipulation;
-    }
-
-    .delete-alliance-btn:hover {
-        background: rgba(255, 50, 50, 0.4);
-        border-color: rgba(255, 50, 50, 0.6);
-        transform: scale(1.06);
-    }
-
-    /* Instructions Area - Bottom horizontal strip on mobile, absolute bottom-left on desktop */
-    .instructions-container {
-        position: absolute;
-        bottom: 15px;
-        left: 15px;
-        background: rgba(20, 20, 20, 0.95);
-        backdrop-filter: blur(20px);
-        padding: 15px;
-        border-radius: 12px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
-        max-width: 200px;
-        z-index: 10;
-        pointer-events: none;
-    }
-
-    .instructions-container h4 {
-        margin-bottom: 10px;
-        color: #c0c0c0;
-        font-size: 1em;
-        font-weight: 600;
-    }
-
-    .instructions-content {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-    }
-
-    .instructions-container p {
-        line-height: 1.5;
-        color: #a0a0a0;
-        font-size: 0.8em;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width:92vw;
     }
 
     .main-container{
-      flex: 1;
-      display:flex;justify-content:center;align-items:center;
+      flex:1;
+      display:flex;
+      justify-content:center;
+      align-items:center;
       position:relative;
-      overflow: hidden;
-      width: 100%;
+      overflow:hidden;
+      width:100%;
     }
 
-    #hexCanvas{
+    /* Desktop floating legend */
+    .legend-container{
+      position:absolute;
+      top:15px;right:15px;
+      background:rgba(20,20,20,.95);
+      backdrop-filter:blur(20px);
+      padding:15px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:0 8px 32px rgba(0,0,0,.8);
+      max-width:240px;
+      max-height:45vh;
+      overflow:auto;
+      z-index:10;
+    }
+
+    .legend-container h3{margin:0 0 12px 0;font-size:1em;font-weight:600;color:#c0c0c0;white-space:nowrap}
+
+    #legendList{display:flex;flex-direction:column;gap:8px}
+
+    .legend-item{
+      display:flex;align-items:center;gap:8px;
+      font-size:.85em;
+      padding:8px;
+      background:rgba(255,255,255,.05);
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,.05);
+    }
+
+    .legend-color{
+      width:30px;height:20px;border-radius:4px;
+      border:1px solid rgba(255,255,255,.3);
+      box-shadow:0 2px 8px rgba(0,0,0,.5);
+      flex-shrink:0;
+    }
+
+    .legend-name{flex:1;color:#e0e0e0;word-break:break-word}
+
+    .delete-alliance-btn{
+      background:rgba(255,50,50,.2);
+      border:1px solid rgba(255,50,50,.35);
+      color:#ff6b6b;
+      width:24px;height:24px;border-radius:4px;
+      cursor:pointer;
+      font-size:14px;
+      display:flex;align-items:center;justify-content:center;
+      transition:all .2s;
+      flex-shrink:0;
+      pointer-events:auto;
+      touch-action:manipulation;
+    }
+
+    .delete-alliance-btn:hover{background:rgba(255,50,50,.4);border-color:rgba(255,50,50,.6);transform:scale(1.06)}
+
+    /* Desktop floating instructions */
+    .instructions-container{
+      position:absolute;
+      bottom:15px;left:15px;
+      background:rgba(20,20,20,.95);
+      backdrop-filter:blur(20px);
+      padding:15px;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.1);
+      box-shadow:0 8px 32px rgba(0,0,0,.8);
+      max-width:260px;
+      z-index:10;
+      pointer-events:none;
+    }
+
+    .instructions-container h4{margin:0 0 10px 0;color:#c0c0c0;font-size:1em;font-weight:600}
+    .instructions-container p{margin:0 0 6px 0;line-height:1.5;color:#a0a0a0;font-size:.85em}
+
+    #gridCanvas{
       cursor:crosshair;
-      max-width:85vmin;max-height:85vmin;
+      max-width:88vmin;
+      max-height:88vmin;
       filter:drop-shadow(0 0 30px rgba(255,255,255,.1));
       touch-action:none;
     }
 
-    /* Modal Styles */
-    .modal{
-      display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;
-      background:rgba(0,0,0,.85);
-      backdrop-filter:blur(10px);
-      animation:fadeIn .25s ease;
-    }
+    /* Modal */
+    .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);animation:fadeIn .25s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-    .modal-content{
-      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-      background:#1a1a1a;
-      padding:25px;border-radius:16px;
-      box-shadow:0 20px 60px rgba(0,0,0,.9);
-      width:450px;max-width:92%;
-      max-height:90vh;overflow-y:auto;
-      border:1px solid rgba(255,255,255,.1);
-      animation:slideUp .25s ease;
-    }
-    @keyframes slideUp{from{transform:translate(-50%,-40%);opacity:0}to{transform:translate(-50%,-50%);opacity:1}}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.1)}
-    .modal-title{font-size:1.3em;font-weight:700;color:#fff}
-    .close-btn{
-      background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);color:#fff;
-      font-size:1.3em;cursor:pointer;line-height:1;width:35px;height:35px;
-      display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s;
-    }
+    .modal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a1a;padding:22px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.9);width:480px;max-width:92%;max-height:90vh;overflow:auto;border:1px solid rgba(255,255,255,.1)}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1)}
+    .modal-title{font-size:1.25em;font-weight:700;color:#fff}
+    .close-btn{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.1);color:#fff;font-size:1.3em;cursor:pointer;line-height:1;width:35px;height:35px;display:flex;align-items:center;justify-content:center;border-radius:8px;transition:all .2s}
     .close-btn:hover{background:rgba(255,255,255,.2);transform:rotate(90deg)}
-    .selection-info{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:15px;margin-bottom:20px;text-align:center;}
-    .selection-info strong{font-size:1.2em;color:#fff;font-weight:700}
-    .form-section{margin-bottom:20px}
-    .form-section h3{font-size:1em;margin-bottom:12px;color:#c0c0c0;font-weight:600}
-    .input-group{margin-bottom:15px}
+    .selection-info{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:10px;padding:14px;margin-bottom:16px;text-align:center}
+    .selection-info strong{font-size:1.15em;color:#fff;font-weight:800}
+    .form-section{margin-bottom:16px}
+    .form-section h3{font-size:1em;margin-bottom:10px;color:#c0c0c0;font-weight:600}
+    .input-group{margin-bottom:14px}
     .input-group label{display:block;margin-bottom:8px;font-weight:600;font-size:.95em;color:#c0c0c0}
-    .input-group input[type="text"]{
-      width:100%;padding:12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:16px;background:rgba(255,255,255,.05);color:#fff;transition:all .2s;font-weight:500;
-    }
-    .input-group input[type="text"]:focus{outline:none;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.1);box-shadow:0 0 20px rgba(255,255,255,.1);}
+    .input-group input[type="text"]{width:100%;padding:12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:16px;background:rgba(255,255,255,.05);color:#fff;transition:all .2s;font-weight:500}
+    .input-group input[type="text"]:focus{outline:none;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.1);box-shadow:0 0 20px rgba(255,255,255,.1)}
     .color-picker-wrapper{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .color-option{height:50px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:all .2s;position:relative;box-shadow:0 4px 15px rgba(0,0,0,.3);}
-    .color-option:hover{transform:scale(1.06);box-shadow:0 6px 20px rgba(0,0,0,.5)}
-    .color-option.selected{border-color:#fff;box-shadow:0 0 18px rgba(255,255,255,.45);transform:scale(1.03)}
-    .color-option.selected::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:1.6em;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.8);}
+    .color-option{height:46px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:all .2s;position:relative;box-shadow:0 4px 15px rgba(0,0,0,.3)}
+    .color-option:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(0,0,0,.5)}
+    .color-option.selected{border-color:#fff;box-shadow:0 0 18px rgba(255,255,255,.45);transform:scale(1.02)}
+    .color-option.selected::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:1.6em;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.8)}
     .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-    .modal-btn{padding:14px;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:1em;font-weight:700;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.05);color:#fff;}
+    .modal-btn{padding:13px;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:1em;font-weight:800;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.05);color:#fff}
     .modal-btn:active{transform:scale(.98)}
     .btn-clear-selection:hover{background:rgba(255,50,50,.2);border-color:rgba(255,50,50,.5)}
     .btn-place:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
 
-    @media (max-width: 768px) {
-        body {
-            height: 100vh;
-            overflow: hidden;
-        }
+    /* Mobile: top horizontal legend, bottom horizontal how-to */
+    @media (max-width:768px){
+      .header{padding:10px 12px;height:50px}
+      .main-container{flex-direction:column;justify-content:space-between;height:calc(100vh - 50px)}
+      #gridCanvas{max-width:100%;max-height:calc(100% - 140px);margin:auto}
 
-        .header {
-            padding: 10px 15px;
-            height: 50px;
-        }
+      .legend-container{
+        position:relative;top:0;right:0;
+        width:100%;max-width:none;max-height:none;
+        border-radius:0;
+        border-left:none;border-right:none;
+        padding:8px 10px;
+        display:flex;align-items:center;
+        overflow-x:auto;overflow-y:hidden;
+        white-space:nowrap;
+        border-bottom:1px solid rgba(255,255,255,.1);
+        background:rgba(20,20,20,.98);
+      }
+      .legend-container h3{margin:0;margin-right:12px;font-size:.9em}
+      #legendList{flex-direction:row;gap:10px}
+      .legend-item{padding:6px 10px;margin:0;flex-shrink:0;background:rgba(255,255,255,.08)}
 
-        .main-container {
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: calc(100vh - 50px);
-            padding: 0;
-            background: #0a0a0a;
-        }
-
-        #hexCanvas {
-            max-width: 100%;
-            max-height: calc(100% - 140px);
-            margin: auto;
-        }
-
-        .legend-container {
-            position: relative;
-            top: 0;
-            right: 0;
-            width: 100%;
-            max-width: none;
-            max-height: none;
-            border-radius: 0;
-            border-left: none;
-            border-right: none;
-            background: rgba(20, 20, 20, 0.98);
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            overflow-x: auto;
-            white-space: nowrap;
-            flex-shrink: 0;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .legend-container h3 {
-            margin: 0;
-            margin-right: 15px;
-            font-size: 0.9em;
-        }
-
-        #legendList {
-            flex-direction: row;
-            gap: 10px;
-        }
-
-        .legend-item {
-            padding: 5px 10px;
-            margin: 0;
-            background: rgba(255, 255, 255, 0.08);
-            flex-shrink: 0;
-        }
-
-        .legend-name {
-            font-size: 0.9em;
-        }
-
-        .instructions-container {
-            position: relative;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            max-width: none;
-            border-radius: 0;
-            border-left: none;
-            border-right: none;
-            background: rgba(20, 20, 20, 0.98);
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            pointer-events: auto;
-        }
-
-        .instructions-container h4 {
-            display: none;
-        }
-
-        .instructions-content {
-            flex-direction: row;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .instructions-container p {
-            margin: 0;
-            font-size: 0.75em;
-            color: #ccc;
-        }
-
-        .modal-content {
-            width: 95%;
-            padding: 20px;
-        }
+      .instructions-container{
+        position:relative;bottom:0;left:0;
+        width:100%;max-width:none;
+        border-radius:0;
+        border-left:none;border-right:none;
+        padding:8px 10px;
+        display:flex;align-items:center;justify-content:center;
+        border-top:1px solid rgba(255,255,255,.1);
+        background:rgba(20,20,20,.98);
+        pointer-events:auto;
+      }
+      .instructions-container h4{display:none}
+      .instructions-container p{margin:0;color:#ccc;font-size:.78em}
+      .instructions-inline{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+      .instructions-container .desktop-only{display:none}
     }
   </style>
 </head>
@@ -333,14 +202,18 @@
       <div id="legendList"></div>
     </div>
 
-    <canvas id="hexCanvas" width="900" height="900"></canvas>
+    <canvas id="gridCanvas" width="960" height="960"></canvas>
 
     <div class="instructions-container">
       <h4>使い方</h4>
-      <div class="instructions-content">
-        <p>👆 <strong>タップ</strong>: 選択</p>
-        <p>🖐 <strong>ドラッグ</strong>: 複数選択</p>
-        <p>⚙️ <strong>設定</strong>: 色/名前</p>
+      <div class="instructions-inline">
+        <p><strong>タップ</strong>: 選択</p>
+        <p><strong>ドラッグ</strong>: 複数</p>
+        <p><strong>設定</strong>: 色/名前</p>
+      </div>
+      <div class="desktop-only">
+        <p><strong>クリック</strong>：1つ選択</p>
+        <p><strong>ドラッグ</strong>：複数選択</p>
       </div>
     </div>
   </div>
@@ -352,7 +225,7 @@
         <button class="close-btn" onclick="closeModal()">&times;</button>
       </div>
       <div class="selection-info">
-        <strong id="selectionLabel">0 エリア選択中</strong>
+        <strong id="selectionLabel">0 マス選択中</strong>
       </div>
       <div class="form-section">
         <h3>同盟情報</h3>
@@ -373,408 +246,346 @@
   </div>
 
   <script>
-    const canvas = document.getElementById('hexCanvas');
+    const canvas = document.getElementById('gridCanvas');
     const ctx = canvas.getContext('2d');
 
-    let sections = {};
-    let isDragging = false;
-    let dragStartSection = null;
-    let selectedSections = [];
-
+    // Palette (9)
     const colors = [
       '#FF6B6B', '#4ECDC4', '#FFE66D',
       '#A8E6CF', '#FF8B94', '#95E1D3',
       '#C7CEEA', '#FFAAA5', '#B4A7D6'
     ];
-
     let selectedColor = colors[0];
 
-    const centerX = 450;
-    const centerY = 450;
-    const hexRadius = 350;
-    const innerHexRadius = 120;
+    // Geometry
+    const W = canvas.width;
+    const H = canvas.height;
+    const centerX = W/2;
+    const centerY = H/2;
 
-    const sectionPaths = [];
+    // Outer hex + inner hex
+    const outerRadius = 410;
+    const innerRadius = 140;
 
-    function getHexagonVertex(index, radius) {
-      const angle = (Math.PI / 3) * index;
-      return {
-        x: centerX + radius * Math.cos(angle),
-        y: centerY + radius * Math.sin(angle)
-      };
+    // Square grid settings
+    const gridSize = 30;
+
+    // Data: selected squares during drag, and placed squares
+    // key = "c,r" (col,row)
+    const placed = new Map(); // key -> { name, color, groupId }
+    let selected = new Set();
+
+    let isDragging = false;
+    let dragStartKey = null;
+
+    function hexVertex(i, radius) {
+      // flat-top hex
+      const angle = (Math.PI/3)*i;
+      return { x: centerX + radius*Math.cos(angle), y: centerY + radius*Math.sin(angle) };
     }
 
-    function initSections() {
-      for (let i = 0; i < 24; i++) {
-        sectionPaths.push({ id: i, path: null });
+    function buildHexPath(radius) {
+      const p = new Path2D();
+      for (let i=0;i<6;i++) {
+        const v = hexVertex(i, radius);
+        if (i===0) p.moveTo(v.x, v.y);
+        else p.lineTo(v.x, v.y);
       }
+      p.closePath();
+      return p;
     }
 
-    function shouldHideLine(id1, id2) {
-      if (sections[id1] && sections[id2]) {
-        return sections[id1].groupId === sections[id2].groupId;
-      }
-      return false;
+    const outerHexPath = buildHexPath(outerRadius);
+    const innerHexPath = buildHexPath(innerRadius);
+
+    function pointInOuterHex(x,y){
+      return ctx.isPointInPath(outerHexPath, x, y);
+    }
+    function pointInInnerHex(x,y){
+      return ctx.isPointInPath(innerHexPath, x, y);
     }
 
-    function isPointInInnerHexagon(canvasX, canvasY) {
-      const p = { x: canvasX, y: canvasY };
-      const poly = [];
-      for (let i = 0; i < 6; i++) poly.push(getHexagonVertex(i, innerHexRadius));
-      let inside = false;
-      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-        const xi = poly[i].x, yi = poly[i].y;
-        const xj = poly[j].x, yj = poly[j].y;
-        const intersect = ((yi > p.y) !== (yj > p.y)) &&
-          (p.x < (xj - xi) * (p.y - yi) / (yj - yi + 0.000001) + xi);
-        if (intersect) inside = !inside;
-      }
-      return inside;
+    // Convert canvas point to grid cell (col,row)
+    function pointToCell(x,y){
+      const col = Math.floor(x / gridSize);
+      const row = Math.floor(y / gridSize);
+      return { col, row, key: `${col},${row}` };
     }
 
-    function drawHexagon() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function cellRect(col,row){
+      return { x: col*gridSize, y: row*gridSize, w: gridSize, h: gridSize };
+    }
+
+    // Only allow cells whose CENTER lies inside the outer hex and outside inner hex.
+    function cellIsPlayable(col,row){
+      const r = cellRect(col,row);
+      const cx = r.x + r.w/2;
+      const cy = r.y + r.h/2;
+      if (!pointInOuterHex(cx,cy)) return false;
+      if (pointInInnerHex(cx,cy)) return false;
+      return true;
+    }
+
+    function draw() {
+      ctx.clearRect(0,0,W,H);
+
+      // background
       ctx.fillStyle = '#0a0a0a';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillRect(0,0,W,H);
 
-      ctx.fillStyle = '#1a1a1a';
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const v = getHexagonVertex(i, hexRadius);
-        if (i === 0) ctx.moveTo(v.x, v.y);
-        else ctx.lineTo(v.x, v.y);
+      // base fill inside outer hex
+      ctx.save();
+      ctx.clip(outerHexPath);
+      ctx.fillStyle = '#141414';
+      ctx.fillRect(0,0,W,H);
+
+      // grid lines (only inside hex clip)
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.lineWidth = 1;
+      for (let x=0; x<=W; x+=gridSize){
+        ctx.beginPath();
+        ctx.moveTo(x,0);
+        ctx.lineTo(x,H);
+        ctx.stroke();
       }
-      ctx.closePath();
-      ctx.fill();
-
-      for (let i = 0; i < 24; i++) {
-        const sideIndex = Math.floor(i / 4);
-        const positionOnSide = i % 4;
-        const v1 = getHexagonVertex(sideIndex, hexRadius);
-        const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
-        const ratio1 = positionOnSide / 4;
-        const ratio2 = (positionOnSide + 1) / 4;
-        const edgePoint1 = {
-          x: v1.x + (v2.x - v1.x) * ratio1,
-          y: v1.y + (v2.y - v1.y) * ratio1
-        };
-        const edgePoint2 = {
-          x: v1.x + (v2.x - v1.x) * ratio2,
-          y: v1.y + (v2.y - v1.y) * ratio2
-        };
-
-        const path = new Path2D();
-        path.moveTo(centerX, centerY);
-        path.lineTo(edgePoint1.x, edgePoint1.y);
-        path.lineTo(edgePoint2.x, edgePoint2.y);
-        path.closePath();
-
-        sectionPaths[i].path = path;
-
-        if (sections[i]) {
-          ctx.fillStyle = sections[i].color;
-          ctx.fill(path);
-        } else if (selectedSections.includes(i)) {
-          ctx.fillStyle = selectedColor + '60';
-          ctx.fill(path);
-        }
+      for (let y=0; y<=H; y+=gridSize){
+        ctx.beginPath();
+        ctx.moveTo(0,y);
+        ctx.lineTo(W,y);
+        ctx.stroke();
       }
 
-      for (let i = 0; i < 24; i++) {
-        const sideIndex = Math.floor(i / 4);
-        const positionOnSide = i % 4;
-        const v1 = getHexagonVertex(sideIndex, hexRadius);
-        const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
-        const ratio2 = (positionOnSide + 1) / 4;
-        const edgePoint2 = {
-          x: v1.x + (v2.x - v1.x) * ratio2,
-          y: v1.y + (v2.y - v1.y) * ratio2
-        };
-        const nextId = (i + 1) % 24;
-        if (!shouldHideLine(i, nextId)) {
-          ctx.strokeStyle = 'rgba(255,255,255,0.15)';
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(centerX, centerY);
-          ctx.lineTo(edgePoint2.x, edgePoint2.y);
-          ctx.stroke();
-        }
+      // fill placed cells
+      for (const [key,val] of placed.entries()){
+        const [c,r] = key.split(',').map(Number);
+        const rect = cellRect(c,r);
+        ctx.fillStyle = val.color;
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
       }
 
+      // selection preview (only for empty cells)
+      for (const key of selected){
+        if (placed.has(key)) continue;
+        const [c,r] = key.split(',').map(Number);
+        const rect = cellRect(c,r);
+        ctx.fillStyle = selectedColor + '66';
+        ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+      }
+
+      ctx.restore();
+
+      // outer hex outline
+      ctx.strokeStyle = 'rgba(255,255,255,0.28)';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = 'rgba(255,255,255,0.2)';
+      ctx.stroke(outerHexPath);
+      ctx.shadowBlur = 0;
+
+      // inner hex (desert)
       ctx.fillStyle = '#8B5A3C';
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const v = getHexagonVertex(i, innerHexRadius);
-        if (i === 0) ctx.moveTo(v.x, v.y);
-        else ctx.lineTo(v.x, v.y);
-      }
-      ctx.closePath();
-      ctx.fill();
+      ctx.fill(innerHexPath);
       ctx.strokeStyle = 'rgba(255,255,255,0.35)';
       ctx.lineWidth = 2;
-      ctx.stroke();
+      ctx.stroke(innerHexPath);
 
+      // Turrets: T1 bottom-left (index 4), T2 top-left (2), T3 right (0)
       const turrets = [
         { index: 4, label: 'T1' },
         { index: 2, label: 'T2' },
-        { index: 0, label: 'T3' }
+        { index: 0, label: 'T3' },
       ];
-
-      turrets.forEach(turret => {
-        const v = getHexagonVertex(turret.index, innerHexRadius);
+      turrets.forEach(t => {
+        const v = hexVertex(t.index, innerRadius);
         ctx.fillStyle = '#2196F3';
         ctx.beginPath();
-        ctx.arc(v.x, v.y, 18, 0, Math.PI * 2);
+        ctx.arc(v.x, v.y, 18, 0, Math.PI*2);
         ctx.fill();
-        ctx.strokeStyle = '#ffffff';
+        ctx.strokeStyle = '#fff';
         ctx.lineWidth = 2;
         ctx.stroke();
-        ctx.fillStyle = '#ffffff';
+        ctx.fillStyle = '#fff';
         ctx.font = 'bold 16px sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(turret.label, v.x, v.y);
+        ctx.fillText(t.label, v.x, v.y);
       });
 
-      ctx.strokeStyle = 'rgba(255,255,255,0.28)';
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 15;
-      ctx.shadowColor = 'rgba(255,255,255,0.25)';
-      ctx.beginPath();
-      for (let i = 0; i < 6; i++) {
-        const v = getHexagonVertex(i, hexRadius);
-        if (i === 0) ctx.moveTo(v.x, v.y);
-        else ctx.lineTo(v.x, v.y);
-      }
-      ctx.closePath();
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-
+      // Capital C
       ctx.fillStyle = '#2196F3';
       ctx.beginPath();
-      ctx.arc(centerX, centerY, 35, 0, Math.PI * 2);
+      ctx.arc(centerX, centerY, 38, 0, Math.PI*2);
       ctx.fill();
-      ctx.strokeStyle = '#ffffff';
+      ctx.strokeStyle = '#fff';
       ctx.lineWidth = 3;
       ctx.stroke();
-      ctx.fillStyle = '#ffffff';
-      ctx.font = 'bold 32px sans-serif';
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 34px sans-serif';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText('C', centerX, centerY);
 
-      const drawnGroups = new Set();
-      Object.keys(sections).forEach(id => {
-        if (sections[id].name && !drawnGroups.has(sections[id].groupId)) {
-          drawnGroups.add(sections[id].groupId);
-          const groupSections = Object.keys(sections)
-            .filter(gid => sections[gid].groupId === sections[id].groupId)
-            .map(gid => parseInt(gid, 10));
-          let avgX = 0;
-          let avgY = 0;
-          groupSections.forEach(i => {
-            const sideIndex = Math.floor(i / 4);
-            const positionOnSide = i % 4;
-            const v1 = getHexagonVertex(sideIndex, hexRadius);
-            const v2 = getHexagonVertex(sideIndex + 1, hexRadius);
-            const ratio = (positionOnSide + 0.5) / 4;
-            const edgeX = v1.x + (v2.x - v1.x) * ratio;
-            const edgeY = v1.y + (v2.y - v1.y) * ratio;
-            avgX += (centerX + edgeX) / 2;
-            avgY += (centerY + edgeY) / 2;
-          });
-          avgX /= groupSections.length;
-          avgY /= groupSections.length;
-          let angle = Math.atan2(avgY - centerY, avgX - centerX);
-          if (avgY > centerY) angle += Math.PI;
-          ctx.save();
-          ctx.translate(avgX, avgY);
-          ctx.rotate(angle + Math.PI / 2);
-          ctx.fillStyle = '#fff';
-          ctx.strokeStyle = '#000';
-          ctx.lineWidth = 3;
-          ctx.font = 'bold 14px sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.strokeText(sections[id].name, 0, 0);
-          ctx.fillText(sections[id].name, 0, 0);
-          ctx.restore();
+      // Alliance labels: per group centroid
+      const groups = new Map();
+      for (const [key,val] of placed.entries()){
+        if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, color: val.color, cells: [] });
+        groups.get(val.groupId).cells.push(key);
+      }
+
+      ctx.font = 'bold 14px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      for (const g of groups.values()){
+        let sx=0, sy=0;
+        for (const key of g.cells){
+          const [c,r] = key.split(',').map(Number);
+          const rect = cellRect(c,r);
+          sx += rect.x + rect.w/2;
+          sy += rect.y + rect.h/2;
         }
-      });
+        const cx = sx / g.cells.length;
+        const cy = sy / g.cells.length;
+
+        ctx.save();
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = 'rgba(0,0,0,0.8)';
+        ctx.lineWidth = 4;
+        ctx.strokeText(g.name, cx, cy);
+        ctx.fillText(g.name, cx, cy);
+        ctx.restore();
+      }
+
       updateLegend();
     }
 
-    function getClickedSection(clientX, clientY) {
-      const rect = canvas.getBoundingClientRect();
-      const scaleX = canvas.width / rect.width;
-      const scaleY = canvas.height / rect.height;
-      const canvasX = (clientX - rect.left) * scaleX;
-      const canvasY = (clientY - rect.top) * scaleY;
-      if (isPointInInnerHexagon(canvasX, canvasY)) return null;
-      for (const section of sectionPaths) {
-        if (section.path && ctx.isPointInPath(section.path, canvasX, canvasY)) {
-          return section;
+    // Selection from drag: rectangle selection in cell space, but only playable cells.
+    function cellsInDrag(startKey, endKey){
+      const [sc,sr] = startKey.split(',').map(Number);
+      const [ec,er] = endKey.split(',').map(Number);
+      const minC = Math.min(sc,ec), maxC = Math.max(sc,ec);
+      const minR = Math.min(sr,er), maxR = Math.max(sr,er);
+      const result = new Set();
+      for (let r=minR;r<=maxR;r++){
+        for (let c=minC;c<=maxC;c++){
+          const key = `${c},${r}`;
+          if (!cellIsPlayable(c,r)) continue;
+          if (placed.has(key)) continue;
+          result.add(key);
         }
       }
-      return null;
+      return result;
     }
 
-    // UPDATED: Fixed wrap-around logic for selection
-    function getSectionsInRange(start, end) {
-      if (start === null || end === null) return [];
-
-      const total = 24;
-      const dist = Math.abs(end - start);
-
-      // Standard linear selection (less than half circle)
-      if (dist <= total / 2) {
-          const min = Math.min(start, end);
-          const max = Math.max(start, end);
-          const result = [];
-          for (let i = min; i <= max; i++) {
-              if (!sections[i]) result.push(i);
-          }
-          return result;
-      } else {
-          // Wrapped selection (shortest path across 0/23 boundary)
-          const min = Math.min(start, end);
-          const max = Math.max(start, end);
-          const result = [];
-
-          // From 0 to min
-          for (let i = 0; i <= min; i++) {
-               if (!sections[i]) result.push(i);
-          }
-          // From max to end (total-1)
-          for (let i = max; i < total; i++) {
-               if (!sections[i]) result.push(i);
-          }
-          return result;
-      }
+    function clientToCanvas(clientX, clientY){
+      const rect = canvas.getBoundingClientRect();
+      const scaleX = W / rect.width;
+      const scaleY = H / rect.height;
+      return {
+        x: (clientX - rect.left) * scaleX,
+        y: (clientY - rect.top) * scaleY,
+      };
     }
 
-    canvas.addEventListener('mousedown', (e) => {
-      e.preventDefault();
-      const section = getClickedSection(e.clientX, e.clientY);
-      if (!section || sections[section.id]) return;
+    function startDragAt(clientX, clientY){
+      const p = clientToCanvas(clientX, clientY);
+
+      // Block selection if starting in inner hex (capital)
+      if (pointInInnerHex(p.x,p.y)) return;
+
+      const cell = pointToCell(p.x,p.y);
+      const [c,r] = [cell.col, cell.row];
+      if (!cellIsPlayable(c,r)) return;
+      if (placed.has(cell.key)) return;
+
       isDragging = true;
-      dragStartSection = section.id;
-      selectedSections = [section.id];
-      drawHexagon();
-    });
+      dragStartKey = cell.key;
+      selected = new Set([cell.key]);
+      draw();
+    }
 
-    canvas.addEventListener('mousemove', (e) => {
-      if (!isDragging || dragStartSection === null) return;
-      const section = getClickedSection(e.clientX, e.clientY);
-      if (!section || sections[section.id]) return;
-      selectedSections = getSectionsInRange(dragStartSection, section.id);
-      if (selectedSections.length === 0) selectedSections = [dragStartSection];
-      drawHexagon();
-    });
+    function updateDragTo(clientX, clientY){
+      if (!isDragging || !dragStartKey) return;
+      const p = clientToCanvas(clientX, clientY);
+      const cell = pointToCell(p.x,p.y);
+      const [c,r] = [cell.col, cell.row];
+      if (!cellIsPlayable(c,r)) return;
+      selected = cellsInDrag(dragStartKey, cell.key);
+      if (selected.size === 0) selected = new Set([dragStartKey]);
+      draw();
+    }
 
-    window.addEventListener('mouseup', () => {
-      if (isDragging && selectedSections.length > 0) openModal();
+    function endDrag(){
+      if (isDragging && selected.size > 0) openModal();
       isDragging = false;
-      dragStartSection = null;
-    });
+      dragStartKey = null;
+    }
 
-    canvas.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      const t = e.touches[0];
-      const section = getClickedSection(t.clientX, t.clientY);
-      if (!section || sections[section.id]) return;
-      isDragging = true;
-      dragStartSection = section.id;
-      selectedSections = [section.id];
-      drawHexagon();
-    }, { passive: false });
+    // Mouse
+    canvas.addEventListener('mousedown', (e)=>{ e.preventDefault(); startDragAt(e.clientX, e.clientY); });
+    canvas.addEventListener('mousemove', (e)=>{ e.preventDefault(); updateDragTo(e.clientX, e.clientY); });
+    window.addEventListener('mouseup', ()=> endDrag());
 
-    canvas.addEventListener('touchmove', (e) => {
-      e.preventDefault();
-      if (!isDragging || dragStartSection === null) return;
-      const t = e.touches[0];
-      const section = getClickedSection(t.clientX, t.clientY);
-      if (!section || sections[section.id]) return;
-      selectedSections = getSectionsInRange(dragStartSection, section.id);
-      if (selectedSections.length === 0) selectedSections = [dragStartSection];
-      drawHexagon();
-    }, { passive: false });
+    // Touch
+    canvas.addEventListener('touchstart', (e)=>{ e.preventDefault(); const t=e.touches[0]; startDragAt(t.clientX, t.clientY); }, {passive:false});
+    canvas.addEventListener('touchmove', (e)=>{ e.preventDefault(); const t=e.touches[0]; updateDragTo(t.clientX, t.clientY); }, {passive:false});
+    window.addEventListener('touchend', ()=> endDrag());
 
-    window.addEventListener('touchend', (e) => {
-      if (isDragging && selectedSections.length > 0) openModal();
-      isDragging = false;
-      dragStartSection = null;
-    });
-
-    function openModal() {
+    // Modal + legend
+    function openModal(){
       document.getElementById('assignModal').style.display = 'block';
-      document.getElementById('selectionLabel').textContent = `${selectedSections.length} エリア選択中`;
-      setTimeout(() => document.getElementById('allianceName').focus(), 50);
+      document.getElementById('selectionLabel').textContent = `${selected.size} マス選択中`;
+      setTimeout(()=>document.getElementById('allianceName').focus(), 50);
     }
 
-    function closeModal() {
+    function closeModal(){
       document.getElementById('assignModal').style.display = 'none';
-      selectedSections = [];
-      dragStartSection = null;
-      drawHexagon();
+      selected = new Set();
+      dragStartKey = null;
+      draw();
     }
 
-    function initColorPicker() {
-      const picker = document.getElementById('colorPicker');
-      picker.innerHTML = '';
-      colors.forEach((color, index) => {
-        const option = document.createElement('div');
-        option.className = 'color-option' + (index === 0 ? ' selected' : '');
-        option.style.background = color;
-        option.addEventListener('click', () => {
-          selectedColor = color;
-          document.querySelectorAll('.color-option').forEach(opt => opt.classList.remove('selected'));
-          option.classList.add('selected');
-          drawHexagon();
-        });
-        picker.appendChild(option);
-      });
+    function clearSelection(){
+      document.getElementById('allianceName').value = '';
+      closeModal();
     }
 
-    function assignAlliance() {
+    function assignAlliance(){
       const name = document.getElementById('allianceName').value.trim();
-      if (!name) {
-        alert('同盟名を入力してください！');
-        return;
-      }
+      if (!name){ alert('同盟名を入力してください！'); return; }
+
       const groupId = Date.now();
-      selectedSections.forEach(id => {
-        sections[id] = { name, color: selectedColor, groupId };
-      });
-      document.getElementById('allianceName').value = '';
-      closeModal();
-      drawHexagon();
-    }
-
-    function clearSelection() {
-      document.getElementById('allianceName').value = '';
-      closeModal();
-    }
-
-    window.deleteAlliance = function(allianceName) {
-      if (confirm(`「${allianceName}」を削除しますか？`)) {
-        Object.keys(sections).forEach(id => {
-          if (sections[id].name === allianceName) delete sections[id];
-        });
-        drawHexagon();
+      for (const key of selected){
+        placed.set(key, { name, color: selectedColor, groupId });
       }
+
+      document.getElementById('allianceName').value = '';
+      closeModal();
+      draw();
+    }
+
+    window.deleteAlliance = function(allianceName){
+      if (!confirm(`「${allianceName}」を削除しますか？`)) return;
+      for (const [key,val] of placed.entries()){
+        if (val.name === allianceName) placed.delete(key);
+      }
+      draw();
     };
 
-    function updateLegend() {
+    function updateLegend(){
       const legendList = document.getElementById('legendList');
       legendList.innerHTML = '';
-      if (Object.keys(sections).length === 0) {
+
+      if (placed.size === 0){
         legendList.innerHTML = '<div style="color: rgba(255,255,255,0.5); font-size: 0.9em; padding: 0 10px; white-space: nowrap;">配置なし</div>';
         return;
       }
-      const uniqueAlliances = {};
-      Object.values(sections).forEach(s => { uniqueAlliances[s.name] = s.color; });
-      Object.entries(uniqueAlliances).forEach(([name, color]) => {
+
+      const unique = new Map();
+      for (const v of placed.values()){
+        if (!unique.has(v.name)) unique.set(v.name, v.color);
+      }
+
+      for (const [name,color] of unique.entries()){
         const item = document.createElement('div');
         item.className = 'legend-item';
         const safeName = name.replace(/'/g, "\\'");
@@ -784,16 +595,33 @@
           <button class="delete-alliance-btn" type="button" onclick="window.deleteAlliance('${safeName}')">✕</button>
         `;
         legendList.appendChild(item);
+      }
+    }
+
+    function initColorPicker(){
+      const picker = document.getElementById('colorPicker');
+      picker.innerHTML = '';
+      colors.forEach((c, i)=>{
+        const opt = document.createElement('div');
+        opt.className = 'color-option' + (i===0 ? ' selected':'');
+        opt.style.background = c;
+        opt.addEventListener('click', ()=>{
+          selectedColor = c;
+          document.querySelectorAll('.color-option').forEach(o=>o.classList.remove('selected'));
+          opt.classList.add('selected');
+          draw();
+        });
+        picker.appendChild(opt);
       });
     }
 
-    function init() {
-      initSections();
-      initColorPicker();
-      drawHexagon();
-    }
+    // Expose modal funcs
+    window.closeModal = closeModal;
+    window.clearSelection = clearSelection;
+    window.assignAlliance = assignAlliance;
 
-    init();
+    initColorPicker();
+    draw();
   </script>
 </body>
 </html>
