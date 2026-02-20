@@ -163,7 +163,7 @@
 
   <script>
     const canvas = document.getElementById('hexCanvas');
-    const ctx = canvas.getContext('2d');
+    const ctx    = canvas.getContext('2d');
 
     const colors = [
       '#FF6B6B','#4ECDC4','#FFE66D',
@@ -172,102 +172,131 @@
     ];
     let selectedColor = colors[0];
 
-    const W = canvas.width;
-    const H = canvas.height;
-    const centerX = W / 2;
-    const centerY = H / 2;
+    const W = canvas.width, H = canvas.height;
+    const centerX = W / 2, centerY = H / 2;
 
-    const outerRadius = 410;
-    const innerRadius = 140;
+    // ── Hex radii ─────────────────────────────────────────────────
+    const innerRadius  = 140;   // capital / inner hex
+    const outerRadius  = 410;   // main hex boundary
+    const outerHex2    = 455;   // inner edge of outer hex ring  (gap between rings)
+    const outerHex3    = 470;   // 1st band boundary of outer ring
+    const outerHex4    = 480;   // canvas-edge hex  ← pushed out to near-edge
 
-    const ANG_SEGMENTS = 24;
-    const RADIAL_BANDS = 3;
+    // We'll use two "shell" hexagons outside the main hex.
+    // Shell A: outerHex2 → outerHex3  (thin separator gap already handled by gap)
+    // Shell B: outerHex3 → outerHex4
+    // Actually: outer ring has OUTER_BANDS radial bands between outerHex2 and outerHexMax
 
-    // ── Inner (hex) grid ──────────────────────────────────────────
-    const rMin = innerRadius + 6;
-    const rMax = outerRadius;
-    const bandThickness = (rMax - rMin) / RADIAL_BANDS;
+    const OUTER_HEX_MIN  = outerRadius + 8;   // just outside main hex
+    const OUTER_HEX_MAX  = 470;               // outer boundary hex radius
+    const OUTER_BANDS    = 2;                 // radial bands in outer ring
 
-    // ── Outer grid ────────────────────────────────────────────────
-    // 2 radial bands outside the hex, extending to just inside canvas edge
-    const OUTER_BANDS = 2;
-    const outerGridStart = outerRadius + 4;          // just outside hex border
-    const outerGridEnd   = Math.min(W, H) / 2 - 8;  // near canvas edge
-    const outerBandThickness = (outerGridEnd - outerGridStart) / OUTER_BANDS;
+    // Inner grid
+    const ANG_SEGMENTS   = 24;
+    const RADIAL_BANDS   = 3;
+    const rMin           = innerRadius + 6;
+    const rMax           = outerRadius;
+    const bandThickness  = (rMax - rMin) / RADIAL_BANDS;
 
-    // ID space: inner pieces 0–(ANG_SEGMENTS*RADIAL_BANDS-1)
-    //           outer pieces start at OUTER_ID_BASE
-    const OUTER_ID_BASE = 1000;
+    // Outer ring band thickness (in hex "radius" units)
+    const outerBandStep  = (OUTER_HEX_MAX - OUTER_HEX_MIN) / OUTER_BANDS;
 
-    const piecePaths  = [];   // inner pieces indexed by id
-    const outerPaths  = [];   // outer pieces indexed by (seg*OUTER_BANDS+band)
+    const OUTER_ID_BASE  = 1000;
+
+    // Storage
+    const piecePaths = [];  // inner
+    const outerPieces = []; // outer: { id, seg, band, path, cx, cy, hexPoly[] }
     const placed      = new Map();
 
-    let isDragging   = false;
-    let dragStartId  = null;
-    let selectedIds  = new Set();
+    let isDragging  = false;
+    let dragStartId = null;
+    let selectedIds = new Set();
 
-    // ── helpers ───────────────────────────────────────────────────
-    function hexVertex(i, radius){
-      const angle = (Math.PI / 3) * i;
-      return { x: centerX + radius * Math.cos(angle), y: centerY + radius * Math.sin(angle) };
+    // ── Hex helpers ───────────────────────────────────────────────
+    // Returns the 6 vertices of a regular hexagon at given radius.
+    // Orientation: flat-top (vertex at angle 0, 60, 120 …)
+    function hexVertices(radius, cx = centerX, cy = centerY) {
+      const pts = [];
+      for (let i = 0; i < 6; i++) {
+        const a = (Math.PI / 3) * i;
+        pts.push({ x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) });
+      }
+      return pts;
     }
 
-    function buildHexPath(radius){
+    function hexVertex(i, radius) {
+      const a = (Math.PI / 3) * i;
+      return { x: centerX + radius * Math.cos(a), y: centerY + radius * Math.cos(a - Math.PI/2 + Math.PI/2) };
+    }
+    // cleaner version used everywhere:
+    function hv(i, r) {
+      const a = (Math.PI / 3) * i;
+      return { x: centerX + r * Math.cos(a), y: centerY + r * Math.sin(a) };
+    }
+
+    function buildHexPath(radius) {
       const p = new Path2D();
-      for (let i = 0; i < 6; i++){
-        const v = hexVertex(i, radius);
+      for (let i = 0; i < 6; i++) {
+        const v = hv(i, radius);
         i === 0 ? p.moveTo(v.x, v.y) : p.lineTo(v.x, v.y);
       }
       p.closePath();
       return p;
     }
 
-    const outerHexPath = buildHexPath(outerRadius);
-    const innerHexPath = buildHexPath(innerRadius);
+    const outerHexPath     = buildHexPath(outerRadius);
+    const innerHexPath     = buildHexPath(innerRadius);
+    const outerRingMinPath = buildHexPath(OUTER_HEX_MIN);
+    const outerRingMaxPath = buildHexPath(OUTER_HEX_MAX);
 
-    // A large square covering the whole canvas (used for outer-clip subtraction)
-    function buildCanvasRectPath(){
-      const p = new Path2D();
-      p.rect(0, 0, W, H);
-      return p;
-    }
+    // ── Point-in-hexagon test ─────────────────────────────────────
+    // Uses the canvas isPointInPath with Path2D — works for both hex zones.
 
-    function angleFromCenter(x, y){
+    // ── Angle / distance helpers ──────────────────────────────────
+    function angleFromCenter(x, y) {
       let a = Math.atan2(y - centerY, x - centerX);
       if (a < 0) a += Math.PI * 2;
       return a;
     }
 
-    function distFromCenter(x, y){
-      const dx = x - centerX, dy = y - centerY;
-      return Math.sqrt(dx * dx + dy * dy);
+    // "Hex radius" of a point: the radius of the regular hexagon that passes
+    // through the point (i.e. how far the point is in hex-space from center).
+    // For a flat-top hex: r_hex = max(|x|, |y|*2/√3, …)
+    // Simpler: we binary-search or use the analytic formula.
+    // Analytic hex distance (flat-top, vertex at angle 0):
+    function hexDist(x, y) {
+      const dx = Math.abs(x - centerX);
+      const dy = Math.abs(y - centerY);
+      // In a regular hex with vertex-radius R, a point (dx,dy) is on the
+      // boundary when: max(dy, dx*sin60 + dy*cos60) = R*sin60… 
+      // Simplest correct formula for vertex-up hex:
+      // d = (2/√3) * max(|q|, |r|, |s|) where q,r,s are cube coords
+      // For screen coords with vertex at angle 0 (pointy-top equiv rotated):
+      // We'll use: normalize angle to 0..60°, then compute boundary intercept.
+      const angle = Math.atan2(dy, dx); // 0..PI/2
+      const norm  = (angle % (Math.PI / 3));
+      const sectorAngle = Math.min(norm, Math.PI / 3 - norm);
+      const dist  = Math.sqrt(dx * dx + dy * dy);
+      const hexR  = dist * Math.cos(sectorAngle) / Math.cos(Math.PI / 6);
+      return hexR;
     }
 
     // ── Build inner piece paths ───────────────────────────────────
-    function buildPiecePaths(){
+    function buildPiecePaths() {
       piecePaths.length = 0;
       const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
-
-      for (let seg = 0; seg < ANG_SEGMENTS; seg++){
-        const a1 = seg * angleStep;
-        const a2 = (seg + 1) * angleStep;
-
-        for (let band = 0; band < RADIAL_BANDS; band++){
+      for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
+        const a1 = seg * angleStep, a2 = (seg + 1) * angleStep;
+        for (let band = 0; band < RADIAL_BANDS; band++) {
           const r1 = rMin + band * bandThickness;
           const r2 = rMin + (band + 1) * bandThickness;
-
           const path = new Path2D();
           path.arc(centerX, centerY, r2, a1, a2);
           path.arc(centerX, centerY, r1, a2, a1, true);
           path.closePath();
-
-          const ac = (a1 + a2) / 2;
-          const rc = (r1 + r2) / 2;
-
+          const ac = (a1 + a2) / 2, rc = (r1 + r2) / 2;
           const id = seg * RADIAL_BANDS + band;
-          piecePaths[id] = {
-            id, seg, band, path,
+          piecePaths[id] = { id, seg, band, path,
             cx: centerX + rc * Math.cos(ac),
             cy: centerY + rc * Math.sin(ac),
             isOuter: false
@@ -276,112 +305,254 @@
       }
     }
 
-    // ── Build outer piece paths ───────────────────────────────────
-    // Each outer piece is an annular sector (arc ring sector) clipped to the
-    // canvas rectangle and EXCLUDING the hex region.
-    function buildOuterPaths(){
-      outerPaths.length = 0;
+    // ── Build outer hexagonal ring pieces ────────────────────────
+    // Strategy: each piece is the intersection of:
+    //   • the angular wedge (two radii from center at a1..a2)
+    //   • the hexagonal annulus between hex(r_inner) and hex(r_outer)
+    //
+    // We build this as: clip to outerRingShell, then draw the wedge.
+    // The wedge is a simple triangle/sector fan from center outward.
+    // We store the clipping hex paths per band.
+
+    function buildHexRingBandPath(rInner, rOuter) {
+      // Path = outer hex MINUS inner hex (used as clip region)
+      // We build it as a compound path: outer CCW, inner CW (even-odd).
+      const p = new Path2D();
+      // outer hex (CCW default)
+      for (let i = 0; i < 6; i++) {
+        const v = hv(i, rOuter);
+        i === 0 ? p.moveTo(v.x, v.y) : p.lineTo(v.x, v.y);
+      }
+      p.closePath();
+      // inner hex (reverse = CW, creates hole with evenodd)
+      for (let i = 5; i >= 0; i--) {
+        const v = hv(i, rInner);
+        i === 5 ? p.moveTo(v.x, v.y) : p.lineTo(v.x, v.y);
+      }
+      p.closePath();
+      return p;
+    }
+
+    // For each outer piece we need to know its polygon for hit-testing and fill.
+    // Build the polygon vertices of one hex-ring wedge piece.
+    function buildOuterWedgePolygon(seg, rInner, rOuter) {
       const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
+      const a1 = seg * angleStep, a2 = (seg + 1) * angleStep;
 
-      for (let seg = 0; seg < ANG_SEGMENTS; seg++){
-        const a1 = seg * angleStep;
-        const a2 = (seg + 1) * angleStep;
+      // We sample the hex boundary at many angles in [a1, a2] for inner & outer.
+      const STEPS = 12;
+      const outerPts = [], innerPts = [];
 
-        for (let band = 0; band < OUTER_BANDS; band++){
-          const r1 = outerGridStart + band * outerBandThickness;
-          const r2 = outerGridStart + (band + 1) * outerBandThickness;
+      for (let i = 0; i <= STEPS; i++) {
+        const a = a1 + (a2 - a1) * (i / STEPS);
+        outerPts.push(hexBoundaryPoint(a, rOuter));
+        innerPts.push(hexBoundaryPoint(a, rInner));
+      }
 
-          // Annular sector
-          const path = new Path2D();
-          path.arc(centerX, centerY, r2, a1, a2);
-          path.arc(centerX, centerY, r1, a2, a1, true);
-          path.closePath();
+      // Polygon: outer arc (a1→a2) then inner arc (a2→a1)
+      const poly = [...outerPts, ...[...innerPts].reverse()];
+      return poly;
+    }
 
-          const ac = (a1 + a2) / 2;
-          const rc = (r1 + r2) / 2;
+    // Returns the point on a regular hex boundary (vertex at angle 0) at
+    // a given direction angle `a` and hex radius `R`.
+    function hexBoundaryPoint(a, R) {
+      // Normalize angle to 0..PI/3 sector, find scale factor
+      let sector = Math.floor(a / (Math.PI / 3));
+      const aRel = a - sector * (Math.PI / 3); // 0..PI/3
+      // At aRel=0: vertex (distance R from center)
+      // At aRel=PI/6: midpoint of edge (distance R*cos(PI/6) = R*√3/2)
+      // General: scale = cos(PI/6) / cos(aRel - PI/6)
+      //   (intercept theorem on the hex edge)
+      const scale = Math.cos(Math.PI / 6) / Math.cos(aRel - Math.PI / 6);
+      const dist  = R * scale;
+      return { x: centerX + dist * Math.cos(a), y: centerY + dist * Math.sin(a) };
+    }
 
+    function polyToPath2D(poly) {
+      const p = new Path2D();
+      p.moveTo(poly[0].x, poly[0].y);
+      for (let i = 1; i < poly.length; i++) p.lineTo(poly[i].x, poly[i].y);
+      p.closePath();
+      return p;
+    }
+
+    function polyCentroid(poly) {
+      let sx = 0, sy = 0;
+      for (const p of poly) { sx += p.x; sy += p.y; }
+      return { x: sx / poly.length, y: sy / poly.length };
+    }
+
+    function buildOuterPiecePaths() {
+      outerPieces.length = 0;
+      for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
+        for (let band = 0; band < OUTER_BANDS; band++) {
+          const r1 = OUTER_HEX_MIN + band * outerBandStep;
+          const r2 = OUTER_HEX_MIN + (band + 1) * outerBandStep;
+
+          const poly = buildOuterWedgePolygon(seg, r1, r2);
+          const path = polyToPath2D(poly);
+          const c    = polyCentroid(poly);
           const localId = seg * OUTER_BANDS + band;
-          const id = OUTER_ID_BASE + localId;
+          const id      = OUTER_ID_BASE + localId;
 
-          outerPaths[localId] = {
-            id, seg, band, path,
-            cx: centerX + rc * Math.cos(ac),
-            cy: centerY + rc * Math.sin(ac),
-            isOuter: true
-          };
+          outerPieces[localId] = { id, seg, band, path, poly, cx: c.x, cy: c.y, isOuter: true };
         }
       }
     }
 
-    // ── Draw ─────────────────────────────────────────────────────
-    function draw(){
-      ctx.clearRect(0, 0, W, H);
+    // ── Point-in-polygon (for outer pieces) ──────────────────────
+    function pointInPoly(px, py, poly) {
+      let inside = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const xi = poly[i].x, yi = poly[i].y;
+        const xj = poly[j].x, yj = poly[j].y;
+        if (((yi > py) !== (yj > py)) &&
+            (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+          inside = !inside;
+        }
+      }
+      return inside;
+    }
 
-      // Background
+    // ── Hit-test ─────────────────────────────────────────────────
+    function pointToPieceId(x, y) {
+      const inOuter = ctx.isPointInPath(outerHexPath, x, y);
+      const inInner = ctx.isPointInPath(innerHexPath, x, y);
+
+      // Inner hex grid
+      if (inOuter && !inInner) {
+        const r = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+        if (r >= rMin && r <= rMax) {
+          const a = angleFromCenter(x, y);
+          const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
+          let seg  = Math.max(0, Math.min(ANG_SEGMENTS - 1, Math.floor(a / angleStep)));
+          let band = Math.max(0, Math.min(RADIAL_BANDS - 1, Math.floor((r - rMin) / bandThickness)));
+          return seg * RADIAL_BANDS + band;
+        }
+      }
+
+      // Outer hex ring
+      if (!inOuter) {
+        const inOuterMax = ctx.isPointInPath(outerRingMaxPath, x, y);
+        if (inOuterMax) {
+          // Find which outer piece contains this point
+          for (const p of outerPieces) {
+            if (p && pointInPoly(x, y, p.poly)) return p.id;
+          }
+        }
+      }
+
+      return null;
+    }
+
+    // ── Drag range selection ──────────────────────────────────────
+    function getSelectedIdsBetween(startId, endId) {
+      const startOuter = startId >= OUTER_ID_BASE;
+      const endOuter   = endId   >= OUTER_ID_BASE;
+      if (startOuter !== endOuter) return new Set([startId]);
+
+      const result = new Set();
+      const BANDS  = startOuter ? OUTER_BANDS : RADIAL_BANDS;
+      const BASE   = startOuter ? OUTER_ID_BASE : 0;
+
+      const sLocal = startId - BASE, eLocal = endId - BASE;
+      const startSeg  = Math.floor(sLocal / BANDS), startBand = sLocal % BANDS;
+      const endSeg    = Math.floor(eLocal / BANDS), endBand   = eLocal % BANDS;
+      const minBand   = Math.min(startBand, endBand);
+      const maxBand   = Math.max(startBand, endBand);
+      const forward   = (endSeg - startSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
+      const backward  = (startSeg - endSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
+      const dir       = forward <= backward ? 1 : -1;
+      const steps     = Math.min(forward, backward);
+
+      let seg = startSeg;
+      for (let i = 0; i <= steps; i++) {
+        for (let b = minBand; b <= maxBand; b++) {
+          const id = BASE + seg * BANDS + b;
+          if (!placed.has(id)) result.add(id);
+        }
+        seg = (seg + dir + ANG_SEGMENTS) % ANG_SEGMENTS;
+      }
+      return result;
+    }
+
+    // ── Lookup piece by id ────────────────────────────────────────
+    function getPieceById(id) {
+      if (id >= OUTER_ID_BASE) return outerPieces[id - OUTER_ID_BASE] || null;
+      return piecePaths[id] || null;
+    }
+
+    // ── Draw ─────────────────────────────────────────────────────
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0, 0, W, H);
 
-      // ── Draw outer grid region (outside hex) ──────────────────
+      // ── Outer hex ring background ─────────────────────────────
+      // Fill the band between outerRingMaxPath and outerHexPath
       ctx.save();
-      // Clip to canvas but exclude the hex interior
-      // We achieve "outside hex" by drawing only outer-band paths
-      // (they are annular sectors beyond outerRadius, so they naturally
-      //  don't overlap the hex — no extra clip inversion needed)
       ctx.fillStyle = '#111118';
-      for (const p of outerPaths){
+      for (const p of outerPieces) {
         if (!p) continue;
         ctx.fill(p.path);
       }
 
-      // Outer piece fills
-      for (const p of outerPaths){
+      // Outer piece fills (color / selection)
+      for (const p of outerPieces) {
         if (!p) continue;
-        if (placed.has(p.id)){
+        if (placed.has(p.id)) {
           ctx.fillStyle = placed.get(p.id).color;
           ctx.fill(p.path);
-        } else if (selectedIds.has(p.id)){
+        } else if (selectedIds.has(p.id)) {
           ctx.fillStyle = selectedColor + '66';
           ctx.fill(p.path);
         }
       }
 
-      // Outer grid lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.10)';
+      // Outer grid lines — draw edges between adjacent outer pieces
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
       ctx.lineWidth = 1;
       const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
 
-      // Angular spokes (outer zone)
-      for (let seg = 0; seg < ANG_SEGMENTS; seg++){
-        const a = seg * angleStep;
+      // Spoke lines (angular divisions) through outer ring
+      for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
+        const a  = seg * angleStep;
+        const p1 = hexBoundaryPoint(a, OUTER_HEX_MIN);
+        const p2 = hexBoundaryPoint(a, OUTER_HEX_MAX);
         ctx.beginPath();
-        ctx.moveTo(centerX + outerGridStart * Math.cos(a), centerY + outerGridStart * Math.sin(a));
-        ctx.lineTo(centerX + outerGridEnd   * Math.cos(a), centerY + outerGridEnd   * Math.sin(a));
+        ctx.moveTo(p1.x, p1.y);
+        ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
       }
 
-      // Radial arcs (outer zone) — draw band separators + outer boundary
-      for (let band = 0; band <= OUTER_BANDS; band++){
-        const rr = outerGridStart + band * outerBandThickness;
+      // Band boundary hexagons in the outer ring
+      for (let band = 0; band <= OUTER_BANDS; band++) {
+        const r = OUTER_HEX_MIN + band * outerBandStep;
         ctx.beginPath();
-        ctx.arc(centerX, centerY, rr, 0, Math.PI * 2);
+        for (let i = 0; i < 6; i++) {
+          const v = hv(i, r);
+          i === 0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y);
+        }
+        ctx.closePath();
         ctx.stroke();
       }
 
       ctx.restore();
 
-      // ── Draw inner hex grid ───────────────────────────────────
+      // ── Inner hex grid ────────────────────────────────────────
       ctx.save();
       ctx.clip(outerHexPath);
 
       ctx.fillStyle = '#141414';
       ctx.fillRect(0, 0, W, H);
 
-      for (const p of piecePaths){
+      for (const p of piecePaths) {
         if (!p) continue;
-        if (placed.has(p.id)){
+        if (placed.has(p.id)) {
           ctx.fillStyle = placed.get(p.id).color;
           ctx.fill(p.path);
-        } else if (selectedIds.has(p.id)){
+        } else if (selectedIds.has(p.id)) {
           ctx.fillStyle = selectedColor + '66';
           ctx.fill(p.path);
         }
@@ -389,25 +560,28 @@
 
       ctx.strokeStyle = 'rgba(255,255,255,0.13)';
       ctx.lineWidth = 1;
-
-      for (let seg = 0; seg < ANG_SEGMENTS; seg++){
-        const a = seg * angleStep;
-        ctx.beginPath();
-        ctx.moveTo(centerX + rMin * Math.cos(a), centerY + rMin * Math.sin(a));
-        ctx.lineTo(centerX + rMax * Math.cos(a), centerY + rMax * Math.sin(a));
-        ctx.stroke();
+      for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
+        const a  = seg * angleStep;
+        const x1 = centerX + rMin * Math.cos(a), y1 = centerY + rMin * Math.sin(a);
+        const x2 = centerX + rMax * Math.cos(a), y2 = centerY + rMax * Math.sin(a);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
       }
-
-      for (let band = 1; band < RADIAL_BANDS; band++){
+      for (let band = 1; band < RADIAL_BANDS; band++) {
         const rr = rMin + band * bandThickness;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, rr, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.beginPath(); ctx.arc(centerX, centerY, rr, 0, Math.PI * 2); ctx.stroke();
       }
-
       ctx.restore();
 
-      // ── Hex outlines ─────────────────────────────────────────
+      // ── Hex outlines ──────────────────────────────────────────
+      // Outer ring max boundary
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.lineWidth = 2;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = 'rgba(255,255,255,0.15)';
+      ctx.stroke(outerRingMaxPath);
+      ctx.shadowBlur = 0;
+
+      // Main hex outline
       ctx.strokeStyle = 'rgba(255,255,255,0.28)';
       ctx.lineWidth = 2;
       ctx.shadowBlur = 14;
@@ -415,6 +589,7 @@
       ctx.stroke(outerHexPath);
       ctx.shadowBlur = 0;
 
+      // Inner hex (capital base)
       ctx.fillStyle = '#8B5A3C';
       ctx.fill(innerHexPath);
       ctx.strokeStyle = 'rgba(255,255,255,0.35)';
@@ -422,60 +597,42 @@
       ctx.stroke(innerHexPath);
 
       // ── Turrets ───────────────────────────────────────────────
-      const turrets = [
-        { index: 4, label: 'T1' },
-        { index: 2, label: 'T2' },
-        { index: 0, label: 'T3' },
-      ];
+      const turrets = [{ index: 4, label: 'T1' }, { index: 2, label: 'T2' }, { index: 0, label: 'T3' }];
       turrets.forEach(t => {
-        const v = hexVertex(t.index, innerRadius);
+        const v = hv(t.index, innerRadius);
         ctx.fillStyle = '#2196F3';
-        ctx.beginPath();
-        ctx.arc(v.x, v.y, 18, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        ctx.beginPath(); ctx.arc(v.x, v.y, 18, 0, Math.PI * 2); ctx.fill();
+        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
         ctx.fillStyle = '#fff';
         ctx.font = 'bold 16px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
         ctx.fillText(t.label, v.x, v.y);
       });
 
       // ── Capital ───────────────────────────────────────────────
       ctx.fillStyle = '#2196F3';
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, 38, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#fff';
-      ctx.lineWidth = 3;
-      ctx.stroke();
+      ctx.beginPath(); ctx.arc(centerX, centerY, 38, 0, Math.PI * 2); ctx.fill();
+      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
       ctx.fillStyle = '#fff';
       ctx.font = 'bold 34px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('C', centerX, centerY);
 
-      // ── Group labels (both inner + outer) ─────────────────────
+      // ── Group labels ──────────────────────────────────────────
       const groups = new Map();
-      for (const [id, val] of placed.entries()){
+      for (const [id, val] of placed.entries()) {
         if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, ids: [] });
         groups.get(val.groupId).ids.push(id);
       }
-
       ctx.font = 'bold 13px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-
-      for (const g of groups.values()){
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      for (const g of groups.values()) {
         let sx = 0, sy = 0;
-        for (const id of g.ids){
+        for (const id of g.ids) {
           const p = getPieceById(id);
-          if (p){ sx += p.cx; sy += p.cy; }
+          if (p) { sx += p.cx; sy += p.cy; }
         }
-        const cx = sx / g.ids.length;
-        const cy = sy / g.ids.length;
+        const cx = sx / g.ids.length, cy = sy / g.ids.length;
         ctx.save();
         ctx.fillStyle = '#fff';
         ctx.strokeStyle = 'rgba(0,0,0,0.85)';
@@ -488,133 +645,26 @@
       updateLegend();
     }
 
-    // ── Lookup piece by unified ID ────────────────────────────────
-    function getPieceById(id){
-      if (id >= OUTER_ID_BASE){
-        return outerPaths[id - OUTER_ID_BASE] || null;
-      }
-      return piecePaths[id] || null;
-    }
-
-    // ── Canvas coordinate helper ──────────────────────────────────
-    function clientToCanvas(clientX, clientY){
+    // ── Canvas coordinate ─────────────────────────────────────────
+    function clientToCanvas(clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
       return {
-        x: (clientX - rect.left)  * (W / rect.width),
-        y: (clientY - rect.top)   * (H / rect.height)
+        x: (clientX - rect.left) * (W / rect.width),
+        y: (clientY - rect.top)  * (H / rect.height)
       };
     }
 
-    // ── Hit-test: return unified piece ID or null ─────────────────
-    function pointToPieceId(x, y){
-      // Try inner hex grid first
-      if (ctx.isPointInPath(outerHexPath, x, y) && !ctx.isPointInPath(innerHexPath, x, y)){
-        const r = distFromCenter(x, y);
-        if (r >= rMin && r <= rMax){
-          const a = angleFromCenter(x, y);
-          const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
-          let seg = Math.floor(a / angleStep);
-          seg = Math.max(0, Math.min(ANG_SEGMENTS - 1, seg));
-          let band = Math.floor((r - rMin) / bandThickness);
-          band = Math.max(0, Math.min(RADIAL_BANDS - 1, band));
-          return seg * RADIAL_BANDS + band;
-        }
-      }
-
-      // Try outer grid
-      if (!ctx.isPointInPath(outerHexPath, x, y)){
-        const r = distFromCenter(x, y);
-        if (r >= outerGridStart && r <= outerGridEnd){
-          const a = angleFromCenter(x, y);
-          const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
-          let seg = Math.floor(a / angleStep);
-          seg = Math.max(0, Math.min(ANG_SEGMENTS - 1, seg));
-          let band = Math.floor((r - outerGridStart) / outerBandThickness);
-          band = Math.max(0, Math.min(OUTER_BANDS - 1, band));
-          return OUTER_ID_BASE + seg * OUTER_BANDS + band;
-        }
-      }
-
-      return null;
-    }
-
-    // ── Drag-range selection (works for both grids) ───────────────
-    function getSelectedIdsBetween(startId, endId){
-      const startIsOuter = startId >= OUTER_ID_BASE;
-      const endIsOuter   = endId   >= OUTER_ID_BASE;
-
-      // Must both be in the same zone
-      if (startIsOuter !== endIsOuter) return new Set([startId]);
-
-      const result = new Set();
-
-      if (!startIsOuter){
-        // Inner grid
-        const BANDS = RADIAL_BANDS;
-        const startSeg  = Math.floor(startId / BANDS);
-        const startBand = startId % BANDS;
-        const endSeg    = Math.floor(endId   / BANDS);
-        const endBand   = endId   % BANDS;
-
-        const minBand = Math.min(startBand, endBand);
-        const maxBand = Math.max(startBand, endBand);
-        const forward  = (endSeg - startSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
-        const backward = (startSeg - endSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
-        const dir = forward <= backward ? 1 : -1;
-        const steps = Math.min(forward, backward);
-
-        let seg = startSeg;
-        for (let i = 0; i <= steps; i++){
-          for (let b = minBand; b <= maxBand; b++){
-            const id = seg * BANDS + b;
-            if (!placed.has(id)) result.add(id);
-          }
-          seg = (seg + dir + ANG_SEGMENTS) % ANG_SEGMENTS;
-        }
-      } else {
-        // Outer grid
-        const BANDS = OUTER_BANDS;
-        const localStart = startId - OUTER_ID_BASE;
-        const localEnd   = endId   - OUTER_ID_BASE;
-
-        const startSeg  = Math.floor(localStart / BANDS);
-        const startBand = localStart % BANDS;
-        const endSeg    = Math.floor(localEnd   / BANDS);
-        const endBand   = localEnd   % BANDS;
-
-        const minBand = Math.min(startBand, endBand);
-        const maxBand = Math.max(startBand, endBand);
-        const forward  = (endSeg - startSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
-        const backward = (startSeg - endSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
-        const dir = forward <= backward ? 1 : -1;
-        const steps = Math.min(forward, backward);
-
-        let seg = startSeg;
-        for (let i = 0; i <= steps; i++){
-          for (let b = minBand; b <= maxBand; b++){
-            const id = OUTER_ID_BASE + seg * BANDS + b;
-            if (!placed.has(id)) result.add(id);
-          }
-          seg = (seg + dir + ANG_SEGMENTS) % ANG_SEGMENTS;
-        }
-      }
-
-      return result;
-    }
-
-    // ── Pointer handlers ─────────────────────────────────────────
-    function startDrag(clientX, clientY){
+    // ── Pointer handlers ──────────────────────────────────────────
+    function startDrag(clientX, clientY) {
       const p  = clientToCanvas(clientX, clientY);
       const id = pointToPieceId(p.x, p.y);
-      if (id === null) return;
-      if (placed.has(id)) return;
-      isDragging  = true;
-      dragStartId = id;
+      if (id === null || placed.has(id)) return;
+      isDragging = true; dragStartId = id;
       selectedIds = new Set([id]);
       draw();
     }
 
-    function updateDrag(clientX, clientY){
+    function updateDrag(clientX, clientY) {
       if (!isDragging || dragStartId === null) return;
       const p  = clientToCanvas(clientX, clientY);
       const id = pointToPieceId(p.x, p.y);
@@ -624,88 +674,72 @@
       draw();
     }
 
-    function endDrag(){
+    function endDrag() {
       if (isDragging && selectedIds.size > 0) openModal();
-      isDragging  = false;
-      dragStartId = null;
+      isDragging = false; dragStartId = null;
     }
 
     canvas.addEventListener('mousedown',  e => { e.preventDefault(); startDrag(e.clientX, e.clientY); });
     canvas.addEventListener('mousemove',  e => { e.preventDefault(); updateDrag(e.clientX, e.clientY); });
-    window.addEventListener('mouseup',    ()  => endDrag());
+    window.addEventListener('mouseup',    () => endDrag());
     canvas.addEventListener('touchstart', e => { e.preventDefault(); startDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
     canvas.addEventListener('touchmove',  e => { e.preventDefault(); updateDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
-    window.addEventListener('touchend',   ()  => endDrag());
+    window.addEventListener('touchend',   () => endDrag());
 
     // ── Modal ─────────────────────────────────────────────────────
-    function openModal(){
+    function openModal() {
       document.getElementById('assignModal').style.display = 'block';
       document.getElementById('selectionLabel').textContent = `${selectedIds.size} ピース選択中`;
       setTimeout(() => document.getElementById('allianceName').focus(), 50);
     }
-
-    function closeModal(){
+    function closeModal() {
       document.getElementById('assignModal').style.display = 'none';
-      selectedIds = new Set();
-      dragStartId = null;
-      draw();
+      selectedIds = new Set(); dragStartId = null; draw();
     }
-
-    function clearSelection(){
+    function clearSelection() {
       document.getElementById('allianceName').value = '';
       closeModal();
     }
-
-    function assignAlliance(){
+    function assignAlliance() {
       const name = document.getElementById('allianceName').value.trim();
-      if (!name){ alert('同盟名を入力してください！'); return; }
+      if (!name) { alert('同盟名を入力してください！'); return; }
       const groupId = Date.now();
-      for (const id of selectedIds){
-        placed.set(id, { name, color: selectedColor, groupId });
-      }
+      for (const id of selectedIds) placed.set(id, { name, color: selectedColor, groupId });
       document.getElementById('allianceName').value = '';
-      closeModal();
-      draw();
+      closeModal(); draw();
     }
-
-    window.deleteAlliance = function(allianceName){
+    window.deleteAlliance = function(allianceName) {
       if (!confirm(`「${allianceName}」を削除しますか？`)) return;
-      for (const [id, val] of placed.entries()){
+      for (const [id, val] of placed.entries()) {
         if (val.name === allianceName) placed.delete(id);
       }
       draw();
     };
 
     // ── Legend ────────────────────────────────────────────────────
-    function updateLegend(){
+    function updateLegend() {
       const legendList = document.getElementById('legendList');
       legendList.innerHTML = '';
-
-      if (placed.size === 0){
+      if (placed.size === 0) {
         legendList.innerHTML = '<div style="color:rgba(255,255,255,0.5);font-size:0.9em;padding:0 10px;white-space:nowrap;">配置なし</div>';
         return;
       }
-
       const unique = new Map();
-      for (const v of placed.values()){
-        if (!unique.has(v.name)) unique.set(v.name, v.color);
-      }
-
-      for (const [name, color] of unique.entries()){
+      for (const v of placed.values()) if (!unique.has(v.name)) unique.set(v.name, v.color);
+      for (const [name, color] of unique.entries()) {
         const item = document.createElement('div');
         item.className = 'legend-item';
         const safeName = name.replace(/'/g, "\\'");
         item.innerHTML = `
           <div class="legend-color" style="background:${color}"></div>
           <span class="legend-name">${name}</span>
-          <button class="delete-alliance-btn" type="button" onclick="window.deleteAlliance('${safeName}')">✕</button>
-        `;
+          <button class="delete-alliance-btn" type="button" onclick="window.deleteAlliance('${safeName}')">✕</button>`;
         legendList.appendChild(item);
       }
     }
 
     // ── Color picker ──────────────────────────────────────────────
-    function initColorPicker(){
+    function initColorPicker() {
       const picker = document.getElementById('colorPicker');
       picker.innerHTML = '';
       colors.forEach((c, i) => {
@@ -722,12 +756,12 @@
       });
     }
 
-    window.closeModal      = closeModal;
-    window.clearSelection  = clearSelection;
-    window.assignAlliance  = assignAlliance;
+    window.closeModal     = closeModal;
+    window.clearSelection = clearSelection;
+    window.assignAlliance = assignAlliance;
 
     buildPiecePaths();
-    buildOuterPaths();
+    buildOuterPiecePaths();
     initColorPicker();
     draw();
   </script>
