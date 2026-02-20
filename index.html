@@ -17,15 +17,8 @@
       border-bottom:1px solid rgba(255,255,255,.1);
       box-shadow:0 4px 30px rgba(0,0,0,.5);flex-shrink:0;z-index:20;
     }
-    h1{
-      font-size:clamp(1.05em,3.5vw,2em);font-weight:700;letter-spacing:1px;color:#fff;
-      text-shadow:0 0 20px rgba(255,255,255,.3);white-space:nowrap;
-      overflow:hidden;text-overflow:ellipsis;max-width:92vw;
-    }
-    .main-container{
-      flex:1;display:flex;justify-content:center;align-items:center;
-      position:relative;overflow:hidden;width:100%;
-    }
+    h1{font-size:clamp(1.05em,3.5vw,2em);font-weight:700;letter-spacing:1px;color:#fff;text-shadow:0 0 20px rgba(255,255,255,.3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:92vw;}
+    .main-container{flex:1;display:flex;justify-content:center;align-items:center;position:relative;overflow:hidden;width:100%;}
     .legend-container{
       position:absolute;top:15px;right:15px;
       background:rgba(20,20,20,.95);backdrop-filter:blur(20px);
@@ -34,31 +27,16 @@
     }
     .legend-container h3{margin:0 0 12px 0;font-size:1em;font-weight:600;color:#c0c0c0;white-space:nowrap}
     #legendList{display:flex;flex-direction:column;gap:8px}
-    .legend-item{
-      display:flex;align-items:center;gap:8px;font-size:.85em;padding:8px;
-      background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.05);
-    }
+    .legend-item{display:flex;align-items:center;gap:8px;font-size:.85em;padding:8px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.05);}
     .legend-color{width:30px;height:20px;border-radius:4px;border:1px solid rgba(255,255,255,.3);box-shadow:0 2px 8px rgba(0,0,0,.5);flex-shrink:0}
     .legend-name{flex:1;color:#e0e0e0;word-break:break-word}
-    .delete-alliance-btn{
-      background:rgba(255,50,50,.2);border:1px solid rgba(255,50,50,.35);color:#ff6b6b;
-      width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:14px;
-      display:flex;align-items:center;justify-content:center;transition:all .2s;
-      flex-shrink:0;
-    }
+    .delete-alliance-btn{background:rgba(255,50,50,.2);border:1px solid rgba(255,50,50,.35);color:#ff6b6b;width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;}
     .delete-alliance-btn:hover{background:rgba(255,50,50,.4);border-color:rgba(255,50,50,.6);transform:scale(1.06)}
-    .instructions-container{
-      position:absolute;bottom:15px;left:15px;
-      background:rgba(20,20,20,.95);backdrop-filter:blur(20px);
-      padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,.1);
-      box-shadow:0 8px 32px rgba(0,0,0,.8);max-width:260px;z-index:10;pointer-events:none;
-    }
+    .instructions-container{position:absolute;bottom:15px;left:15px;background:rgba(20,20,20,.95);backdrop-filter:blur(20px);padding:15px;border-radius:12px;border:1px solid rgba(255,255,255,.1);box-shadow:0 8px 32px rgba(0,0,0,.8);max-width:260px;z-index:10;pointer-events:none;}
     .instructions-container h4{margin:0 0 10px 0;color:#c0c0c0;font-size:1em;font-weight:600}
     .instructions-container p{margin:0 0 6px 0;line-height:1.5;color:#a0a0a0;font-size:.85em}
-    #hexCanvas{
-      cursor:crosshair;max-width:88vmin;max-height:88vmin;
-      filter:drop-shadow(0 0 30px rgba(255,255,255,.1));touch-action:none;
-    }
+    #hexCanvas{cursor:crosshair;max-width:88vmin;max-height:88vmin;filter:drop-shadow(0 0 30px rgba(255,255,255,.1));touch-action:none;}
+    /* Modal */
     .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);animation:fadeIn .25s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .modal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a1a;padding:22px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.9);width:480px;max-width:92%;max-height:90vh;overflow:auto;border:1px solid rgba(255,255,255,.1)}
@@ -74,35 +52,36 @@
     .input-group label{display:block;margin-bottom:8px;font-weight:600;font-size:.95em;color:#c0c0c0}
     .input-group input[type="text"]{width:100%;padding:12px;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:16px;background:rgba(255,255,255,.05);color:#fff;transition:all .2s;font-weight:500}
     .input-group input[type="text"]:focus{outline:none;border-color:rgba(255,255,255,.4);background:rgba(255,255,255,.1);box-shadow:0 0 20px rgba(255,255,255,.1)}
-    .color-picker-wrapper{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
-    .color-option{height:46px;border-radius:8px;border:2px solid transparent;cursor:pointer;transition:all .2s;position:relative;box-shadow:0 4px 15px rgba(0,0,0,.3)}
-    .color-option:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(0,0,0,.5)}
-    .color-option.selected{border-color:#fff;box-shadow:0 0 18px rgba(255,255,255,.45);transform:scale(1.02)}
-    .color-option.selected::after{content:'✓';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#fff;font-size:1.6em;font-weight:800;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+    /* Color palette */
+    .palette-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+    .color-swatch{width:34px;height:34px;border-radius:6px;border:2px solid transparent;cursor:pointer;transition:all .18s;box-shadow:0 2px 6px rgba(0,0,0,.4);}
+    .color-swatch:hover{transform:scale(1.15);box-shadow:0 4px 14px rgba(0,0,0,.6)}
+    .color-swatch.selected{border-color:#fff;box-shadow:0 0 0 2px rgba(255,255,255,.7),0 4px 14px rgba(0,0,0,.6);transform:scale(1.1)}
+    .custom-color-row{display:flex;align-items:center;gap:10px;padding:10px;background:rgba(255,255,255,.05);border-radius:8px;border:1px solid rgba(255,255,255,.08)}
+    .custom-color-row label{color:#c0c0c0;font-size:.9em;white-space:nowrap;flex-shrink:0}
+    #customColorInput{-webkit-appearance:none;appearance:none;width:46px;height:34px;border:2px solid rgba(255,255,255,.25);border-radius:7px;background:none;cursor:pointer;padding:2px;}
+    #customColorInput::-webkit-color-swatch-wrapper{padding:1px}
+    #customColorInput::-webkit-color-swatch{border-radius:4px;border:none}
+    .color-preview-pill{
+      display:flex;align-items:center;gap:8px;padding:6px 12px;
+      background:rgba(255,255,255,.08);border-radius:20px;border:1px solid rgba(255,255,255,.15);
+    }
+    .color-preview-dot{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.4);transition:background .15s}
+    .color-preview-label{font-size:.8em;color:#c0c0c0;font-family:monospace}
     .modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     .modal-btn{padding:13px;border:1px solid rgba(255,255,255,.2);border-radius:8px;font-size:1em;font-weight:800;cursor:pointer;transition:all .2s;background:rgba(255,255,255,.05);color:#fff}
     .modal-btn:active{transform:scale(.98)}
     .btn-clear-selection:hover{background:rgba(255,50,50,.2);border-color:rgba(255,50,50,.5)}
     .btn-place:hover{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.4)}
-    @media (max-width:768px){
+    @media(max-width:768px){
       .header{padding:10px 12px;height:50px}
       .main-container{flex-direction:column;justify-content:space-between;height:calc(100vh - 50px)}
       #hexCanvas{max-width:100%;max-height:calc(100% - 140px);margin:auto}
-      .legend-container{
-        position:relative;top:0;right:0;width:100%;max-width:none;max-height:none;
-        border-radius:0;border-left:none;border-right:none;padding:8px 10px;
-        display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;
-        white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(20,20,20,.98);
-      }
+      .legend-container{position:relative;top:0;right:0;width:100%;max-width:none;max-height:none;border-radius:0;border-left:none;border-right:none;padding:8px 10px;display:flex;align-items:center;overflow-x:auto;overflow-y:hidden;white-space:nowrap;border-bottom:1px solid rgba(255,255,255,.1);background:rgba(20,20,20,.98);}
       .legend-container h3{margin:0;margin-right:12px;font-size:.9em}
       #legendList{flex-direction:row;gap:10px}
       .legend-item{padding:6px 10px;margin:0;flex-shrink:0;background:rgba(255,255,255,.08)}
-      .instructions-container{
-        position:relative;bottom:0;left:0;width:100%;max-width:none;border-radius:0;
-        border-left:none;border-right:none;padding:8px 10px;
-        display:flex;align-items:center;justify-content:center;
-        border-top:1px solid rgba(255,255,255,.1);background:rgba(20,20,20,.98);pointer-events:auto;
-      }
+      .instructions-container{position:relative;bottom:0;left:0;width:100%;max-width:none;border-radius:0;border-left:none;border-right:none;padding:8px 10px;display:flex;align-items:center;justify-content:center;border-top:1px solid rgba(255,255,255,.1);background:rgba(20,20,20,.98);pointer-events:auto;}
       .instructions-container h4{display:none}
       .instructions-container p{margin:0;color:#ccc;font-size:.78em}
       .instructions-inline{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
@@ -152,7 +131,15 @@
       </div>
       <div class="form-section">
         <h3>カラー選択</h3>
-        <div class="color-picker-wrapper" id="colorPicker"></div>
+        <div class="palette-grid" id="paletteGrid"></div>
+        <div class="custom-color-row">
+          <label>カスタム:</label>
+          <input type="color" id="customColorInput" />
+          <div class="color-preview-pill">
+            <div class="color-preview-dot" id="colorPreviewDot"></div>
+            <span class="color-preview-label" id="colorPreviewHex">#FF6B6B</span>
+          </div>
+        </div>
       </div>
       <div class="modal-actions">
         <button class="modal-btn btn-clear-selection" id="clearSelBtn">クリア</button>
@@ -165,34 +152,32 @@
     const canvas = document.getElementById('hexCanvas');
     const ctx    = canvas.getContext('2d');
 
-    const colors = [
-      '#FF6B6B','#4ECDC4','#FFE66D',
-      '#A8E6CF','#FF8B94','#95E1D3',
-      '#C7CEEA','#FFAAA5','#B4A7D6'
+    const presetColors = [
+      '#FF6B6B','#FF4757','#FF6348','#FF7F50','#FFA502',
+      '#FFD32A','#FFDD59','#A3CB38','#2ED573','#1E90FF',
+      '#3742FA','#5352ED','#9B59B6','#FD79A8','#FF6EB4',
+      '#00CEC9','#74B9FF','#55EFC4','#FDCB6E','#FFFFFF'
     ];
-    let selectedColor = colors[0];
+    let selectedColor = presetColors[0];
 
     const W = canvas.width, H = canvas.height;
     const centerX = W / 2, centerY = H / 2;
 
     // ── Hex radii ─────────────────────────────────────────────────
-    const innerRadius  = 140;   // capital / inner hex
-    const outerRadius  = 410;   // main hex boundary
-    // FIXED: Much larger outer ring that covers most of the canvas
-    const OUTER_HEX_MIN  = outerRadius + 8;
-    const OUTER_HEX_MAX  = 465;   // outer boundary - expanded to cover more canvas
-    const OUTER_BANDS    = 2;     // radial bands in outer ring
+    const innerRadius   = 140;
+    const outerRadius   = 370;        // main hex — tightened so outer ring is large
+    const OUTER_HEX_MIN = outerRadius + 6;
+    const OUTER_HEX_MAX = 476;        // outer boundary — nearly fills 960px canvas
+    const OUTER_BANDS   = 4;
 
-    const ANG_SEGMENTS   = 24;
-    const RADIAL_BANDS   = 3;
-    const rMin           = innerRadius + 6;
-    const rMax           = outerRadius;
-    const bandThickness  = (rMax - rMin) / RADIAL_BANDS;
+    const ANG_SEGMENTS  = 24;
+    const RADIAL_BANDS  = 3;
+    const rMin          = innerRadius + 6;
+    const rMax          = outerRadius;
+    const bandThickness = (rMax - rMin) / RADIAL_BANDS;
+    const outerBandStep = (OUTER_HEX_MAX - OUTER_HEX_MIN) / OUTER_BANDS;
+    const OUTER_ID_BASE = 1000;
 
-    const outerBandStep  = (OUTER_HEX_MAX - OUTER_HEX_MIN) / OUTER_BANDS;
-    const OUTER_ID_BASE  = 1000;
-
-    // Storage
     const piecePaths  = [];
     const outerPieces = [];
     const placed      = new Map();
@@ -201,7 +186,7 @@
     let dragStartId = null;
     let selectedIds = new Set();
 
-    // ── Hex helpers ───────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────
     function hv(i, r) {
       const a = (Math.PI / 3) * i;
       return { x: centerX + r * Math.cos(a), y: centerY + r * Math.sin(a) };
@@ -219,7 +204,6 @@
 
     const outerHexPath     = buildHexPath(outerRadius);
     const innerHexPath     = buildHexPath(innerRadius);
-    const outerRingMinPath = buildHexPath(OUTER_HEX_MIN);
     const outerRingMaxPath = buildHexPath(OUTER_HEX_MAX);
 
     function angleFromCenter(x, y) {
@@ -228,11 +212,19 @@
       return a;
     }
 
+    function hexBoundaryPoint(a, R) {
+      const sector = Math.floor(a / (Math.PI / 3));
+      const aRel   = a - sector * (Math.PI / 3);
+      const scale  = Math.cos(Math.PI / 6) / Math.cos(aRel - Math.PI / 6);
+      return { x: centerX + R * scale * Math.cos(a), y: centerY + R * scale * Math.sin(a) };
+    }
+
+    // ── Build inner pieces ────────────────────────────────────────
     function buildPiecePaths() {
       piecePaths.length = 0;
-      const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
+      const step = (Math.PI * 2) / ANG_SEGMENTS;
       for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
-        const a1 = seg * angleStep, a2 = (seg + 1) * angleStep;
+        const a1 = seg * step, a2 = (seg + 1) * step;
         for (let band = 0; band < RADIAL_BANDS; band++) {
           const r1 = rMin + band * bandThickness;
           const r2 = rMin + (band + 1) * bandThickness;
@@ -242,26 +234,16 @@
           path.closePath();
           const ac = (a1 + a2) / 2, rc = (r1 + r2) / 2;
           const id = seg * RADIAL_BANDS + band;
-          piecePaths[id] = { id, seg, band, path,
-            cx: centerX + rc * Math.cos(ac),
-            cy: centerY + rc * Math.sin(ac),
-            isOuter: false
-          };
+          piecePaths[id] = { id, path,
+            cx: centerX + rc * Math.cos(ac), cy: centerY + rc * Math.sin(ac), isOuter: false };
         }
       }
     }
 
-    function hexBoundaryPoint(a, R) {
-      let sector = Math.floor(a / (Math.PI / 3));
-      const aRel = a - sector * (Math.PI / 3);
-      const scale = Math.cos(Math.PI / 6) / Math.cos(aRel - Math.PI / 6);
-      const dist  = R * scale;
-      return { x: centerX + dist * Math.cos(a), y: centerY + dist * Math.sin(a) };
-    }
-
+    // ── Build outer wedge pieces ──────────────────────────────────
     function buildOuterWedgePolygon(seg, rInner, rOuter) {
-      const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
-      const a1 = seg * angleStep, a2 = (seg + 1) * angleStep;
+      const step = (Math.PI * 2) / ANG_SEGMENTS;
+      const a1 = seg * step, a2 = (seg + 1) * step;
       const STEPS = 12;
       const outerPts = [], innerPts = [];
       for (let i = 0; i <= STEPS; i++) {
@@ -282,7 +264,7 @@
 
     function polyCentroid(poly) {
       let sx = 0, sy = 0;
-      for (const p of poly) { sx += p.x; sy += p.y; }
+      for (const pt of poly) { sx += pt.x; sy += pt.y; }
       return { x: sx / poly.length, y: sy / poly.length };
     }
 
@@ -296,8 +278,7 @@
           const path = polyToPath2D(poly);
           const c    = polyCentroid(poly);
           const localId = seg * OUTER_BANDS + band;
-          const id      = OUTER_ID_BASE + localId;
-          outerPieces[localId] = { id, seg, band, path, poly, cx: c.x, cy: c.y, isOuter: true };
+          outerPieces[localId] = { id: OUTER_ID_BASE + localId, path, poly, cx: c.x, cy: c.y, isOuter: true };
         }
       }
     }
@@ -305,12 +286,9 @@
     function pointInPoly(px, py, poly) {
       let inside = false;
       for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
-        const xi = poly[i].x, yi = poly[i].y;
-        const xj = poly[j].x, yj = poly[j].y;
-        if (((yi > py) !== (yj > py)) &&
-            (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) {
+        const { x: xi, y: yi } = poly[i], { x: xj, y: yj } = poly[j];
+        if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi))
           inside = !inside;
-        }
       }
       return inside;
     }
@@ -320,22 +298,19 @@
       const inInner = ctx.isPointInPath(innerHexPath, x, y);
 
       if (inOuter && !inInner) {
-        const r = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
+        const r = Math.hypot(x - centerX, y - centerY);
         if (r >= rMin && r <= rMax) {
-          const a = angleFromCenter(x, y);
-          const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
-          let seg  = Math.max(0, Math.min(ANG_SEGMENTS - 1, Math.floor(a / angleStep)));
-          let band = Math.max(0, Math.min(RADIAL_BANDS - 1, Math.floor((r - rMin) / bandThickness)));
+          const a    = angleFromCenter(x, y);
+          const step = (Math.PI * 2) / ANG_SEGMENTS;
+          const seg  = Math.max(0, Math.min(ANG_SEGMENTS - 1, Math.floor(a / step)));
+          const band = Math.max(0, Math.min(RADIAL_BANDS - 1, Math.floor((r - rMin) / bandThickness)));
           return seg * RADIAL_BANDS + band;
         }
       }
 
-      if (!inOuter) {
-        const inOuterMax = ctx.isPointInPath(outerRingMaxPath, x, y);
-        if (inOuterMax) {
-          for (const p of outerPieces) {
-            if (p && pointInPoly(x, y, p.poly)) return p.id;
-          }
+      if (!inOuter && ctx.isPointInPath(outerRingMaxPath, x, y)) {
+        for (const p of outerPieces) {
+          if (p && pointInPoly(x, y, p.poly)) return p.id;
         }
       }
       return null;
@@ -348,18 +323,17 @@
       const result = new Set();
       const BANDS  = startOuter ? OUTER_BANDS : RADIAL_BANDS;
       const BASE   = startOuter ? OUTER_ID_BASE : 0;
-      const sLocal = startId - BASE, eLocal = endId - BASE;
-      const startSeg  = Math.floor(sLocal / BANDS), startBand = sLocal % BANDS;
-      const endSeg    = Math.floor(eLocal / BANDS), endBand   = eLocal % BANDS;
-      const minBand   = Math.min(startBand, endBand);
-      const maxBand   = Math.max(startBand, endBand);
-      const forward   = (endSeg - startSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
-      const backward  = (startSeg - endSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
-      const dir       = forward <= backward ? 1 : -1;
-      const steps     = Math.min(forward, backward);
-      let seg = startSeg;
+      const sL = startId - BASE, eL = endId - BASE;
+      const ss = Math.floor(sL / BANDS), sb = sL % BANDS;
+      const es = Math.floor(eL / BANDS), eb = eL % BANDS;
+      const minB = Math.min(sb, eb), maxB = Math.max(sb, eb);
+      const fwd  = (es - ss + ANG_SEGMENTS) % ANG_SEGMENTS;
+      const bwd  = (ss - es + ANG_SEGMENTS) % ANG_SEGMENTS;
+      const dir  = fwd <= bwd ? 1 : -1;
+      const steps = Math.min(fwd, bwd);
+      let seg = ss;
       for (let i = 0; i <= steps; i++) {
-        for (let b = minBand; b <= maxBand; b++) {
+        for (let b = minB; b <= maxB; b++) {
           const id = BASE + seg * BANDS + b;
           if (!placed.has(id)) result.add(id);
         }
@@ -379,77 +353,50 @@
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0, 0, W, H);
 
-      // ── Outer hex ring background ─────────────────────────────
+      const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
+
+      // Outer ring background + fills
       ctx.save();
       ctx.fillStyle = '#111118';
-      for (const p of outerPieces) {
-        if (!p) continue;
-        ctx.fill(p.path);
-      }
+      for (const p of outerPieces) { if (p) ctx.fill(p.path); }
 
-      // Outer piece fills (color / selection)
       for (const p of outerPieces) {
         if (!p) continue;
-        if (placed.has(p.id)) {
-          ctx.fillStyle = placed.get(p.id).color;
-          ctx.fill(p.path);
-        } else if (selectedIds.has(p.id)) {
-          ctx.fillStyle = selectedColor + '66';
-          ctx.fill(p.path);
-        }
+        if (placed.has(p.id)) { ctx.fillStyle = placed.get(p.id).color; ctx.fill(p.path); }
+        else if (selectedIds.has(p.id)) { ctx.fillStyle = selectedColor + '66'; ctx.fill(p.path); }
       }
 
       // Outer grid lines
-      ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-      ctx.lineWidth = 1;
-      const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
-
+      ctx.strokeStyle = 'rgba(255,255,255,0.12)'; ctx.lineWidth = 1;
       for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
-        const a  = seg * angleStep;
-        const p1 = hexBoundaryPoint(a, OUTER_HEX_MIN);
-        const p2 = hexBoundaryPoint(a, OUTER_HEX_MAX);
-        ctx.beginPath();
-        ctx.moveTo(p1.x, p1.y);
-        ctx.lineTo(p2.x, p2.y);
-        ctx.stroke();
+        const a = seg * angleStep;
+        const p1 = hexBoundaryPoint(a, OUTER_HEX_MIN), p2 = hexBoundaryPoint(a, OUTER_HEX_MAX);
+        ctx.beginPath(); ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
       }
-
       for (let band = 0; band <= OUTER_BANDS; band++) {
         const r = OUTER_HEX_MIN + band * outerBandStep;
         ctx.beginPath();
-        for (let i = 0; i < 6; i++) {
-          const v = hv(i, r);
-          i === 0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y);
-        }
-        ctx.closePath();
-        ctx.stroke();
+        for (let i = 0; i < 6; i++) { const v = hv(i, r); i===0 ? ctx.moveTo(v.x,v.y) : ctx.lineTo(v.x,v.y); }
+        ctx.closePath(); ctx.stroke();
       }
       ctx.restore();
 
-      // ── Inner hex grid ────────────────────────────────────────
+      // Inner hex grid
       ctx.save();
       ctx.clip(outerHexPath);
-      ctx.fillStyle = '#141414';
-      ctx.fillRect(0, 0, W, H);
-
+      ctx.fillStyle = '#141414'; ctx.fillRect(0, 0, W, H);
       for (const p of piecePaths) {
         if (!p) continue;
-        if (placed.has(p.id)) {
-          ctx.fillStyle = placed.get(p.id).color;
-          ctx.fill(p.path);
-        } else if (selectedIds.has(p.id)) {
-          ctx.fillStyle = selectedColor + '66';
-          ctx.fill(p.path);
-        }
+        if (placed.has(p.id)) { ctx.fillStyle = placed.get(p.id).color; ctx.fill(p.path); }
+        else if (selectedIds.has(p.id)) { ctx.fillStyle = selectedColor + '66'; ctx.fill(p.path); }
       }
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.13)';
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(255,255,255,0.13)'; ctx.lineWidth = 1;
       for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
-        const a  = seg * angleStep;
-        const x1 = centerX + rMin * Math.cos(a), y1 = centerY + rMin * Math.sin(a);
-        const x2 = centerX + rMax * Math.cos(a), y2 = centerY + rMax * Math.sin(a);
-        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
+        const a = seg * angleStep;
+        ctx.beginPath();
+        ctx.moveTo(centerX + rMin * Math.cos(a), centerY + rMin * Math.sin(a));
+        ctx.lineTo(centerX + rMax * Math.cos(a), centerY + rMax * Math.sin(a));
+        ctx.stroke();
       }
       for (let band = 1; band < RADIAL_BANDS; band++) {
         const rr = rMin + band * bandThickness;
@@ -457,111 +404,105 @@
       }
       ctx.restore();
 
-      // ── Hex outlines ──────────────────────────────────────────
-      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = 'rgba(255,255,255,0.15)';
-      ctx.stroke(outerRingMaxPath);
-      ctx.shadowBlur = 0;
+      // Hex outlines
+      ctx.strokeStyle='rgba(255,255,255,0.22)'; ctx.lineWidth=2;
+      ctx.shadowBlur=10; ctx.shadowColor='rgba(255,255,255,0.15)';
+      ctx.stroke(outerRingMaxPath); ctx.shadowBlur=0;
 
-      ctx.strokeStyle = 'rgba(255,255,255,0.28)';
-      ctx.lineWidth = 2;
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = 'rgba(255,255,255,0.2)';
-      ctx.stroke(outerHexPath);
-      ctx.shadowBlur = 0;
+      ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=2;
+      ctx.shadowBlur=14; ctx.shadowColor='rgba(255,255,255,0.2)';
+      ctx.stroke(outerHexPath); ctx.shadowBlur=0;
 
-      // Inner hex (capital base)
-      ctx.fillStyle = '#8B5A3C';
-      ctx.fill(innerHexPath);
-      ctx.strokeStyle = 'rgba(255,255,255,0.35)';
-      ctx.lineWidth = 2;
-      ctx.stroke(innerHexPath);
+      // Inner hex capital base
+      ctx.fillStyle='#8B5A3C'; ctx.fill(innerHexPath);
+      ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=2; ctx.stroke(innerHexPath);
 
-      // ── Turrets ───────────────────────────────────────────────
-      const turrets = [{ index: 4, label: 'T1' }, { index: 2, label: 'T2' }, { index: 0, label: 'T3' }];
-      turrets.forEach(t => {
+      // Turrets
+      [{index:4,label:'T1'},{index:2,label:'T2'},{index:0,label:'T3'}].forEach(t => {
         const v = hv(t.index, innerRadius);
-        ctx.fillStyle = '#2196F3';
-        ctx.beginPath(); ctx.arc(v.x, v.y, 18, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = '#fff'; ctx.lineWidth = 2; ctx.stroke();
-        ctx.fillStyle = '#fff';
-        ctx.font = 'bold 16px sans-serif';
-        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillStyle='#2196F3'; ctx.beginPath(); ctx.arc(v.x,v.y,18,0,Math.PI*2); ctx.fill();
+        ctx.strokeStyle='#fff'; ctx.lineWidth=2; ctx.stroke();
+        ctx.fillStyle='#fff'; ctx.font='bold 16px sans-serif';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
         ctx.fillText(t.label, v.x, v.y);
       });
 
-      // ── Capital ───────────────────────────────────────────────
-      ctx.fillStyle = '#2196F3';
-      ctx.beginPath(); ctx.arc(centerX, centerY, 38, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#fff'; ctx.lineWidth = 3; ctx.stroke();
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 34px sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      // Capital
+      ctx.fillStyle='#2196F3'; ctx.beginPath(); ctx.arc(centerX,centerY,38,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=3; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='bold 34px sans-serif';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
       ctx.fillText('C', centerX, centerY);
 
-      // ── Group labels: rendered AT the centroid of each group's pieces ──
-      // Collect groups, their piece positions, and compute per-group centroid
+      // ── Group labels ──────────────────────────────────────────
+      // Compute per-group centroid using ONLY that group's pieces,
+      // then clamp label to stay within the correct region (inner vs outer).
       const groups = new Map();
       for (const [id, val] of placed.entries()) {
-        if (!groups.has(val.groupId)) {
-          groups.set(val.groupId, { name: val.name, color: val.color, sumX: 0, sumY: 0, count: 0 });
+        const key = val.groupId;
+        if (!groups.has(key)) {
+          groups.set(key, { name: val.name, sumX: 0, sumY: 0, count: 0, hasOuter: false, hasInner: false });
         }
-        const g = groups.get(val.groupId);
+        const g = groups.get(key);
         const p = getPieceById(id);
-        if (p) { g.sumX += p.cx; g.sumY += p.cy; g.count++; }
+        if (p) {
+          g.sumX += p.cx; g.sumY += p.cy; g.count++;
+          if (p.isOuter) g.hasOuter = true; else g.hasInner = true;
+        }
       }
 
       ctx.font = 'bold 13px sans-serif';
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
       for (const g of groups.values()) {
         if (g.count === 0) continue;
-        const labelX = g.sumX / g.count;
-        const labelY = g.sumY / g.count;
+        let lx = g.sumX / g.count;
+        let ly = g.sumY / g.count;
+
+        // If the group spans ONLY outer pieces, push the label outward so
+        // it doesn't fall inside the inner hex area.
+        // We check if the averaged centroid is inside the outer hex boundary;
+        // if it ended up closer to center than outerRadius, push it out.
+        if (g.hasOuter && !g.hasInner) {
+          const dx = lx - centerX, dy = ly - centerY;
+          const dist = Math.hypot(dx, dy);
+          const minDist = OUTER_HEX_MIN + outerBandStep * 0.5; // midpoint of outer ring
+          if (dist < minDist) {
+            const angle = Math.atan2(dy, dx);
+            lx = centerX + minDist * Math.cos(angle);
+            ly = centerY + minDist * Math.sin(angle);
+          }
+        }
 
         ctx.save();
+        ctx.strokeStyle = 'rgba(0,0,0,0.9)'; ctx.lineWidth = 4;
+        ctx.strokeText(g.name, lx, ly);
         ctx.fillStyle = '#fff';
-        ctx.strokeStyle = 'rgba(0,0,0,0.85)';
-        ctx.lineWidth = 4;
-        ctx.strokeText(g.name, labelX, labelY);
-        ctx.fillText(g.name, labelX, labelY);
+        ctx.fillText(g.name, lx, ly);
         ctx.restore();
       }
 
       updateLegend();
     }
 
-    // ── Canvas interaction ────────────────────────────────────────
-    function clientToCanvas(clientX, clientY) {
+    // ── Interaction ───────────────────────────────────────────────
+    function clientToCanvas(cx, cy) {
       const rect = canvas.getBoundingClientRect();
-      return {
-        x: (clientX - rect.left) * (W / rect.width),
-        y: (clientY - rect.top)  * (H / rect.height)
-      };
+      return { x: (cx - rect.left) * (W / rect.width), y: (cy - rect.top) * (H / rect.height) };
     }
-
-    function startDrag(clientX, clientY) {
-      const p  = clientToCanvas(clientX, clientY);
-      const id = pointToPieceId(p.x, p.y);
+    function startDrag(cx, cy) {
+      const p = clientToCanvas(cx, cy), id = pointToPieceId(p.x, p.y);
       if (id === null || placed.has(id)) return;
-      isDragging = true; dragStartId = id;
-      selectedIds = new Set([id]);
-      draw();
+      isDragging = true; dragStartId = id; selectedIds = new Set([id]); draw();
     }
-
-    function updateDrag(clientX, clientY) {
+    function updateDrag(cx, cy) {
       if (!isDragging || dragStartId === null) return;
-      const p  = clientToCanvas(clientX, clientY);
-      const id = pointToPieceId(p.x, p.y);
+      const p = clientToCanvas(cx, cy), id = pointToPieceId(p.x, p.y);
       if (id === null) return;
       selectedIds = getSelectedIdsBetween(dragStartId, id);
       if (selectedIds.size === 0) selectedIds = new Set([dragStartId]);
       draw();
     }
-
     function endDrag() {
       if (isDragging && selectedIds.size > 0) openModal();
       isDragging = false; dragStartId = null;
@@ -580,17 +521,11 @@
       document.getElementById('selectionLabel').textContent = `${selectedIds.size} ピース選択中`;
       setTimeout(() => document.getElementById('allianceName').focus(), 50);
     }
-
     function closeModal() {
       document.getElementById('assignModal').style.display = 'none';
       selectedIds = new Set(); dragStartId = null; draw();
     }
-
-    function clearSelection() {
-      document.getElementById('allianceName').value = '';
-      closeModal();
-    }
-
+    function clearSelection() { document.getElementById('allianceName').value = ''; closeModal(); }
     function assignAlliance() {
       const name = document.getElementById('allianceName').value.trim();
       if (!name) { alert('同盟名を入力してください！'); return; }
@@ -599,13 +534,9 @@
       document.getElementById('allianceName').value = '';
       closeModal(); draw();
     }
-
-    // FIX: deleteAlliance now uses closure-safe approach via data attributes
     function deleteAlliance(allianceName) {
       if (!confirm(`「${allianceName}」を削除しますか？`)) return;
-      for (const [id, val] of placed.entries()) {
-        if (val.name === allianceName) placed.delete(id);
-      }
+      for (const [id, val] of placed.entries()) { if (val.name === allianceName) placed.delete(id); }
       draw();
     }
 
@@ -620,58 +551,55 @@
       const unique = new Map();
       for (const v of placed.values()) if (!unique.has(v.name)) unique.set(v.name, v.color);
       for (const [name, color] of unique.entries()) {
-        const item = document.createElement('div');
-        item.className = 'legend-item';
-
-        const colorBox = document.createElement('div');
-        colorBox.className = 'legend-color';
-        colorBox.style.background = color;
-
-        const nameSpan = document.createElement('span');
-        nameSpan.className = 'legend-name';
-        nameSpan.textContent = name;
-
-        // FIX: Use addEventListener instead of inline onclick to avoid escaping issues
-        const delBtn = document.createElement('button');
-        delBtn.className = 'delete-alliance-btn';
-        delBtn.type = 'button';
-        delBtn.textContent = '✕';
-        delBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          deleteAlliance(name);
-        });
-
-        item.appendChild(colorBox);
-        item.appendChild(nameSpan);
-        item.appendChild(delBtn);
+        const item = document.createElement('div'); item.className = 'legend-item';
+        const colorBox = document.createElement('div'); colorBox.className = 'legend-color'; colorBox.style.background = color;
+        const nameSpan = document.createElement('span'); nameSpan.className = 'legend-name'; nameSpan.textContent = name;
+        const delBtn = document.createElement('button'); delBtn.className = 'delete-alliance-btn'; delBtn.type = 'button'; delBtn.textContent = '✕';
+        delBtn.addEventListener('click', e => { e.stopPropagation(); deleteAlliance(name); });
+        item.appendChild(colorBox); item.appendChild(nameSpan); item.appendChild(delBtn);
         legendList.appendChild(item);
       }
     }
 
-    // ── Color picker ──────────────────────────────────────────────
-    function initColorPicker() {
-      const picker = document.getElementById('colorPicker');
-      picker.innerHTML = '';
-      colors.forEach((c, i) => {
-        const opt = document.createElement('div');
-        opt.className = 'color-option' + (i === 0 ? ' selected' : '');
-        opt.style.background = c;
-        opt.addEventListener('click', () => {
-          selectedColor = c;
-          document.querySelectorAll('.color-option').forEach(o => o.classList.remove('selected'));
-          opt.classList.add('selected');
-          draw();
-        });
-        picker.appendChild(opt);
-      });
+    // ── Color palette ─────────────────────────────────────────────
+    function setColor(c) {
+      selectedColor = c;
+      document.getElementById('colorPreviewDot').style.background = c;
+      document.getElementById('colorPreviewHex').textContent = c.toUpperCase();
+      document.getElementById('customColorInput').value = c;
+      document.querySelectorAll('.color-swatch').forEach(s => s.classList.toggle('selected', s.dataset.color === c));
+      draw();
     }
 
-    // ── Wire up modal buttons via JS (no inline handlers) ─────────
+    function initColorPicker() {
+      const grid = document.getElementById('paletteGrid');
+      presetColors.forEach(c => {
+        const sw = document.createElement('div');
+        sw.className = 'color-swatch' + (c === selectedColor ? ' selected' : '');
+        sw.style.background = c; sw.dataset.color = c;
+        sw.addEventListener('click', () => setColor(c));
+        grid.appendChild(sw);
+      });
+
+      const ci = document.getElementById('customColorInput');
+      ci.value = selectedColor;
+      ci.addEventListener('input', () => {
+        selectedColor = ci.value;
+        document.getElementById('colorPreviewDot').style.background = selectedColor;
+        document.getElementById('colorPreviewHex').textContent = selectedColor.toUpperCase();
+        document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('selected'));
+        draw();
+      });
+
+      // Init preview
+      document.getElementById('colorPreviewDot').style.background = selectedColor;
+      document.getElementById('colorPreviewHex').textContent = selectedColor.toUpperCase();
+    }
+
     document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
     document.getElementById('clearSelBtn').addEventListener('click', clearSelection);
     document.getElementById('placeBtn').addEventListener('click', assignAlliance);
 
-    // ── Init ──────────────────────────────────────────────────────
     buildPiecePaths();
     buildOuterPiecePaths();
     initColorPicker();
