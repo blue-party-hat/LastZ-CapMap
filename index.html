@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>LastZ 首都テリトリープランナー</title>
   <style>
-    /* [Previous CSS unchanged - keeping it exactly the same for brevity] */
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
@@ -45,7 +44,7 @@
       background:rgba(255,50,50,.2);border:1px solid rgba(255,50,50,.35);color:#ff6b6b;
       width:24px;height:24px;border-radius:4px;cursor:pointer;font-size:14px;
       display:flex;align-items:center;justify-content:center;transition:all .2s;
-      flex-shrink:0;pointer-events:auto;touch-action:manipulation;
+      flex-shrink:0;
     }
     .delete-alliance-btn:hover{background:rgba(255,50,50,.4);border-color:rgba(255,50,50,.6);transform:scale(1.06)}
     .instructions-container{
@@ -60,7 +59,6 @@
       cursor:crosshair;max-width:88vmin;max-height:88vmin;
       filter:drop-shadow(0 0 30px rgba(255,255,255,.1));touch-action:none;
     }
-    /* [Modal CSS unchanged - keeping same] */
     .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);animation:fadeIn .25s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .modal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a1a;padding:22px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.9);width:480px;max-width:92%;max-height:90vh;overflow:auto;border:1px solid rgba(255,255,255,.1)}
@@ -113,7 +111,6 @@
   </style>
 </head>
 <body>
-  <!-- [HTML structure unchanged] -->
   <div class="header">
     <h1>LastZ 首都テリトリープランナー</h1>
   </div>
@@ -137,12 +134,11 @@
     </div>
   </div>
 
-  <!-- [Modal HTML unchanged] -->
   <div id="assignModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
         <span class="modal-title">同盟を配置</span>
-        <button class="close-btn" onclick="closeModal()">&times;</button>
+        <button class="close-btn" id="modalCloseBtn">&times;</button>
       </div>
       <div class="selection-info">
         <strong id="selectionLabel">0 ピース選択中</strong>
@@ -159,8 +155,8 @@
         <div class="color-picker-wrapper" id="colorPicker"></div>
       </div>
       <div class="modal-actions">
-        <button class="modal-btn btn-clear-selection" onclick="clearSelection()">クリア</button>
-        <button class="modal-btn btn-place" onclick="assignAlliance()">配置</button>
+        <button class="modal-btn btn-clear-selection" id="clearSelBtn">クリア</button>
+        <button class="modal-btn btn-place" id="placeBtn">配置</button>
       </div>
     </div>
   </div>
@@ -180,18 +176,13 @@
     const centerX = W / 2, centerY = H / 2;
 
     // ── Hex radii ─────────────────────────────────────────────────
-    // CHANGED: Much bigger outer horizon
     const innerRadius  = 140;   // capital / inner hex
     const outerRadius  = 410;   // main hex boundary
-    const outerHex2    = 455;   // inner edge of outer hex ring
-    const outerHex3    = 470;   // 1st band boundary of outer ring
-    const outerHex4    = 495;   // canvas-edge hex ← MUCH BIGGER NOW (was 480)
+    // FIXED: Much larger outer ring that covers most of the canvas
+    const OUTER_HEX_MIN  = outerRadius + 8;
+    const OUTER_HEX_MAX  = 465;   // outer boundary - expanded to cover more canvas
+    const OUTER_BANDS    = 2;     // radial bands in outer ring
 
-    const OUTER_HEX_MIN  = outerRadius + 8;   // just outside main hex
-    const OUTER_HEX_MAX  = 495;               // outer boundary hex radius ← BIGGER (was 470)
-    const OUTER_BANDS    = 2;                 // radial bands in outer ring
-
-    // Inner grid
     const ANG_SEGMENTS   = 24;
     const RADIAL_BANDS   = 3;
     const rMin           = innerRadius + 6;
@@ -202,7 +193,7 @@
     const OUTER_ID_BASE  = 1000;
 
     // Storage
-    const piecePaths = [];
+    const piecePaths  = [];
     const outerPieces = [];
     const placed      = new Map();
 
@@ -211,15 +202,6 @@
     let selectedIds = new Set();
 
     // ── Hex helpers ───────────────────────────────────────────────
-    function hexVertices(radius, cx = centerX, cy = centerY) {
-      const pts = [];
-      for (let i = 0; i < 6; i++) {
-        const a = (Math.PI / 3) * i;
-        pts.push({ x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) });
-      }
-      return pts;
-    }
-
     function hv(i, r) {
       const a = (Math.PI / 3) * i;
       return { x: centerX + r * Math.cos(a), y: centerY + r * Math.sin(a) };
@@ -240,22 +222,10 @@
     const outerRingMinPath = buildHexPath(OUTER_HEX_MIN);
     const outerRingMaxPath = buildHexPath(OUTER_HEX_MAX);
 
-    // ── [All helper functions unchanged until draw()] ──
     function angleFromCenter(x, y) {
       let a = Math.atan2(y - centerY, x - centerX);
       if (a < 0) a += Math.PI * 2;
       return a;
-    }
-
-    function hexDist(x, y) {
-      const dx = Math.abs(x - centerX);
-      const dy = Math.abs(y - centerY);
-      const angle = Math.atan2(dy, dx);
-      const norm  = (angle % (Math.PI / 3));
-      const sectorAngle = Math.min(norm, Math.PI / 3 - norm);
-      const dist  = Math.sqrt(dx * dx + dy * dy);
-      const hexR  = dist * Math.cos(sectorAngle) / Math.cos(Math.PI / 6);
-      return hexR;
     }
 
     function buildPiecePaths() {
@@ -279,21 +249,6 @@
           };
         }
       }
-    }
-
-    function buildHexRingBandPath(rInner, rOuter) {
-      const p = new Path2D();
-      for (let i = 0; i < 6; i++) {
-        const v = hv(i, rOuter);
-        i === 0 ? p.moveTo(v.x, v.y) : p.lineTo(v.x, v.y);
-      }
-      p.closePath();
-      for (let i = 5; i >= 0; i--) {
-        const v = hv(i, rInner);
-        i === 5 ? p.moveTo(v.x, v.y) : p.lineTo(v.x, v.y);
-      }
-      p.closePath();
-      return p;
     }
 
     function hexBoundaryPoint(a, R) {
@@ -418,7 +373,7 @@
       return piecePaths[id] || null;
     }
 
-    // ── Draw (MODIFIED: Text positioning + Bigger outer) ──────────
+    // ── Draw ──────────────────────────────────────────────────────
     function draw() {
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#0a0a0a';
@@ -449,18 +404,16 @@
       ctx.lineWidth = 1;
       const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
 
-      // Spoke lines through outer ring (EXTENDED to new outer edge)
       for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
         const a  = seg * angleStep;
         const p1 = hexBoundaryPoint(a, OUTER_HEX_MIN);
-        const p2 = hexBoundaryPoint(a, OUTER_HEX_MAX); // Now reaches much further
+        const p2 = hexBoundaryPoint(a, OUTER_HEX_MAX);
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
       }
 
-      // Band boundary hexagons in outer ring (EXTENDED)
       for (let band = 0; band <= OUTER_BANDS; band++) {
         const r = OUTER_HEX_MIN + band * outerBandStep;
         ctx.beginPath();
@@ -509,7 +462,7 @@
       ctx.lineWidth = 2;
       ctx.shadowBlur = 10;
       ctx.shadowColor = 'rgba(255,255,255,0.15)';
-      ctx.stroke(outerRingMaxPath); // Now much bigger outer boundary
+      ctx.stroke(outerRingMaxPath);
       ctx.shadowBlur = 0;
 
       ctx.strokeStyle = 'rgba(255,255,255,0.28)';
@@ -548,36 +501,27 @@
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('C', centerX, centerY);
 
-      // ── Group labels (MOVED TO OUTER HEXAGON AREA) ────────────
-      // CHANGED: Position labels at 75% radius between main hex and outer boundary
-      const LABEL_RING_RADIUS = (outerRadius + OUTER_HEX_MAX) * 0.75; // Outer highlighted area
-      ctx.font = 'bold 13px sans-serif';
-      ctx.textAlign = 'center'; 
-      ctx.textBaseline = 'middle';
-      
+      // ── Group labels: rendered AT the centroid of each group's pieces ──
+      // Collect groups, their piece positions, and compute per-group centroid
       const groups = new Map();
       for (const [id, val] of placed.entries()) {
-        if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, ids: [] });
-        groups.get(val.groupId).ids.push(id);
-      }
-      
-      for (const g of groups.values()) {
-        // Average position of group pieces, projected to outer ring
-        let avgAngle = 0;
-        for (const id of g.ids) {
-          const p = getPieceById(id);
-          if (p) {
-            const dx = p.cx - centerX;
-            const dy = p.cy - centerY;
-            avgAngle += Math.atan2(dy, dx);
-          }
+        if (!groups.has(val.groupId)) {
+          groups.set(val.groupId, { name: val.name, color: val.color, sumX: 0, sumY: 0, count: 0 });
         }
-        avgAngle /= g.ids.length;
-        
-        // Position text on outer ring at average angle
-        const labelX = centerX + LABEL_RING_RADIUS * Math.cos(avgAngle);
-        const labelY = centerY + LABEL_RING_RADIUS * Math.sin(avgAngle);
-        
+        const g = groups.get(val.groupId);
+        const p = getPieceById(id);
+        if (p) { g.sumX += p.cx; g.sumY += p.cy; g.count++; }
+      }
+
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      for (const g of groups.values()) {
+        if (g.count === 0) continue;
+        const labelX = g.sumX / g.count;
+        const labelY = g.sumY / g.count;
+
         ctx.save();
         ctx.fillStyle = '#fff';
         ctx.strokeStyle = 'rgba(0,0,0,0.85)';
@@ -590,7 +534,7 @@
       updateLegend();
     }
 
-    // ── [All remaining functions unchanged] ─────────────────────
+    // ── Canvas interaction ────────────────────────────────────────
     function clientToCanvas(clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
       return {
@@ -630,19 +574,23 @@
     canvas.addEventListener('touchmove',  e => { e.preventDefault(); updateDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
     window.addEventListener('touchend',   () => endDrag());
 
+    // ── Modal ─────────────────────────────────────────────────────
     function openModal() {
       document.getElementById('assignModal').style.display = 'block';
       document.getElementById('selectionLabel').textContent = `${selectedIds.size} ピース選択中`;
       setTimeout(() => document.getElementById('allianceName').focus(), 50);
     }
+
     function closeModal() {
       document.getElementById('assignModal').style.display = 'none';
       selectedIds = new Set(); dragStartId = null; draw();
     }
+
     function clearSelection() {
       document.getElementById('allianceName').value = '';
       closeModal();
     }
+
     function assignAlliance() {
       const name = document.getElementById('allianceName').value.trim();
       if (!name) { alert('同盟名を入力してください！'); return; }
@@ -651,14 +599,17 @@
       document.getElementById('allianceName').value = '';
       closeModal(); draw();
     }
-    window.deleteAlliance = function(allianceName) {
+
+    // FIX: deleteAlliance now uses closure-safe approach via data attributes
+    function deleteAlliance(allianceName) {
       if (!confirm(`「${allianceName}」を削除しますか？`)) return;
       for (const [id, val] of placed.entries()) {
         if (val.name === allianceName) placed.delete(id);
       }
       draw();
-    };
+    }
 
+    // ── Legend ────────────────────────────────────────────────────
     function updateLegend() {
       const legendList = document.getElementById('legendList');
       legendList.innerHTML = '';
@@ -671,15 +622,33 @@
       for (const [name, color] of unique.entries()) {
         const item = document.createElement('div');
         item.className = 'legend-item';
-        const safeName = name.replace(/'/g, "\\\\'");
-        item.innerHTML = `
-          <div class="legend-color" style="background:${color}"></div>
-          <span class="legend-name">${name}</span>
-          <button class="delete-alliance-btn" type="button" onclick="window.deleteAlliance('${safeName}')">✕</button>`;
+
+        const colorBox = document.createElement('div');
+        colorBox.className = 'legend-color';
+        colorBox.style.background = color;
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'legend-name';
+        nameSpan.textContent = name;
+
+        // FIX: Use addEventListener instead of inline onclick to avoid escaping issues
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-alliance-btn';
+        delBtn.type = 'button';
+        delBtn.textContent = '✕';
+        delBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          deleteAlliance(name);
+        });
+
+        item.appendChild(colorBox);
+        item.appendChild(nameSpan);
+        item.appendChild(delBtn);
         legendList.appendChild(item);
       }
     }
 
+    // ── Color picker ──────────────────────────────────────────────
     function initColorPicker() {
       const picker = document.getElementById('colorPicker');
       picker.innerHTML = '';
@@ -697,10 +666,12 @@
       });
     }
 
-    window.closeModal     = closeModal;
-    window.clearSelection = clearSelection;
-    window.assignAlliance = assignAlliance;
+    // ── Wire up modal buttons via JS (no inline handlers) ─────────
+    document.getElementById('modalCloseBtn').addEventListener('click', closeModal);
+    document.getElementById('clearSelBtn').addEventListener('click', clearSelection);
+    document.getElementById('placeBtn').addEventListener('click', assignAlliance);
 
+    // ── Init ──────────────────────────────────────────────────────
     buildPiecePaths();
     buildOuterPiecePaths();
     initColorPicker();
