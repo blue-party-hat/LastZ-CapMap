@@ -435,50 +435,37 @@
       ctx.fillText('C', centerX, centerY);
 
       // ── Group labels ──────────────────────────────────────────
-      // Compute per-group centroid using ONLY that group's pieces,
-      // then clamp label to stay within the correct region (inner vs outer).
+      // Find the piece nearest to the group's average centroid —
+      // that piece is guaranteed to be inside the highlighted area.
       const groups = new Map();
       for (const [id, val] of placed.entries()) {
         const key = val.groupId;
-        if (!groups.has(key)) {
-          groups.set(key, { name: val.name, sumX: 0, sumY: 0, count: 0, hasOuter: false, hasInner: false });
-        }
-        const g = groups.get(key);
+        if (!groups.has(key)) groups.set(key, { name: val.name, pieces: [] });
         const p = getPieceById(id);
-        if (p) {
-          g.sumX += p.cx; g.sumY += p.cy; g.count++;
-          if (p.isOuter) g.hasOuter = true; else g.hasInner = true;
-        }
+        if (p) groups.get(key).pieces.push(p);
       }
 
       ctx.font = 'bold 13px sans-serif';
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
 
       for (const g of groups.values()) {
-        if (g.count === 0) continue;
-        let lx = g.sumX / g.count;
-        let ly = g.sumY / g.count;
+        if (g.pieces.length === 0) continue;
+        let avgX = 0, avgY = 0;
+        for (const p of g.pieces) { avgX += p.cx; avgY += p.cy; }
+        avgX /= g.pieces.length; avgY /= g.pieces.length;
 
-        // If the group spans ONLY outer pieces, push the label outward so
-        // it doesn't fall inside the inner hex area.
-        // We check if the averaged centroid is inside the outer hex boundary;
-        // if it ended up closer to center than outerRadius, push it out.
-        if (g.hasOuter && !g.hasInner) {
-          const dx = lx - centerX, dy = ly - centerY;
-          const dist = Math.hypot(dx, dy);
-          const minDist = OUTER_HEX_MIN + outerBandStep * 0.5; // midpoint of outer ring
-          if (dist < minDist) {
-            const angle = Math.atan2(dy, dx);
-            lx = centerX + minDist * Math.cos(angle);
-            ly = centerY + minDist * Math.sin(angle);
-          }
+        // Pick the piece whose centroid is closest to the average
+        let best = g.pieces[0], bestDist = Infinity;
+        for (const p of g.pieces) {
+          const d = Math.hypot(p.cx - avgX, p.cy - avgY);
+          if (d < bestDist) { bestDist = d; best = p; }
         }
 
         ctx.save();
         ctx.strokeStyle = 'rgba(0,0,0,0.9)'; ctx.lineWidth = 4;
-        ctx.strokeText(g.name, lx, ly);
+        ctx.strokeText(g.name, best.cx, best.cy);
         ctx.fillStyle = '#fff';
-        ctx.fillText(g.name, lx, ly);
+        ctx.fillText(g.name, best.cx, best.cy);
         ctx.restore();
       }
 
