@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>LastZ 首都テリトリープランナー</title>
   <style>
+    /* [Previous CSS unchanged - keeping it exactly the same for brevity] */
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
     body{
       font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Hiragino Sans','Hiragino Kaku Gothic ProN',Meiryo,sans-serif;
@@ -59,6 +60,7 @@
       cursor:crosshair;max-width:88vmin;max-height:88vmin;
       filter:drop-shadow(0 0 30px rgba(255,255,255,.1));touch-action:none;
     }
+    /* [Modal CSS unchanged - keeping same] */
     .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);animation:fadeIn .25s ease}
     @keyframes fadeIn{from{opacity:0}to{opacity:1}}
     .modal-content{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#1a1a1a;padding:22px;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.9);width:480px;max-width:92%;max-height:90vh;overflow:auto;border:1px solid rgba(255,255,255,.1)}
@@ -111,6 +113,7 @@
   </style>
 </head>
 <body>
+  <!-- [HTML structure unchanged] -->
   <div class="header">
     <h1>LastZ 首都テリトリープランナー</h1>
   </div>
@@ -134,6 +137,7 @@
     </div>
   </div>
 
+  <!-- [Modal HTML unchanged] -->
   <div id="assignModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
@@ -176,19 +180,15 @@
     const centerX = W / 2, centerY = H / 2;
 
     // ── Hex radii ─────────────────────────────────────────────────
+    // CHANGED: Much bigger outer horizon
     const innerRadius  = 140;   // capital / inner hex
     const outerRadius  = 410;   // main hex boundary
-    const outerHex2    = 455;   // inner edge of outer hex ring  (gap between rings)
+    const outerHex2    = 455;   // inner edge of outer hex ring
     const outerHex3    = 470;   // 1st band boundary of outer ring
-    const outerHex4    = 480;   // canvas-edge hex  ← pushed out to near-edge
-
-    // We'll use two "shell" hexagons outside the main hex.
-    // Shell A: outerHex2 → outerHex3  (thin separator gap already handled by gap)
-    // Shell B: outerHex3 → outerHex4
-    // Actually: outer ring has OUTER_BANDS radial bands between outerHex2 and outerHexMax
+    const outerHex4    = 495;   // canvas-edge hex ← MUCH BIGGER NOW (was 480)
 
     const OUTER_HEX_MIN  = outerRadius + 8;   // just outside main hex
-    const OUTER_HEX_MAX  = 470;               // outer boundary hex radius
+    const OUTER_HEX_MAX  = 495;               // outer boundary hex radius ← BIGGER (was 470)
     const OUTER_BANDS    = 2;                 // radial bands in outer ring
 
     // Inner grid
@@ -198,14 +198,12 @@
     const rMax           = outerRadius;
     const bandThickness  = (rMax - rMin) / RADIAL_BANDS;
 
-    // Outer ring band thickness (in hex "radius" units)
     const outerBandStep  = (OUTER_HEX_MAX - OUTER_HEX_MIN) / OUTER_BANDS;
-
     const OUTER_ID_BASE  = 1000;
 
     // Storage
-    const piecePaths = [];  // inner
-    const outerPieces = []; // outer: { id, seg, band, path, cx, cy, hexPoly[] }
+    const piecePaths = [];
+    const outerPieces = [];
     const placed      = new Map();
 
     let isDragging  = false;
@@ -213,8 +211,6 @@
     let selectedIds = new Set();
 
     // ── Hex helpers ───────────────────────────────────────────────
-    // Returns the 6 vertices of a regular hexagon at given radius.
-    // Orientation: flat-top (vertex at angle 0, 60, 120 …)
     function hexVertices(radius, cx = centerX, cy = centerY) {
       const pts = [];
       for (let i = 0; i < 6; i++) {
@@ -224,11 +220,6 @@
       return pts;
     }
 
-    function hexVertex(i, radius) {
-      const a = (Math.PI / 3) * i;
-      return { x: centerX + radius * Math.cos(a), y: centerY + radius * Math.cos(a - Math.PI/2 + Math.PI/2) };
-    }
-    // cleaner version used everywhere:
     function hv(i, r) {
       const a = (Math.PI / 3) * i;
       return { x: centerX + r * Math.cos(a), y: centerY + r * Math.sin(a) };
@@ -249,31 +240,17 @@
     const outerRingMinPath = buildHexPath(OUTER_HEX_MIN);
     const outerRingMaxPath = buildHexPath(OUTER_HEX_MAX);
 
-    // ── Point-in-hexagon test ─────────────────────────────────────
-    // Uses the canvas isPointInPath with Path2D — works for both hex zones.
-
-    // ── Angle / distance helpers ──────────────────────────────────
+    // ── [All helper functions unchanged until draw()] ──
     function angleFromCenter(x, y) {
       let a = Math.atan2(y - centerY, x - centerX);
       if (a < 0) a += Math.PI * 2;
       return a;
     }
 
-    // "Hex radius" of a point: the radius of the regular hexagon that passes
-    // through the point (i.e. how far the point is in hex-space from center).
-    // For a flat-top hex: r_hex = max(|x|, |y|*2/√3, …)
-    // Simpler: we binary-search or use the analytic formula.
-    // Analytic hex distance (flat-top, vertex at angle 0):
     function hexDist(x, y) {
       const dx = Math.abs(x - centerX);
       const dy = Math.abs(y - centerY);
-      // In a regular hex with vertex-radius R, a point (dx,dy) is on the
-      // boundary when: max(dy, dx*sin60 + dy*cos60) = R*sin60… 
-      // Simplest correct formula for vertex-up hex:
-      // d = (2/√3) * max(|q|, |r|, |s|) where q,r,s are cube coords
-      // For screen coords with vertex at angle 0 (pointy-top equiv rotated):
-      // We'll use: normalize angle to 0..60°, then compute boundary intercept.
-      const angle = Math.atan2(dy, dx); // 0..PI/2
+      const angle = Math.atan2(dy, dx);
       const norm  = (angle % (Math.PI / 3));
       const sectorAngle = Math.min(norm, Math.PI / 3 - norm);
       const dist  = Math.sqrt(dx * dx + dy * dy);
@@ -281,7 +258,6 @@
       return hexR;
     }
 
-    // ── Build inner piece paths ───────────────────────────────────
     function buildPiecePaths() {
       piecePaths.length = 0;
       const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
@@ -305,26 +281,13 @@
       }
     }
 
-    // ── Build outer hexagonal ring pieces ────────────────────────
-    // Strategy: each piece is the intersection of:
-    //   • the angular wedge (two radii from center at a1..a2)
-    //   • the hexagonal annulus between hex(r_inner) and hex(r_outer)
-    //
-    // We build this as: clip to outerRingShell, then draw the wedge.
-    // The wedge is a simple triangle/sector fan from center outward.
-    // We store the clipping hex paths per band.
-
     function buildHexRingBandPath(rInner, rOuter) {
-      // Path = outer hex MINUS inner hex (used as clip region)
-      // We build it as a compound path: outer CCW, inner CW (even-odd).
       const p = new Path2D();
-      // outer hex (CCW default)
       for (let i = 0; i < 6; i++) {
         const v = hv(i, rOuter);
         i === 0 ? p.moveTo(v.x, v.y) : p.lineTo(v.x, v.y);
       }
       p.closePath();
-      // inner hex (reverse = CW, creates hole with evenodd)
       for (let i = 5; i >= 0; i--) {
         const v = hv(i, rInner);
         i === 5 ? p.moveTo(v.x, v.y) : p.lineTo(v.x, v.y);
@@ -333,40 +296,25 @@
       return p;
     }
 
-    // For each outer piece we need to know its polygon for hit-testing and fill.
-    // Build the polygon vertices of one hex-ring wedge piece.
+    function hexBoundaryPoint(a, R) {
+      let sector = Math.floor(a / (Math.PI / 3));
+      const aRel = a - sector * (Math.PI / 3);
+      const scale = Math.cos(Math.PI / 6) / Math.cos(aRel - Math.PI / 6);
+      const dist  = R * scale;
+      return { x: centerX + dist * Math.cos(a), y: centerY + dist * Math.sin(a) };
+    }
+
     function buildOuterWedgePolygon(seg, rInner, rOuter) {
       const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
       const a1 = seg * angleStep, a2 = (seg + 1) * angleStep;
-
-      // We sample the hex boundary at many angles in [a1, a2] for inner & outer.
       const STEPS = 12;
       const outerPts = [], innerPts = [];
-
       for (let i = 0; i <= STEPS; i++) {
         const a = a1 + (a2 - a1) * (i / STEPS);
         outerPts.push(hexBoundaryPoint(a, rOuter));
         innerPts.push(hexBoundaryPoint(a, rInner));
       }
-
-      // Polygon: outer arc (a1→a2) then inner arc (a2→a1)
-      const poly = [...outerPts, ...[...innerPts].reverse()];
-      return poly;
-    }
-
-    // Returns the point on a regular hex boundary (vertex at angle 0) at
-    // a given direction angle `a` and hex radius `R`.
-    function hexBoundaryPoint(a, R) {
-      // Normalize angle to 0..PI/3 sector, find scale factor
-      let sector = Math.floor(a / (Math.PI / 3));
-      const aRel = a - sector * (Math.PI / 3); // 0..PI/3
-      // At aRel=0: vertex (distance R from center)
-      // At aRel=PI/6: midpoint of edge (distance R*cos(PI/6) = R*√3/2)
-      // General: scale = cos(PI/6) / cos(aRel - PI/6)
-      //   (intercept theorem on the hex edge)
-      const scale = Math.cos(Math.PI / 6) / Math.cos(aRel - Math.PI / 6);
-      const dist  = R * scale;
-      return { x: centerX + dist * Math.cos(a), y: centerY + dist * Math.sin(a) };
+      return [...outerPts, ...[...innerPts].reverse()];
     }
 
     function polyToPath2D(poly) {
@@ -389,19 +337,16 @@
         for (let band = 0; band < OUTER_BANDS; band++) {
           const r1 = OUTER_HEX_MIN + band * outerBandStep;
           const r2 = OUTER_HEX_MIN + (band + 1) * outerBandStep;
-
           const poly = buildOuterWedgePolygon(seg, r1, r2);
           const path = polyToPath2D(poly);
           const c    = polyCentroid(poly);
           const localId = seg * OUTER_BANDS + band;
           const id      = OUTER_ID_BASE + localId;
-
           outerPieces[localId] = { id, seg, band, path, poly, cx: c.x, cy: c.y, isOuter: true };
         }
       }
     }
 
-    // ── Point-in-polygon (for outer pieces) ──────────────────────
     function pointInPoly(px, py, poly) {
       let inside = false;
       for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
@@ -415,12 +360,10 @@
       return inside;
     }
 
-    // ── Hit-test ─────────────────────────────────────────────────
     function pointToPieceId(x, y) {
       const inOuter = ctx.isPointInPath(outerHexPath, x, y);
       const inInner = ctx.isPointInPath(innerHexPath, x, y);
 
-      // Inner hex grid
       if (inOuter && !inInner) {
         const r = Math.sqrt((x - centerX) ** 2 + (y - centerY) ** 2);
         if (r >= rMin && r <= rMax) {
@@ -432,30 +375,24 @@
         }
       }
 
-      // Outer hex ring
       if (!inOuter) {
         const inOuterMax = ctx.isPointInPath(outerRingMaxPath, x, y);
         if (inOuterMax) {
-          // Find which outer piece contains this point
           for (const p of outerPieces) {
             if (p && pointInPoly(x, y, p.poly)) return p.id;
           }
         }
       }
-
       return null;
     }
 
-    // ── Drag range selection ──────────────────────────────────────
     function getSelectedIdsBetween(startId, endId) {
       const startOuter = startId >= OUTER_ID_BASE;
       const endOuter   = endId   >= OUTER_ID_BASE;
       if (startOuter !== endOuter) return new Set([startId]);
-
       const result = new Set();
       const BANDS  = startOuter ? OUTER_BANDS : RADIAL_BANDS;
       const BASE   = startOuter ? OUTER_ID_BASE : 0;
-
       const sLocal = startId - BASE, eLocal = endId - BASE;
       const startSeg  = Math.floor(sLocal / BANDS), startBand = sLocal % BANDS;
       const endSeg    = Math.floor(eLocal / BANDS), endBand   = eLocal % BANDS;
@@ -465,7 +402,6 @@
       const backward  = (startSeg - endSeg + ANG_SEGMENTS) % ANG_SEGMENTS;
       const dir       = forward <= backward ? 1 : -1;
       const steps     = Math.min(forward, backward);
-
       let seg = startSeg;
       for (let i = 0; i <= steps; i++) {
         for (let b = minBand; b <= maxBand; b++) {
@@ -477,20 +413,18 @@
       return result;
     }
 
-    // ── Lookup piece by id ────────────────────────────────────────
     function getPieceById(id) {
       if (id >= OUTER_ID_BASE) return outerPieces[id - OUTER_ID_BASE] || null;
       return piecePaths[id] || null;
     }
 
-    // ── Draw ─────────────────────────────────────────────────────
+    // ── Draw (MODIFIED: Text positioning + Bigger outer) ──────────
     function draw() {
       ctx.clearRect(0, 0, W, H);
       ctx.fillStyle = '#0a0a0a';
       ctx.fillRect(0, 0, W, H);
 
       // ── Outer hex ring background ─────────────────────────────
-      // Fill the band between outerRingMaxPath and outerHexPath
       ctx.save();
       ctx.fillStyle = '#111118';
       for (const p of outerPieces) {
@@ -510,23 +444,23 @@
         }
       }
 
-      // Outer grid lines — draw edges between adjacent outer pieces
+      // Outer grid lines
       ctx.strokeStyle = 'rgba(255,255,255,0.12)';
       ctx.lineWidth = 1;
       const angleStep = (Math.PI * 2) / ANG_SEGMENTS;
 
-      // Spoke lines (angular divisions) through outer ring
+      // Spoke lines through outer ring (EXTENDED to new outer edge)
       for (let seg = 0; seg < ANG_SEGMENTS; seg++) {
         const a  = seg * angleStep;
         const p1 = hexBoundaryPoint(a, OUTER_HEX_MIN);
-        const p2 = hexBoundaryPoint(a, OUTER_HEX_MAX);
+        const p2 = hexBoundaryPoint(a, OUTER_HEX_MAX); // Now reaches much further
         ctx.beginPath();
         ctx.moveTo(p1.x, p1.y);
         ctx.lineTo(p2.x, p2.y);
         ctx.stroke();
       }
 
-      // Band boundary hexagons in the outer ring
+      // Band boundary hexagons in outer ring (EXTENDED)
       for (let band = 0; band <= OUTER_BANDS; band++) {
         const r = OUTER_HEX_MIN + band * outerBandStep;
         ctx.beginPath();
@@ -537,13 +471,11 @@
         ctx.closePath();
         ctx.stroke();
       }
-
       ctx.restore();
 
       // ── Inner hex grid ────────────────────────────────────────
       ctx.save();
       ctx.clip(outerHexPath);
-
       ctx.fillStyle = '#141414';
       ctx.fillRect(0, 0, W, H);
 
@@ -573,15 +505,13 @@
       ctx.restore();
 
       // ── Hex outlines ──────────────────────────────────────────
-      // Outer ring max boundary
       ctx.strokeStyle = 'rgba(255,255,255,0.22)';
       ctx.lineWidth = 2;
       ctx.shadowBlur = 10;
       ctx.shadowColor = 'rgba(255,255,255,0.15)';
-      ctx.stroke(outerRingMaxPath);
+      ctx.stroke(outerRingMaxPath); // Now much bigger outer boundary
       ctx.shadowBlur = 0;
 
-      // Main hex outline
       ctx.strokeStyle = 'rgba(255,255,255,0.28)';
       ctx.lineWidth = 2;
       ctx.shadowBlur = 14;
@@ -618,34 +548,49 @@
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText('C', centerX, centerY);
 
-      // ── Group labels ──────────────────────────────────────────
+      // ── Group labels (MOVED TO OUTER HEXAGON AREA) ────────────
+      // CHANGED: Position labels at 75% radius between main hex and outer boundary
+      const LABEL_RING_RADIUS = (outerRadius + OUTER_HEX_MAX) * 0.75; // Outer highlighted area
+      ctx.font = 'bold 13px sans-serif';
+      ctx.textAlign = 'center'; 
+      ctx.textBaseline = 'middle';
+      
       const groups = new Map();
       for (const [id, val] of placed.entries()) {
         if (!groups.has(val.groupId)) groups.set(val.groupId, { name: val.name, ids: [] });
         groups.get(val.groupId).ids.push(id);
       }
-      ctx.font = 'bold 13px sans-serif';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      
       for (const g of groups.values()) {
-        let sx = 0, sy = 0;
+        // Average position of group pieces, projected to outer ring
+        let avgAngle = 0;
         for (const id of g.ids) {
           const p = getPieceById(id);
-          if (p) { sx += p.cx; sy += p.cy; }
+          if (p) {
+            const dx = p.cx - centerX;
+            const dy = p.cy - centerY;
+            avgAngle += Math.atan2(dy, dx);
+          }
         }
-        const cx = sx / g.ids.length, cy = sy / g.ids.length;
+        avgAngle /= g.ids.length;
+        
+        // Position text on outer ring at average angle
+        const labelX = centerX + LABEL_RING_RADIUS * Math.cos(avgAngle);
+        const labelY = centerY + LABEL_RING_RADIUS * Math.sin(avgAngle);
+        
         ctx.save();
         ctx.fillStyle = '#fff';
         ctx.strokeStyle = 'rgba(0,0,0,0.85)';
         ctx.lineWidth = 4;
-        ctx.strokeText(g.name, cx, cy);
-        ctx.fillText(g.name, cx, cy);
+        ctx.strokeText(g.name, labelX, labelY);
+        ctx.fillText(g.name, labelX, labelY);
         ctx.restore();
       }
 
       updateLegend();
     }
 
-    // ── Canvas coordinate ─────────────────────────────────────────
+    // ── [All remaining functions unchanged] ─────────────────────
     function clientToCanvas(clientX, clientY) {
       const rect = canvas.getBoundingClientRect();
       return {
@@ -654,7 +599,6 @@
       };
     }
 
-    // ── Pointer handlers ──────────────────────────────────────────
     function startDrag(clientX, clientY) {
       const p  = clientToCanvas(clientX, clientY);
       const id = pointToPieceId(p.x, p.y);
@@ -686,7 +630,6 @@
     canvas.addEventListener('touchmove',  e => { e.preventDefault(); updateDrag(e.touches[0].clientX, e.touches[0].clientY); }, { passive: false });
     window.addEventListener('touchend',   () => endDrag());
 
-    // ── Modal ─────────────────────────────────────────────────────
     function openModal() {
       document.getElementById('assignModal').style.display = 'block';
       document.getElementById('selectionLabel').textContent = `${selectedIds.size} ピース選択中`;
@@ -716,7 +659,6 @@
       draw();
     };
 
-    // ── Legend ────────────────────────────────────────────────────
     function updateLegend() {
       const legendList = document.getElementById('legendList');
       legendList.innerHTML = '';
@@ -729,7 +671,7 @@
       for (const [name, color] of unique.entries()) {
         const item = document.createElement('div');
         item.className = 'legend-item';
-        const safeName = name.replace(/'/g, "\\'");
+        const safeName = name.replace(/'/g, "\\\\'");
         item.innerHTML = `
           <div class="legend-color" style="background:${color}"></div>
           <span class="legend-name">${name}</span>
@@ -738,7 +680,6 @@
       }
     }
 
-    // ── Color picker ──────────────────────────────────────────────
     function initColorPicker() {
       const picker = document.getElementById('colorPicker');
       picker.innerHTML = '';
